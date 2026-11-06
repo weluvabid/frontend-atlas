@@ -92,19 +92,24 @@
       });
       pendingSnapshot = decodeProgressQr(payload, questionIds);
     } catch (error) {
-      // Image decoders can throw different Error subclasses depending on the
-      // browser and the failure stage. Every failed import needs user feedback;
-      // unexpected failures are also logged with their original error.
-      if (error instanceof DOMException && ['EncodingError', 'InvalidStateError', 'NotSupportedError', 'OperationError', 'SecurityError'].includes(error.name)) {
-        notify('error', 'This image format could not be read', { description: 'Try a PNG or JPEG image.' });
-      } else if (error instanceof TypeError || error instanceof RangeError || error instanceof SyntaxError) {
-        notify('error', 'QR image rejected', { description: error.message });
-      } else if (error instanceof Error && /QR|barcode|finder|pattern|decode|payload|manifest|checksum|integrity/iu.test(error.message)) {
-        notify('error', 'No valid Frontend Atlas progress QR code was found.', { description: error.message });
+      // Keep decoder details in developer tools; decoder-specific messages (for
+      // example, "finder") are implementation details and must never reach users.
+      console.warn('Progress QR image import was rejected:', error);
+
+      if (error instanceof RangeError && error.message === 'Image dimensions exceed the 16-megapixel limit.') {
+        notify('error', 'Image is too large', {
+          description: 'Choose an image smaller than 16 megapixels.',
+        });
+      } else if (
+        error instanceof DOMException &&
+        ['EncodingError', 'InvalidStateError', 'NotSupportedError', 'OperationError', 'SecurityError'].includes(error.name)
+      ) {
+        notify('error', 'This image could not be read', {
+          description: 'Try a PNG or JPEG image exported from Frontend Atlas.',
+        });
       } else {
-        console.error('Unexpected error while importing a progress QR image:', error);
-        notify('error', 'Could not import progress QR image', {
-          description: error instanceof Error ? error.message : 'An unexpected error occurred while reading this image.',
+        notify('error', 'No valid Frontend Atlas progress QR code was found.', {
+          description: 'Choose an image containing a progress QR code exported from Frontend Atlas.',
         });
       }
     } finally {
