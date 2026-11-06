@@ -5,6 +5,7 @@ import ProgressOverview from '@components/progress/ProgressOverview.svelte';
 import ProgressCardIndicators from '@components/progress/ProgressCardIndicators.svelte';
 import AtlasToaster from '@components/site/AtlasToaster.svelte';
 import { getCollection } from 'astro:content';
+import { ClientRouter } from 'astro:transitions';
 import { assertValidQuestionGraph } from '@lib/content';
 import { QUESTION_MANIFEST, MAX_QUESTION_COUNT } from '@data/question-manifest';
 import { createThemeScript } from '@weluvabid/iris/theme';
@@ -48,14 +49,15 @@ if (
     <meta property="og:description" content={description} />
     <title>{title}</title>
     <script is:inline set:html={themeBootstrap} />
+    <ClientRouter />
   </head>
   <body>
     <div class="mx-auto flex min-h-svh w-full max-w-6xl flex-col px-4 sm:px-6">
-      <AtlasHeader client:load />
+      <AtlasHeader client:load transition:persist />
       <div class="sticky top-[5.25rem] z-40 -mb-2">
         <ProgressOverview client:load knownIds={knownIds} questionManifest={[...QUESTION_MANIFEST]} />
       </div>
-      <main class="min-h-0 flex-1 py-12 sm:py-16">
+      <main class="atlas-page-enter min-h-0 flex-1 py-12 sm:py-16">
         <slot />
       </main>
       <AtlasFooter />
