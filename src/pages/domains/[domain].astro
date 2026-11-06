@@ -1,9 +1,10 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '@layouts/BaseLayout.astro';
+import { Card, Badge, Breadcrumb } from '@weluvabid/iris/components';
 import { domainById, domains } from '@data/domains';
 import { assertValidQuestionGraph } from '@lib/content';
-import { questionHref } from '@lib/atlas';
+import { orderDomainQuestions, questionHref } from '@lib/atlas';
 
 export async function getStaticPaths() {
   const entries = await getCollection('questions');
@@ -16,30 +17,61 @@ export async function getStaticPaths() {
 
 const { domain, questions } = Astro.props;
 if (!domainById.has(domain.id)) throw new Error(`Unknown domain route: ${domain.id}`);
-const difficultyOrder = { foundation: 0, intermediate: 1, advanced: 2 } as const;
-const ordered = [...questions].sort((left, right) => difficultyOrder[left.difficulty] - difficultyOrder[right.difficulty] || left.title.localeCompare(right.title)).map((question) => {
+const ordered = orderDomainQuestions(questions).map((question) => {
   return { ...question, url: questionHref(question.id) };
 });
 ---
 
 <BaseLayout title={`${domain.name} — Frontend Atlas`} description={domain.description}>
-  <nav class="mb-8 text-sm text-muted-foreground" aria-label="Breadcrumb"><a href="/domains/" class="hover:text-foreground">Domains</a><span class="mx-2" aria-hidden="true">/</span><span aria-current="page">{domain.name}</span></nav>
+  <Breadcrumb.Root class="mb-8">
+    <Breadcrumb.List>
+      <Breadcrumb.Item><Breadcrumb.Link href="/domains/">Domains</Breadcrumb.Link></Breadcrumb.Item>
+      <Breadcrumb.Separator />
+      <Breadcrumb.Item><Breadcrumb.Page>{domain.name}</Breadcrumb.Page></Breadcrumb.Item>
+    </Breadcrumb.List>
+  </Breadcrumb.Root>
   <header class="mb-10 max-w-3xl">
     <p class="eyebrow">{questions.length} curated questions</p>
     <h1 class="mt-3 text-4xl font-semibold tracking-tight">{domain.name}</h1>
     <p class="mt-4 text-base leading-8 text-muted-foreground">{domain.description}</p>
   </header>
-  <ol class="space-y-3">
-    {ordered.map((question, index) => (
-      <li>
-        <a class="atlas-card group flex flex-col gap-4 rounded-2xl border border-border bg-card p-5 no-underline transition-colors hover:border-ring sm:flex-row sm:items-start sm:justify-between" href={question.url}>
-          <div class="flex gap-4">
-            <span class="pt-1 text-xs tabular-nums text-muted-foreground">{String(index + 1).padStart(2, '0')}</span>
-            <div><h2 class="font-semibold tracking-tight group-hover:text-primary">{question.title}</h2><p class="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">{question.summary}</p></div>
-          </div>
-          <span class="shrink-0 text-xs capitalize text-muted-foreground">{question.difficulty} · {question.minutes} min</span>
-        </a>
-      </li>
-    ))}
+  <ol
+    class="space-y-3"
+    data-keyboard-navigation="primary"
+    aria-label={`Numbered questions in ${domain.name}`}
+  >
+    {
+      ordered.map((question, index) => (
+        <li>
+          <a
+            href={question.url}
+            data-card-navigation
+            class="block rounded-2xl no-underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+          >
+            <Card.Root
+              size="sm"
+              class="rounded-2xl border border-border transition-colors hover:ring-ring/50"
+            >
+              <Card.Content class="flex flex-col gap-3 p-4 sm:flex-row sm:items-start sm:justify-between">
+                <div class="flex min-w-0 gap-4">
+                  <span class="pt-1 text-xs tabular-nums text-muted-foreground">
+                    {String(index + 1).padStart(2, '0')}
+                  </span>
+                  <div class="min-w-0">
+                    <h2 class="font-semibold tracking-tight">{question.title}</h2>
+                    <p class="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+                      {question.summary}
+                    </p>
+                  </div>
+                </div>
+                <Badge.Badge variant="outline" class="shrink-0 capitalize">
+                  {question.difficulty} · {question.minutes} min
+                </Badge.Badge>
+              </Card.Content>
+            </Card.Root>
+          </a>
+        </li>
+      ))
+    }
   </ol>
 </BaseLayout>

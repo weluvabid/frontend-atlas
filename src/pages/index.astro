@@ -1,8 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '@layouts/BaseLayout.astro';
-import SearchPanel from '@components/search/SearchPanel.svelte';
-import ProgressOverview from '@components/progress/ProgressOverview.svelte';
+import { Card, Badge, Button } from '@weluvabid/iris/components';
 import { domains, featuredQuestionIds } from '@data/domains';
 import { assertValidQuestionGraph } from '@lib/content';
 import { questionHref } from '@lib/atlas';
@@ -12,80 +11,110 @@ const questions = assertValidQuestionGraph(entries);
 const questionById = new Map(questions.map((question) => [question.id, question]));
 const featured = featuredQuestionIds.map((id) => {
   const question = questionById.get(id);
-  if (!question || !question.featured) throw new Error(`Featured question ${id} is missing or not marked featured`);
+  if (!question || !question.featured)
+    throw new Error(`Featured question ${id} is missing or not marked featured`);
   return question;
 });
-const knownIds = questions.map((question) => question.id);
 ---
 
 <BaseLayout>
-  <section class="mx-auto max-w-4xl py-10 text-center sm:py-16">
-    <p class="eyebrow">The frontend engineering handbook</p>
-    <h1 class="mt-5 text-balance text-4xl font-semibold tracking-tight sm:text-6xl">
-      Understand the platform.<br class="hidden sm:block" />
-      <span class="text-muted-foreground">Build with intention.</span>
+  <section class="mx-auto max-w-3xl py-10 sm:py-14">
+    <h1 class="text-balance text-3xl font-semibold tracking-tight sm:text-5xl">
+      Frontend engineering, explained.
     </h1>
-    <p class="mx-auto mt-6 max-w-2xl text-pretty text-base leading-8 text-muted-foreground sm:text-lg">
+    <p class="mt-5 max-w-2xl text-pretty text-base leading-8 text-muted-foreground sm:text-lg">
       A curated field guide to the ideas, browser mechanics, and engineering decisions behind modern
       frontend development. Built for understanding, not memorising answers.
     </p>
-    <div class="mt-9 flex flex-wrap justify-center gap-3">
-      <a class="inline-flex min-h-12 items-center justify-center rounded-full bg-primary px-6 text-sm font-semibold text-primary-foreground no-underline transition-opacity hover:opacity-85" href="/domains/">
-        Explore all domains <span class="ml-2" aria-hidden="true">→</span>
-      </a>
-      <a class="inline-flex min-h-12 items-center justify-center rounded-full border border-border px-6 text-sm font-semibold text-foreground no-underline transition-colors hover:bg-muted" href="/search/">Search questions</a>
-    </div>
-  </section>
-
-  <section class="mx-auto max-w-5xl space-y-4" aria-label="Learning progress">
-    <ProgressOverview client:load knownIds={knownIds} />
-  </section>
-
-  <section class="mx-auto mt-12 max-w-5xl" aria-label="Search the handbook">
-    <SearchPanel client:idle />
   </section>
 
   <section id="domains" class="mx-auto max-w-5xl scroll-mt-8 py-14 sm:py-16">
     <div class="mb-8 flex flex-col gap-2 sm:mb-10">
       <p class="eyebrow">The map</p>
-      <h2 class="text-2xl font-semibold tracking-tight sm:text-3xl">Eight areas of frontend craft</h2>
-      <p class="max-w-2xl text-sm leading-7 text-muted-foreground">Forty questions connect foundational concepts to practical engineering decisions.</p>
+      <h2 class="text-2xl font-semibold tracking-tight sm:text-3xl">
+        Eight areas of frontend craft
+      </h2>
+      <p class="max-w-2xl text-sm leading-7 text-muted-foreground">
+        Forty questions connect foundational concepts to practical engineering decisions.
+      </p>
     </div>
-    <div class="grid gap-3 sm:grid-cols-2">
-      {domains.map((domain, index) => {
-        const count = questions.filter((question) => question.domain === domain.id).length;
-        return (
-          <a class="atlas-card group rounded-2xl border border-border bg-card p-5 no-underline transition-colors hover:border-ring sm:p-6" href={`/domains/${domain.id}/`}>
-            <div class="mb-5 flex items-center justify-between">
-              <span class="text-xs font-medium tabular-nums text-muted-foreground">{String(index + 1).padStart(2, '0')}</span>
-              <span class="rounded-full border border-border px-2.5 py-1 text-[11px] text-muted-foreground">{count} questions</span>
-            </div>
-            <h3 class="text-lg font-semibold tracking-tight group-hover:text-primary">{domain.name}</h3>
-            <p class="mt-2 text-sm leading-6 text-muted-foreground">{domain.description}</p>
-          </a>
-        );
-      })}
+    <div
+      class="grid gap-3 sm:grid-cols-2"
+      data-keyboard-navigation="primary"
+      role="group"
+      aria-label="Numbered domain cards"
+    >
+      {
+        domains.map((domain, index) => {
+          const count = questions.filter((question) => question.domain === domain.id).length;
+          return (
+            <a
+              href={`/domains/${domain.id}/`}
+              data-card-navigation
+              class="block rounded-2xl no-underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+            >
+              <Card.Root class="rounded-2xl border border-border transition-colors hover:ring-ring/50 [--card-spacing:--spacing(5)]">
+                <Card.Header>
+                  <div class="mb-3 flex items-center justify-between">
+                    <span class="text-xs font-medium tabular-nums text-muted-foreground">
+                      {String(index + 1).padStart(2, '0')}
+                    </span>
+                    <Badge.Badge variant="outline">{count} questions</Badge.Badge>
+                  </div>
+                  <Card.Title>{domain.name}</Card.Title>
+                  <Card.Description>{domain.description}</Card.Description>
+                </Card.Header>
+              </Card.Root>
+            </a>
+          );
+        })
+      }
     </div>
   </section>
 
   <section class="mx-auto mt-4 max-w-5xl pb-8">
     <div class="mb-8 flex items-end justify-between gap-4">
-      <div><p class="eyebrow">A good place to start</p><h2 class="mt-2 text-2xl font-semibold tracking-tight">Featured questions</h2></div>
-      <a class="text-sm text-primary underline-offset-4 hover:underline" href="/domains/">All questions →</a>
+      <div>
+        <p class="eyebrow">A good place to start</p><h2
+          class="mt-2 text-2xl font-semibold tracking-tight"
+        >
+          Featured questions
+        </h2>
+      </div>
+      <Button.Root variant="link" href="/domains/">All questions</Button.Root>
     </div>
     <div class="grid gap-3 sm:grid-cols-2">
-      {featured.map((question) => (
-          <a class="atlas-card rounded-2xl border border-border bg-card p-5 no-underline transition-colors hover:border-ring" href={questionHref(question.id)}>
-            <h3 class="font-semibold tracking-tight">{question.title}</h3>
-            <p class="mt-2 text-sm leading-6 text-muted-foreground">{question.summary}</p>
+      {
+        featured.map((question) => (
+          <a
+            href={questionHref(question.id)}
+            class="block rounded-2xl no-underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+          >
+            <Card.Root class="rounded-2xl border border-border transition-colors hover:ring-ring/50 [--card-spacing:--spacing(5)]">
+              <Card.Header>
+                <Card.Title>{question.title}</Card.Title>
+                <Card.Description>{question.summary}</Card.Description>
+              </Card.Header>
+            </Card.Root>
           </a>
-      ))}
+        ))
+      }
     </div>
   </section>
 
-  <section class="mx-auto mt-10 max-w-5xl rounded-3xl border border-border bg-muted/40 p-6 sm:mt-16 sm:p-10">
-    <p class="eyebrow">Editorial principle</p>
-    <h2 class="mt-3 max-w-2xl text-2xl font-semibold tracking-tight sm:text-3xl">Fewer questions. Better explanations.</h2>
-    <p class="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground">Every entry should explain why something works, where it breaks, and how the underlying idea applies in real software. The handbook is open source; content quality is reviewed through pull requests.</p>
+  <section class="mx-auto mt-10 max-w-5xl sm:mt-16">
+    <Card.Root size="sm" class="rounded-2xl border border-border bg-muted/40 sm:p-4">
+      <Card.Header>
+        <p class="eyebrow">Editorial principle</p>
+        <Card.Title class="mt-2 max-w-2xl text-2xl sm:text-3xl"
+          >Fewer questions. Better explanations.</Card.Title
+        >
+        <Card.Description class="mt-2 max-w-2xl leading-7"
+          >Every entry should explain why something works, where it breaks, and how the underlying
+          idea applies in real software. The handbook is open source; content quality is reviewed
+          through pull requests.</Card.Description
+        >
+      </Card.Header>
+    </Card.Root>
   </section>
 </BaseLayout>

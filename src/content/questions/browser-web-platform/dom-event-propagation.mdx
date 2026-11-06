@@ -1,11 +1,11 @@
 ---
-id: "dom-event-propagation"
-title: "How does DOM event propagation work?"
-domain: "browser-web-platform"
-summary: "Explain capture, target, bubble, composed paths, and delegation—including where propagation can be stopped."
-difficulty: "foundation"
+id: 'dom-event-propagation'
+title: 'How does DOM event propagation work?'
+domain: 'browser-web-platform'
+summary: 'Explain capture, target, bubble, composed paths, and delegation—including where propagation can be stopped.'
+difficulty: 'foundation'
 minutes: 9
-tags: ["dom", "events", "event-delegation"]
+tags: ['dom', 'events', 'event-delegation']
 prerequisites: []
 related: []
 featured: false
@@ -22,8 +22,8 @@ An event travels through a propagation path: capture ancestors, reach the target
 ## A concrete example
 
 ```js
-list.addEventListener("click", (event) => {
-  const button = event.target.closest("button[data-action]");
+list.addEventListener('click', (event) => {
+  const button = event.target.closest('button[data-action]');
   if (!button || !list.contains(button)) return;
   handleAction(button.dataset.action);
 });

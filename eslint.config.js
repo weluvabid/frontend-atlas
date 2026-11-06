@@ -16,7 +16,14 @@ const paddingLineBetweenStatements = [
 
 export default tseslint.config(
   {
-    ignores: ['**/node_modules/**', '**/coverage/**', '**/dist/**', '**/build/**', '**/target/**'],
+    ignores: [
+      '**/node_modules/**',
+      '**/coverage/**',
+      '**/dist/**',
+      '**/build/**',
+      '**/target/**',
+      '**/.astro/**',
+    ],
   },
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
@@ -49,6 +56,7 @@ export default tseslint.config(
       'no-unreachable': 'error',
       'no-var': 'error',
       'object-shorthand': ['error', 'always'],
+      // @ts-expect-error - mixed array tuple inference limitation in ESLint flat config
       'padding-line-between-statements': paddingLineBetweenStatements,
       'prefer-const': 'error',
       'prefer-template': 'error',

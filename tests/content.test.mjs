@@ -17,15 +17,17 @@ const requiredSections = [
 
 async function findMdxFiles(directory) {
   const entries = await readdir(directory, { withFileTypes: true });
-  const nested = await Promise.all(entries.map(async (entry) => {
-    const path = join(directory, entry.name);
+  const nested = await Promise.all(
+    entries.map(async (entry) => {
+      const path = join(directory, entry.name);
 
-    if (entry.isDirectory()) {
-      return findMdxFiles(path);
-    }
+      if (entry.isDirectory()) {
+        return findMdxFiles(path);
+      }
 
-    return entry.isFile() && entry.name.endsWith('.mdx') ? [path] : [];
-  }));
+      return entry.isFile() && entry.name.endsWith('.mdx') ? [path] : [];
+    }),
+  );
 
   return nested.flat();
 }
@@ -39,9 +41,11 @@ async function readQuestion(path) {
 
   for (const line of sections[1].trim().split('\n')) {
     const separator = line.indexOf(': ');
+
     assert.notEqual(separator, -1, `Invalid frontmatter line in ${path}: ${line}`);
     const key = line.slice(0, separator);
     const value = line.slice(separator + 2);
+
     metadata[key] = JSON.parse(value);
   }
 
@@ -66,22 +70,46 @@ test('the initial collection contains 40 questions across eight balanced domains
 
 test('every question has valid metadata and the complete editorial structure', () => {
   const ids = questions.map(({ metadata }) => metadata.id);
+
   assert.equal(new Set(ids).size, questions.length);
 
   for (const { metadata, body, path } of questions) {
     assert.match(metadata.id, /^[a-z0-9]+(?:-[a-z0-9]+)*$/u, `${path}: invalid id`);
-    assert.ok(metadata.title.length >= 12 && metadata.title.length <= 120, `${path}: invalid title`);
-    assert.ok(metadata.summary.length >= 40 && metadata.summary.length <= 240, `${path}: invalid summary`);
-    assert.ok(['foundation', 'intermediate', 'advanced'].includes(metadata.difficulty), `${path}: invalid difficulty`);
-    assert.ok(Number.isSafeInteger(metadata.minutes) && metadata.minutes >= 3 && metadata.minutes <= 45, `${path}: invalid reading time`);
-    assert.ok(Array.isArray(metadata.tags) && metadata.tags.length >= 1 && metadata.tags.length <= 8, `${path}: invalid tags`);
-    assert.equal(relative(contentRoot, path).split(/[\\/]/u)[0], metadata.domain, `${path}: domain/path mismatch`);
+    assert.ok(
+      metadata.title.length >= 12 && metadata.title.length <= 120,
+      `${path}: invalid title`,
+    );
+    assert.ok(
+      metadata.summary.length >= 40 && metadata.summary.length <= 240,
+      `${path}: invalid summary`,
+    );
+    assert.ok(
+      ['foundation', 'intermediate', 'advanced'].includes(metadata.difficulty),
+      `${path}: invalid difficulty`,
+    );
+    assert.ok(
+      Number.isSafeInteger(metadata.minutes) && metadata.minutes >= 3 && metadata.minutes <= 45,
+      `${path}: invalid reading time`,
+    );
+    assert.ok(
+      Array.isArray(metadata.tags) && metadata.tags.length >= 1 && metadata.tags.length <= 8,
+      `${path}: invalid tags`,
+    );
+    assert.equal(
+      relative(contentRoot, path).split(/[\\/]/u)[0],
+      metadata.domain,
+      `${path}: domain/path mismatch`,
+    );
 
     for (const section of requiredSections) {
       assert.ok(body.includes(section), `${path}: missing ${section}`);
     }
 
-    assert.match(body, /\[[^\]]+\]\(https:\/\//u, `${path}: missing authoritative further reading link`);
+    assert.match(
+      body,
+      /\[[^\]]+\]\(https:\/\//u,
+      `${path}: missing authoritative further reading link`,
+    );
   }
 });
 

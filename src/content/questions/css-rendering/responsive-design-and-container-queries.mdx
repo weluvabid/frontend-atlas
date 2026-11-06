@@ -1,11 +1,11 @@
 ---
-id: "responsive-design-and-container-queries"
-title: "How do you design responsive components without hard-coding every viewport?"
-domain: "css-rendering"
-summary: "Use fluid constraints, intrinsic layout, content-driven breakpoints, and container queries where appropriate."
-difficulty: "intermediate"
+id: 'responsive-design-and-container-queries'
+title: 'How do you design responsive components without hard-coding every viewport?'
+domain: 'css-rendering'
+summary: 'Use fluid constraints, intrinsic layout, content-driven breakpoints, and container queries where appropriate.'
+difficulty: 'intermediate'
 minutes: 9
-tags: ["css", "responsive", "container-queries"]
+tags: ['css', 'responsive', 'container-queries']
 prerequisites: []
 related: []
 featured: false
@@ -22,8 +22,12 @@ A viewport breakpoint answers “how wide is the screen?” A container query an
 ## A concrete example
 
 ```css
-.card-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); }
-.card-title { font-size: clamp(1.1rem, 2vw, 1.6rem); }
+.card-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+}
+.card-title {
+  font-size: clamp(1.1rem, 2vw, 1.6rem);
+}
 ```
 
 ## Boundary cases to reason through

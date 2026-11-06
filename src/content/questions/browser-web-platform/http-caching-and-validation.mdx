@@ -1,11 +1,11 @@
 ---
-id: "http-caching-and-validation"
-title: "How do browser HTTP caches decide whether a response can be reused?"
-domain: "browser-web-platform"
-summary: "Distinguish freshness, validation, cache directives, validators, and shared-cache behavior."
-difficulty: "intermediate"
+id: 'http-caching-and-validation'
+title: 'How do browser HTTP caches decide whether a response can be reused?'
+domain: 'browser-web-platform'
+summary: 'Distinguish freshness, validation, cache directives, validators, and shared-cache behavior.'
+difficulty: 'intermediate'
 minutes: 12
-tags: ["http", "caching", "network"]
+tags: ['http', 'caching', 'network']
 prerequisites: []
 related: []
 featured: false
@@ -24,6 +24,7 @@ A fresh cached response can be reused without contacting the origin. A stale res
 ```http
 Cache-Control: public, max-age=31536000, immutable
 ```
+
 Use this for content-hashed static assets, not mutable HTML.
 
 ## Boundary cases to reason through

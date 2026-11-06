@@ -1,13 +1,13 @@
 ---
-id: "state-machines-for-ui-workflows"
-title: "When should a UI workflow be modeled as a state machine?"
-domain: "frameworks-ui-architecture"
-summary: "Use explicit states and transitions when async workflows have mutually exclusive phases and guarded actions."
-difficulty: "advanced"
+id: 'state-machines-for-ui-workflows'
+title: 'When should a UI workflow be modeled as a state machine?'
+domain: 'frameworks-ui-architecture'
+summary: 'Use explicit states and transitions when async workflows have mutually exclusive phases and guarded actions.'
+difficulty: 'advanced'
 minutes: 12
-tags: ["state-machines", "async", "reliability"]
-prerequisites: ["derived-state-and-single-source-of-truth"]
-related: ["multi-step-workflow-architecture", "file-upload-resilience"]
+tags: ['state-machines', 'async', 'reliability']
+prerequisites: ['derived-state-and-single-source-of-truth']
+related: ['multi-step-workflow-architecture', 'file-upload-resilience']
 featured: false
 ---
 
@@ -23,10 +23,10 @@ Three booleans such as `isLoading`, `hasError`, and `isComplete` allow contradic
 
 ```ts
 type UploadState =
-  | { status: "idle" }
-  | { status: "uploading"; progress: number }
-  | { status: "failed"; message: string }
-  | { status: "complete"; fileId: string };
+  | { status: 'idle' }
+  | { status: 'uploading'; progress: number }
+  | { status: 'failed'; message: string }
+  | { status: 'complete'; fileId: string };
 ```
 
 ## Boundary cases to reason through

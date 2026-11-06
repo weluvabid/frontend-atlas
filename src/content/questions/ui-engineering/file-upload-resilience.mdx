@@ -1,11 +1,11 @@
 ---
-id: "file-upload-resilience"
-title: "How do you build a resilient file-upload experience?"
-domain: "ui-engineering"
-summary: "Cover validation, progress, cancellation, retries, resumability, server verification, and duplicate submission."
-difficulty: "advanced"
+id: 'file-upload-resilience'
+title: 'How do you build a resilient file-upload experience?'
+domain: 'ui-engineering'
+summary: 'Cover validation, progress, cancellation, retries, resumability, server verification, and duplicate submission.'
+difficulty: 'advanced'
 minutes: 12
-tags: ["uploads", "reliability", "forms"]
+tags: ['uploads', 'reliability', 'forms']
 prerequisites: []
 related: []
 featured: false
@@ -23,8 +23,8 @@ The browser-provided MIME type and filename are untrusted. Large uploads may nee
 
 ```js
 const form = new FormData();
-form.append("file", file, file.name);
-await fetch("/uploads", { method: "POST", body: form, signal });
+form.append('file', file, file.name);
+await fetch('/uploads', { method: 'POST', body: form, signal });
 ```
 
 ## Boundary cases to reason through

@@ -1,11 +1,11 @@
 ---
-id: "execution-context-and-call-stack"
-title: "What actually happens when JavaScript executes a function?"
-domain: "javascript-typescript"
-summary: "Trace execution from the call site through execution contexts, lexical environments, and the call stack."
-difficulty: "foundation"
+id: 'execution-context-and-call-stack'
+title: 'What actually happens when JavaScript executes a function?'
+domain: 'javascript-typescript'
+summary: 'Trace execution from the call site through execution contexts, lexical environments, and the call stack.'
+difficulty: 'foundation'
 minutes: 9
-tags: ["execution", "scope", "runtime"]
+tags: ['execution', 'scope', 'runtime']
 prerequisites: []
 related: []
 featured: true
@@ -22,14 +22,17 @@ The useful mental model is not “JavaScript runs line by line” but “each ca
 ## A concrete example
 
 ```js
-const label = "outer";
+const label = 'outer';
 function makeReader() {
-  const label = "inner";
-  return function read() { return label; };
+  const label = 'inner';
+  return function read() {
+    return label;
+  };
 }
 const read = makeReader();
 read(); // "inner"
 ```
+
 `makeReader` has returned, so its stack frame is gone. Its lexical environment remains reachable through `read`’s closure.
 
 ## Boundary cases to reason through

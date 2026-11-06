@@ -1,12 +1,12 @@
 ---
-id: "stacking-contexts-and-z-index"
-title: "Why does a large z-index sometimes fail to place an element on top?"
-domain: "css-rendering"
-summary: "Understand stacking contexts as atomic painting groups rather than a global numeric z-index scale."
-difficulty: "intermediate"
+id: 'stacking-contexts-and-z-index'
+title: 'Why does a large z-index sometimes fail to place an element on top?'
+domain: 'css-rendering'
+summary: 'Understand stacking contexts as atomic painting groups rather than a global numeric z-index scale.'
+difficulty: 'intermediate'
 minutes: 10
-tags: ["css", "stacking-context", "z-index"]
-prerequisites: ["containing-blocks-and-positioning"]
+tags: ['css', 'stacking-context', 'z-index']
+prerequisites: ['containing-blocks-and-positioning']
 related: []
 featured: true
 ---
@@ -22,8 +22,14 @@ Stacking contexts are created by conditions including positioned elements with n
 ## A concrete example
 
 ```css
-.sidebar { position: relative; z-index: 2; }
-.tooltip { position: absolute; z-index: 999999; }
+.sidebar {
+  position: relative;
+  z-index: 2;
+}
+.tooltip {
+  position: absolute;
+  z-index: 999999;
+}
 /* Still cannot outrank a sibling context above .sidebar. */
 ```
 

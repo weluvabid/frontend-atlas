@@ -1,13 +1,13 @@
 ---
-id: "event-loop-tasks-and-microtasks"
-title: "How does the event loop order tasks, microtasks, and rendering?"
-domain: "javascript-typescript"
-summary: "Reason about observable ordering without relying on slogans such as “promises always run first.”"
-difficulty: "intermediate"
+id: 'event-loop-tasks-and-microtasks'
+title: 'How does the event loop order tasks, microtasks, and rendering?'
+domain: 'javascript-typescript'
+summary: 'Reason about observable ordering without relying on slogans such as “promises always run first.”'
+difficulty: 'intermediate'
 minutes: 12
-tags: ["event-loop", "microtasks", "rendering"]
-prerequisites: ["execution-context-and-call-stack"]
-related: ["promise-composition-and-failure", "long-tasks-and-cooperative-scheduling"]
+tags: ['event-loop', 'microtasks', 'rendering']
+prerequisites: ['execution-context-and-call-stack']
+related: ['promise-composition-and-failure', 'long-tasks-and-cooperative-scheduling']
 featured: true
 ---
 
@@ -22,10 +22,10 @@ The event loop coordinates task sources, microtask checkpoints, and rendering op
 ## A concrete example
 
 ```js
-console.log("sync");
-setTimeout(() => console.log("task"), 0);
-Promise.resolve().then(() => console.log("microtask"));
-queueMicrotask(() => console.log("also microtask"));
+console.log('sync');
+setTimeout(() => console.log('task'), 0);
+Promise.resolve().then(() => console.log('microtask'));
+queueMicrotask(() => console.log('also microtask'));
 // sync, microtask, also microtask, task
 ```
 

@@ -1,8 +1,12 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { Button, Alert } from '@weluvabid/iris/components';
+  import { Check, Circle } from '@weluvabid/iris/lucide';
   import {
+    announceProgressChange,
     createProgressSnapshot,
     parseProgressSnapshot,
+    PROGRESS_CHANGE_EVENT,
     PROGRESS_STORAGE_KEY,
     readProgress,
     writeProgress,
@@ -10,19 +14,13 @@
 
   interface Props {
     questionId: string;
-    knownIds: string[];
   }
 
-  let { questionId, knownIds }: Props = $props();
+  let { questionId }: Props = $props();
   let completed = $state(false);
-  let completedCount = $state(0);
   let completedIds = $state<string[]>([]);
   let status = $state('');
   let storageAvailable = $state(true);
-  let progressInvalid = $state(false);
-  let fileInput: HTMLInputElement;
-
-  const knownIdSet = $derived(new Set(knownIds));
 
   function getStorage(): Storage | undefined {
     try {
@@ -39,13 +37,14 @@
   function persist(ids: readonly string[]): boolean {
     const snapshot = createProgressSnapshot(ids);
     completedIds = [...snapshot.completed];
-    progressInvalid = false;
     completed = snapshot.completed.includes(questionId);
-    completedCount = snapshot.completed.filter((id) => knownIdSet.has(id)).length;
 
-    if (!writeProgress(getStorage(), snapshot)) {
+    const stored = writeProgress(getStorage(), snapshot);
+    announceProgressChange(snapshot);
+
+    if (!stored) {
       storageAvailable = false;
-      status = 'Browser storage is unavailable. Progress is only in this tab; export a backup.';
+      status = 'Browser storage is unavailable. Progress is only available in this tab.';
       return false;
     }
 
@@ -62,17 +61,16 @@
 
       if (!result.ok) {
         storageAvailable = result.reason !== 'unavailable';
-        progressInvalid = result.reason === 'invalid-data';
-        status = result.reason === 'invalid-data'
-          ? 'Saved progress is invalid. Import a valid backup or mark a question to replace it.'
-          : 'Browser storage is unavailable. Progress will remain in memory for this tab.';
+        status =
+          result.reason === 'invalid-data'
+            ? 'Saved progress is invalid. Use the progress menu to import a valid backup or mark a question to replace it.'
+            : 'Browser storage is unavailable. Progress will remain in memory for this tab.';
         return;
       }
 
       storageAvailable = true;
       completedIds = [...result.snapshot.completed];
       completed = result.snapshot.completed.includes(questionId);
-      completedCount = result.snapshot.completed.filter((id) => knownIdSet.has(id)).length;
     }
 
     function handleStorageChange(event: StorageEvent): void {
@@ -83,10 +81,22 @@
       syncFromStorage();
     }
 
+    function handleProgressChange(event: Event): void {
+      if (!(event instanceof CustomEvent)) return;
+      const snapshot = parseProgressSnapshot(event.detail);
+      completedIds = [...snapshot.completed];
+      completed = snapshot.completed.includes(questionId);
+      status = 'Progress updated in this tab.';
+    }
+
     syncFromStorage();
     window.addEventListener('storage', handleStorageChange);
+    window.addEventListener(PROGRESS_CHANGE_EVENT, handleProgressChange);
 
-    return () => window.removeEventListener('storage', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener(PROGRESS_CHANGE_EVENT, handleProgressChange);
+    };
   });
 
   function toggleCompleted(): void {
@@ -100,87 +110,26 @@
 
     persist([...next]);
   }
-
-  function exportProgress(): void {
-    if (progressInvalid) {
-      status = 'Cannot export damaged saved progress. Import a valid backup or replace it first.';
-      return;
-    }
-
-    const snapshot = createProgressSnapshot(completedIds);
-    const blob = new Blob([JSON.stringify(snapshot, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement('a');
-    anchor.href = url;
-    anchor.download = 'frontend-atlas-progress.json';
-    anchor.click();
-    window.setTimeout(() => URL.revokeObjectURL(url), 0);
-    status = 'Progress export created.';
-  }
-
-  async function importProgress(event: Event): Promise<void> {
-    const input = event.currentTarget;
-
-    if (!(input instanceof HTMLInputElement) || !input.files?.[0]) {
-      return;
-    }
-
-    const file = input.files[0];
-    input.value = '';
-
-    if (file.size > 64 * 1024) {
-      status = 'Import rejected: progress file exceeds the 64 KiB limit.';
-      return;
-    }
-
-    try {
-      const parsed: unknown = JSON.parse(await file.text());
-      const snapshot = parseProgressSnapshot(parsed);
-      const unknownIds = snapshot.completed.filter((id) => !knownIdSet.has(id));
-
-      if (unknownIds.length > 0) {
-        status = `Import rejected: ${unknownIds.length} question id(s) are not in this handbook version.`;
-        return;
-      }
-
-      if (!window.confirm(`Replace this device's progress with ${snapshot.completed.length} completed question(s)?`)) {
-        status = 'Import cancelled.';
-        return;
-      }
-
-      const stored = persist(snapshot.completed);
-      status = stored
-        ? 'Progress imported successfully.'
-        : 'Progress imported for this tab, but browser storage is unavailable.';
-    } catch (error) {
-      if (error instanceof SyntaxError || error instanceof TypeError || error instanceof RangeError) {
-        status = `Import rejected: ${error.message}`;
-        return;
-      }
-
-      throw error;
-    }
-  }
 </script>
 
-<div class="flex flex-wrap items-center gap-2">
-  <button
-    type="button"
-    class="inline-flex min-h-10 items-center gap-2 rounded-full border border-border px-4 text-xs font-medium transition-colors hover:bg-muted"
+<div class="flex flex-wrap items-center gap-3">
+  <Button.Root
+    variant={completed ? 'secondary' : 'outline'}
+    class="rounded-full"
     aria-pressed={completed}
+    aria-keyshortcuts="M"
+    data-completion-toggle
     onclick={toggleCompleted}
   >
-    <span aria-hidden="true">{completed ? '✓' : '○'}</span>
+    {#if completed}<Check aria-hidden="true" />{:else}<Circle aria-hidden="true" />{/if}
     {completed ? 'Completed' : 'Mark as complete'}
-  </button>
-  <span class="text-xs text-muted-foreground">{completedCount} / {knownIds.length} completed on this device</span>
-  <div class="ml-auto flex items-center gap-2">
-    <button type="button" class="min-h-10 px-2 text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline disabled:cursor-not-allowed disabled:opacity-50" onclick={exportProgress} disabled={progressInvalid}>Export</button>
-    <button type="button" class="min-h-10 px-2 text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline" onclick={() => fileInput.click()}>Import</button>
-    <input bind:this={fileInput} class="sr-only" type="file" accept="application/json,.json" onchange={importProgress} aria-label="Import Frontend Atlas progress file" />
-  </div>
+  </Button.Root>
   {#if !storageAvailable}
-    <span class="w-full text-xs text-destructive">Progress persistence is unavailable.</span>
+    <Alert.Root variant="destructive" class="w-full"
+      ><Alert.Description>Progress persistence is unavailable.</Alert.Description></Alert.Root
+    >
   {/if}
-  <p class="w-full text-xs text-muted-foreground" role="status">{status}</p>
+  {#if status}
+    <p class="w-full text-xs text-muted-foreground" role="status">{status}</p>
+  {/if}
 </div>

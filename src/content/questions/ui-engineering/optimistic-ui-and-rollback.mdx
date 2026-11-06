@@ -1,13 +1,13 @@
 ---
-id: "optimistic-ui-and-rollback"
-title: "How do you implement optimistic UI without corrupting client state?"
-domain: "ui-engineering"
-summary: "Treat optimistic updates as speculative transactions with reconciliation, rollback, and concurrency rules."
-difficulty: "advanced"
+id: 'optimistic-ui-and-rollback'
+title: 'How do you implement optimistic UI without corrupting client state?'
+domain: 'ui-engineering'
+summary: 'Treat optimistic updates as speculative transactions with reconciliation, rollback, and concurrency rules.'
+difficulty: 'advanced'
 minutes: 13
-tags: ["optimistic-ui", "mutations", "consistency"]
-prerequisites: ["promise-composition-and-failure"]
-related: ["frontend-data-fetching-architecture", "resilient-network-state"]
+tags: ['optimistic-ui', 'mutations', 'consistency']
+prerequisites: ['promise-composition-and-failure']
+related: ['frontend-data-fetching-architecture', 'resilient-network-state']
 featured: true
 ---
 
@@ -24,8 +24,12 @@ A naive rollback can overwrite a newer successful change. Capture a mutation ID 
 ```ts
 const mutationId = crypto.randomUUID();
 applyOptimistic(change, mutationId);
-try { reconcile(await save(change), mutationId); }
-catch (error) { rollbackIfCurrent(mutationId); throw error; }
+try {
+  reconcile(await save(change), mutationId);
+} catch (error) {
+  rollbackIfCurrent(mutationId);
+  throw error;
+}
 ```
 
 ## Boundary cases to reason through

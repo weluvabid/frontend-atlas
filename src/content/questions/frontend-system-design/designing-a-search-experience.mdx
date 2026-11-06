@@ -1,13 +1,13 @@
 ---
-id: "designing-a-search-experience"
-title: "How would you design search for a content-heavy frontend?"
-domain: "frontend-system-design"
-summary: "Decompose indexing, retrieval, ranking, interaction, URL state, accessibility, and failure behavior."
-difficulty: "advanced"
+id: 'designing-a-search-experience'
+title: 'How would you design search for a content-heavy frontend?'
+domain: 'frontend-system-design'
+summary: 'Decompose indexing, retrieval, ranking, interaction, URL state, accessibility, and failure behavior.'
+difficulty: 'advanced'
 minutes: 13
-tags: ["system-design", "search", "frontend"]
-prerequisites: ["http-caching-and-validation"]
-related: ["static-content-platform-architecture", "javascript-bundle-budgeting"]
+tags: ['system-design', 'search', 'frontend']
+prerequisites: ['http-caching-and-validation']
+related: ['static-content-platform-architecture', 'javascript-bundle-budgeting']
 featured: true
 ---
 
@@ -22,7 +22,12 @@ Search architecture depends on corpus size, freshness, ranking quality, privacy,
 ## A concrete example
 
 ```ts
-interface SearchDocument { id: string; title: string; url: string; terms: readonly string[] }
+interface SearchDocument {
+  id: string;
+  title: string;
+  url: string;
+  terms: readonly string[];
+}
 ```
 
 ## Boundary cases to reason through

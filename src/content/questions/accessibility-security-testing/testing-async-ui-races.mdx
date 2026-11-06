@@ -1,13 +1,13 @@
 ---
-id: "testing-async-ui-races"
-title: "How do you test async UI behavior and race conditions deterministically?"
-domain: "accessibility-security-testing"
-summary: "Control time and response ordering rather than relying on arbitrary sleeps."
-difficulty: "advanced"
+id: 'testing-async-ui-races'
+title: 'How do you test async UI behavior and race conditions deterministically?'
+domain: 'accessibility-security-testing'
+summary: 'Control time and response ordering rather than relying on arbitrary sleeps.'
+difficulty: 'advanced'
 minutes: 11
-tags: ["testing", "async", "race-conditions"]
-prerequisites: ["abortcontroller-and-request-cancellation"]
-related: ["unit-integration-and-e2e-testing", "resilient-network-state"]
+tags: ['testing', 'async', 'race-conditions']
+prerequisites: ['abortcontroller-and-request-cancellation']
+related: ['unit-integration-and-e2e-testing', 'resilient-network-state']
 featured: false
 ---
 
@@ -24,11 +24,11 @@ A sleep-based test assumes scheduler timing and is inherently fragile. Use fake 
 ```ts
 const first = deferred<Result>();
 const second = deferred<Result>();
-startSearch("a", first.promise);
-startSearch("ab", second.promise);
-second.resolve(resultFor("ab"));
-first.resolve(resultFor("a"));
-expect(screen.getByText("ab results")).toBeVisible();
+startSearch('a', first.promise);
+startSearch('ab', second.promise);
+second.resolve(resultFor('ab'));
+first.resolve(resultFor('a'));
+expect(screen.getByText('ab results')).toBeVisible();
 ```
 
 ## Boundary cases to reason through

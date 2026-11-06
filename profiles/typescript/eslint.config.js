@@ -49,10 +49,7 @@ export default tseslint.config(
       'no-unreachable': 'error',
       'no-var': 'error',
       'object-shorthand': ['error', 'always'],
-      'padding-line-between-statements': [
-        'error',
-        ...paddingLineBetweenStatements,
-      ],
+      'padding-line-between-statements': ['error', ...paddingLineBetweenStatements],
       'prefer-const': 'error',
       'prefer-template': 'error',
       quotes: ['error', 'single', { avoidEscape: true }],

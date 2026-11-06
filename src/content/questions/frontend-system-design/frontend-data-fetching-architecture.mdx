@@ -1,11 +1,11 @@
 ---
-id: "frontend-data-fetching-architecture"
-title: "How would you structure data fetching across a large frontend?"
-domain: "frontend-system-design"
-summary: "Define ownership, cache keys, invalidation, deduplication, mutation semantics, and server-state boundaries."
-difficulty: "advanced"
+id: 'frontend-data-fetching-architecture'
+title: 'How would you structure data fetching across a large frontend?'
+domain: 'frontend-system-design'
+summary: 'Define ownership, cache keys, invalidation, deduplication, mutation semantics, and server-state boundaries.'
+difficulty: 'advanced'
 minutes: 13
-tags: ["system-design", "data-fetching", "caching"]
+tags: ['system-design', 'data-fetching', 'caching']
 prerequisites: []
 related: []
 featured: false
@@ -22,7 +22,7 @@ A cache key must include every input that changes the response, including tenant
 ## A concrete example
 
 ```ts
-const queryKey = ["projects", { organizationId, status, page }];
+const queryKey = ['projects', { organizationId, status, page }];
 ```
 
 ## Boundary cases to reason through

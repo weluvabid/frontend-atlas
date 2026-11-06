@@ -1,13 +1,13 @@
 ---
-id: "static-content-platform-architecture"
-title: "How would you build a maintainable static documentation or handbook platform?"
-domain: "frontend-system-design"
-summary: "Design the content model, build-time validation, route generation, search, navigation, and contribution workflow."
-difficulty: "intermediate"
+id: 'static-content-platform-architecture'
+title: 'How would you build a maintainable static documentation or handbook platform?'
+domain: 'frontend-system-design'
+summary: 'Design the content model, build-time validation, route generation, search, navigation, and contribution workflow.'
+difficulty: 'intermediate'
 minutes: 11
-tags: ["system-design", "static-sites", "content"]
-prerequisites: ["typescript-structural-typing"]
-related: ["designing-a-search-experience", "hydration-and-islands"]
+tags: ['system-design', 'static-sites', 'content']
+prerequisites: ['typescript-structural-typing']
+related: ['designing-a-search-experience', 'hydration-and-islands']
 featured: false
 ---
 
@@ -22,7 +22,13 @@ A static site can still have dynamic client-side interactions without a backend.
 ## A concrete example
 
 ```ts
-interface Entry { id: string; slug: string; domain: string; prerequisites: string[]; related: string[] }
+interface Entry {
+  id: string;
+  slug: string;
+  domain: string;
+  prerequisites: string[];
+  related: string[];
+}
 ```
 
 ## Boundary cases to reason through
