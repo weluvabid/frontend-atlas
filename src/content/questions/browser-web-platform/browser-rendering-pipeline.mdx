@@ -1,13 +1,13 @@
 ---
-id: "browser-rendering-pipeline"
-title: "What happens between changing the DOM and pixels appearing on screen?"
-domain: "browser-web-platform"
-summary: "Trace style calculation, layout, paint, rasterization, compositing, and the limits of “GPU accelerated.”"
-difficulty: "intermediate"
+id: 'browser-rendering-pipeline'
+title: 'What happens between changing the DOM and pixels appearing on screen?'
+domain: 'browser-web-platform'
+summary: 'Trace style calculation, layout, paint, rasterization, compositing, and the limits of “GPU accelerated.”'
+difficulty: 'intermediate'
 minutes: 12
-tags: ["rendering", "layout", "paint", "compositing"]
-prerequisites: ["event-loop-tasks-and-microtasks"]
-related: ["core-web-vitals-and-user-experience"]
+tags: ['rendering', 'layout', 'paint', 'compositing']
+prerequisites: ['event-loop-tasks-and-microtasks']
+related: ['core-web-vitals-and-user-experience']
 featured: true
 ---
 
@@ -23,9 +23,14 @@ Changing geometry commonly triggers layout and paint. Changing paint-only proper
 
 ```css
 /* Often composited without layout */
-.card { transform: translateY(4px); opacity: 0.98; }
+.card {
+  transform: translateY(4px);
+  opacity: 0.98;
+}
 /* Changes geometry and commonly requires layout */
-.card { width: 24rem; }
+.card {
+  width: 24rem;
+}
 ```
 
 ## Boundary cases to reason through

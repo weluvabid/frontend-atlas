@@ -1,11 +1,11 @@
 ---
-id: "frontend-observability-and-error-boundaries"
-title: "What should frontend observability capture beyond uncaught exceptions?"
-domain: "performance-reliability"
-summary: "Combine errors, failed requests, performance, release context, user-impact signals, and privacy controls."
-difficulty: "intermediate"
+id: 'frontend-observability-and-error-boundaries'
+title: 'What should frontend observability capture beyond uncaught exceptions?'
+domain: 'performance-reliability'
+summary: 'Combine errors, failed requests, performance, release context, user-impact signals, and privacy controls.'
+difficulty: 'intermediate'
 minutes: 10
-tags: ["observability", "errors", "reliability"]
+tags: ['observability', 'errors', 'reliability']
 prerequisites: []
 related: []
 featured: false
@@ -22,7 +22,7 @@ Error boundaries catch certain rendering failures, not every async callback or e
 ## A concrete example
 
 ```js
-window.addEventListener("unhandledrejection", (event) => {
+window.addEventListener('unhandledrejection', (event) => {
   reportUnexpectedFailure(event.reason);
 });
 ```

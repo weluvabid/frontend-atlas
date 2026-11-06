@@ -30,7 +30,8 @@ export const domains = [
   {
     id: 'ui-engineering',
     name: 'UI Engineering & Machine Coding',
-    description: 'Practical interface implementation, machine-coding exercises, forms, and interaction design.',
+    description:
+      'Practical interface implementation, machine-coding exercises, forms, and interaction design.',
   },
   {
     id: 'performance-reliability',

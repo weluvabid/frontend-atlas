@@ -18,7 +18,7 @@
     @apply underline-offset-4;
   }
 
-  :where(a, button, input, textarea, select):focus-visible {
+  :where(a:not([data-slot='button']), input:not([data-slot]), textarea, select):focus-visible {
     outline: 2px solid var(--ring);
     outline-offset: 3px;
   }
@@ -34,7 +34,6 @@
     }
   }
 }
-
 
 @layer components {
   .eyebrow {

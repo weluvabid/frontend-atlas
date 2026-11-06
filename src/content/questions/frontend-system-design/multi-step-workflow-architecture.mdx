@@ -1,11 +1,11 @@
 ---
-id: "multi-step-workflow-architecture"
-title: "How would you design a reliable multi-step checkout or onboarding flow?"
-domain: "frontend-system-design"
-summary: "Model workflow states, persistence, validation boundaries, retries, and recovery from partial completion."
-difficulty: "advanced"
+id: 'multi-step-workflow-architecture'
+title: 'How would you design a reliable multi-step checkout or onboarding flow?'
+domain: 'frontend-system-design'
+summary: 'Model workflow states, persistence, validation boundaries, retries, and recovery from partial completion.'
+difficulty: 'advanced'
 minutes: 14
-tags: ["system-design", "workflows", "state-machines"]
+tags: ['system-design', 'workflows', 'state-machines']
 prerequisites: []
 related: []
 featured: false
@@ -23,10 +23,10 @@ A browser flow is not a distributed transaction. Payment authorization, inventor
 
 ```ts
 type Checkout =
-  | { step: "cart" }
-  | { step: "address"; cartId: string }
-  | { step: "payment"; orderDraftId: string }
-  | { step: "complete"; orderId: string };
+  | { step: 'cart' }
+  | { step: 'address'; cartId: string }
+  | { step: 'payment'; orderDraftId: string }
+  | { step: 'complete'; orderId: string };
 ```
 
 ## Boundary cases to reason through

@@ -39,6 +39,22 @@ export function questionHref(id: string): string {
   return `/questions/${id}/`;
 }
 
+const difficultyOrder: Record<Difficulty, number> = {
+  foundation: 0,
+  intermediate: 1,
+  advanced: 2,
+};
+
+/** Return a deterministic reading order for questions within one domain. */
+export function orderDomainQuestions(questions: readonly QuestionSummary[]): QuestionSummary[] {
+  return [...questions].sort(
+    (left, right) =>
+      difficultyOrder[left.difficulty] - difficultyOrder[right.difficulty] ||
+      left.title.localeCompare(right.title) ||
+      left.id.localeCompare(right.id),
+  );
+}
+
 export function validateQuestionGraph(questions: readonly QuestionSummary[]): void {
   const byId = new Map<string, QuestionSummary>();
 
@@ -153,7 +169,11 @@ export function rankSearchResults(
         return right.score - left.score;
       }
 
-      return left.document.title < right.document.title ? -1 : left.document.title > right.document.title ? 1 : 0;
+      return left.document.title < right.document.title
+        ? -1
+        : left.document.title > right.document.title
+          ? 1
+          : 0;
     })
     .slice(0, limit)
     .map(({ document }) => document);

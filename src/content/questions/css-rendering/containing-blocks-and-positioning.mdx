@@ -1,11 +1,11 @@
 ---
-id: "containing-blocks-and-positioning"
-title: "How does CSS determine the containing block for positioned elements?"
-domain: "css-rendering"
-summary: "Understand normal flow, absolute positioning, fixed positioning, and containing-block-establishing properties."
-difficulty: "intermediate"
+id: 'containing-blocks-and-positioning'
+title: 'How does CSS determine the containing block for positioned elements?'
+domain: 'css-rendering'
+summary: 'Understand normal flow, absolute positioning, fixed positioning, and containing-block-establishing properties.'
+difficulty: 'intermediate'
 minutes: 10
-tags: ["css", "layout", "positioning"]
+tags: ['css', 'layout', 'positioning']
 prerequisites: []
 related: []
 featured: false
@@ -22,8 +22,13 @@ Transforms, filters, perspective, and some containment properties can establish 
 ## A concrete example
 
 ```css
-.dialog-shell { position: relative; }
-.dialog-shell .close { position: absolute; inset: 1rem 1rem auto auto; }
+.dialog-shell {
+  position: relative;
+}
+.dialog-shell .close {
+  position: absolute;
+  inset: 1rem 1rem auto auto;
+}
 ```
 
 ## Boundary cases to reason through

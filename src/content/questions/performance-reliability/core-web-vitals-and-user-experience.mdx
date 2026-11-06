@@ -1,13 +1,13 @@
 ---
-id: "core-web-vitals-and-user-experience"
-title: "What do Core Web Vitals measure, and how should teams use them?"
-domain: "performance-reliability"
-summary: "Connect LCP, INP, and CLS to real user experience, field data, and diagnostic workflows."
-difficulty: "intermediate"
+id: 'core-web-vitals-and-user-experience'
+title: 'What do Core Web Vitals measure, and how should teams use them?'
+domain: 'performance-reliability'
+summary: 'Connect LCP, INP, and CLS to real user experience, field data, and diagnostic workflows.'
+difficulty: 'intermediate'
 minutes: 11
-tags: ["web-vitals", "performance", "metrics"]
-prerequisites: ["browser-rendering-pipeline"]
-related: ["javascript-bundle-budgeting", "long-tasks-and-cooperative-scheduling"]
+tags: ['web-vitals', 'performance', 'metrics']
+prerequisites: ['browser-rendering-pipeline']
+related: ['javascript-bundle-budgeting', 'long-tasks-and-cooperative-scheduling']
 featured: true
 ---
 
@@ -23,8 +23,10 @@ A passing lab run does not guarantee healthy field metrics. Segment field data b
 
 ```js
 // Use the web-vitals library to report field measurements.
-import { onCLS, onINP, onLCP } from "web-vitals";
-onCLS(sendMetric); onINP(sendMetric); onLCP(sendMetric);
+import { onCLS, onINP, onLCP } from 'web-vitals';
+onCLS(sendMetric);
+onINP(sendMetric);
+onLCP(sendMetric);
 ```
 
 ## Boundary cases to reason through

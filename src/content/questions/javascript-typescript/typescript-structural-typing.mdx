@@ -1,11 +1,11 @@
 ---
-id: "typescript-structural-typing"
-title: "What does TypeScript mean by structural typing?"
-domain: "javascript-typescript"
-summary: "Explain compatibility through member shape, excess-property checks, and the limits of compile-time guarantees."
-difficulty: "intermediate"
+id: 'typescript-structural-typing'
+title: 'What does TypeScript mean by structural typing?'
+domain: 'javascript-typescript'
+summary: 'Explain compatibility through member shape, excess-property checks, and the limits of compile-time guarantees.'
+difficulty: 'intermediate'
 minutes: 11
-tags: ["typescript", "types", "structural-typing"]
+tags: ['typescript', 'types', 'structural-typing']
 prerequisites: []
 related: []
 featured: false
@@ -23,7 +23,7 @@ A value with more properties can often be assigned to a type requiring fewer pro
 
 ```ts
 type Point = { x: number; y: number };
-const source = { x: 1, y: 2, label: "origin" };
+const source = { x: 1, y: 2, label: 'origin' };
 const point: Point = source; // allowed
 ```
 

@@ -1,11 +1,11 @@
 ---
-id: "javascript-bundle-budgeting"
-title: "How do you reduce JavaScript cost without blindly splitting everything?"
-domain: "performance-reliability"
-summary: "Analyze parse/compile/execute cost, dependency weight, route reachability, and interaction timing."
-difficulty: "intermediate"
+id: 'javascript-bundle-budgeting'
+title: 'How do you reduce JavaScript cost without blindly splitting everything?'
+domain: 'performance-reliability'
+summary: 'Analyze parse/compile/execute cost, dependency weight, route reachability, and interaction timing.'
+difficulty: 'intermediate'
 minutes: 10
-tags: ["bundles", "code-splitting", "performance"]
+tags: ['bundles', 'code-splitting', 'performance']
 prerequisites: []
 related: []
 featured: false
@@ -22,7 +22,7 @@ Dynamic imports create chunk boundaries, but too many tiny chunks can increase r
 ## A concrete example
 
 ```js
-const Editor = lazy(() => import("./Editor.js"));
+const Editor = lazy(() => import('./Editor.js'));
 ```
 
 ## Boundary cases to reason through

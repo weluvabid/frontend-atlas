@@ -1,11 +1,11 @@
 ---
-id: "css-cascade-specificity-layers"
-title: "How does the CSS cascade choose the winning declaration?"
-domain: "css-rendering"
-summary: "Reason through origin, importance, cascade layers, specificity, scoping proximity, and source order."
-difficulty: "intermediate"
+id: 'css-cascade-specificity-layers'
+title: 'How does the CSS cascade choose the winning declaration?'
+domain: 'css-rendering'
+summary: 'Reason through origin, importance, cascade layers, specificity, scoping proximity, and source order.'
+difficulty: 'intermediate'
 minutes: 11
-tags: ["css", "cascade", "specificity"]
+tags: ['css', 'cascade', 'specificity']
 prerequisites: []
 related: []
 featured: false
@@ -23,8 +23,16 @@ Normal declarations in later layers win over earlier layers; important declarati
 
 ```css
 @layer reset, components, utilities;
-@layer components { .button { color: navy; } }
-@layer utilities { .text-red { color: crimson; } }
+@layer components {
+  .button {
+    color: navy;
+  }
+}
+@layer utilities {
+  .text-red {
+    color: crimson;
+  }
+}
 ```
 
 ## Boundary cases to reason through

@@ -22,6 +22,8 @@ export function toQuestionSummary(entry: QuestionEntry): QuestionSummary {
 
 export function assertValidQuestionGraph(entries: readonly QuestionEntry[]): QuestionSummary[] {
   const summaries = entries.map(toQuestionSummary);
+
   validateQuestionGraph(summaries);
+
   return summaries;
 }

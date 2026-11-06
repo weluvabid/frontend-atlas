@@ -1,6 +1,9 @@
 ---
 import AtlasFooter from '@components/site/AtlasFooter.svelte';
 import AtlasHeader from '@components/site/AtlasHeader.svelte';
+import ProgressOverview from '@components/progress/ProgressOverview.svelte';
+import { getCollection } from 'astro:content';
+import { assertValidQuestionGraph } from '@lib/content';
 import { createThemeScript } from '@weluvabid/iris/theme';
 import '@styles/global.css';
 
@@ -15,6 +18,8 @@ const {
 } = Astro.props;
 
 const themeBootstrap = createThemeScript();
+const entries = await getCollection('questions');
+const knownIds = assertValidQuestionGraph(entries).map((question) => question.id);
 ---
 
 <!doctype html>
@@ -36,6 +41,9 @@ const themeBootstrap = createThemeScript();
   <body>
     <div class="mx-auto flex min-h-svh w-full max-w-6xl flex-col px-4 sm:px-6">
       <AtlasHeader client:load />
+      <div class="sticky top-[5.25rem] z-40 -mb-2">
+        <ProgressOverview client:load knownIds={knownIds} />
+      </div>
       <main class="min-h-0 flex-1 py-12 sm:py-16">
         <slot />
       </main>

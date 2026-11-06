@@ -1,11 +1,11 @@
 ---
-id: "unit-integration-and-e2e-testing"
-title: "What belongs in unit, integration, and end-to-end tests?"
-domain: "accessibility-security-testing"
-summary: "Choose test boundaries based on risk and behavior rather than maximizing one test category."
-difficulty: "intermediate"
+id: 'unit-integration-and-e2e-testing'
+title: 'What belongs in unit, integration, and end-to-end tests?'
+domain: 'accessibility-security-testing'
+summary: 'Choose test boundaries based on risk and behavior rather than maximizing one test category.'
+difficulty: 'intermediate'
 minutes: 10
-tags: ["testing", "quality", "automation"]
+tags: ['testing', 'quality', 'automation']
 prerequisites: []
 related: []
 featured: false
@@ -22,7 +22,7 @@ Mocking every dependency can make tests validate the mock rather than the system
 ## A concrete example
 
 ```ts
-expect(rankSearchResults(index, "event loop")[0]?.id).toBe("event-loop-tasks-and-microtasks");
+expect(rankSearchResults(index, 'event loop')[0]?.id).toBe('event-loop-tasks-and-microtasks');
 ```
 
 ## Boundary cases to reason through

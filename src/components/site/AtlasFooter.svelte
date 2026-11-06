@@ -1,17 +1,35 @@
 <script lang="ts">
-  import { SiteFooter } from '@weluvabid/iris/components';
+  import { SiteFooter, Button, Tooltip } from '@weluvabid/iris/components';
+  import { SiGithub } from '@weluvabid/iris/simple-icons';
 </script>
 
-<SiteFooter>
-  <div class="flex w-full flex-col gap-3 py-2 sm:flex-row sm:items-center sm:justify-between">
-    <p class="text-xs text-muted-foreground">An open-source field guide to frontend engineering.</p>
+<Tooltip.Provider delayDuration={300}>
+  <SiteFooter>
     <a
-      class="inline-flex min-h-11 items-center text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
-      href="https://github.com/weluvabid/frontend-atlas"
-      target="_blank"
-      rel="noopener noreferrer"
+      class="font-semibold tracking-tight text-foreground no-underline"
+      href="/"
+      aria-label="Frontend Atlas home"
     >
-      Contribute on GitHub <span class="sr-only">(opens in a new tab)</span>
+      fa
     </a>
-  </div>
-</SiteFooter>
+    <Tooltip.Root>
+      <Tooltip.Trigger>
+        {#snippet child({ props })}
+          <Button.Root
+            {...props}
+            variant="ghost"
+            size="icon"
+            class="rounded-full"
+            href="https://github.com/weluvabid/frontend-atlas"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Frontend Atlas on GitHub (opens in a new tab)"
+          >
+            <SiGithub aria-hidden="true" />
+          </Button.Root>
+        {/snippet}
+      </Tooltip.Trigger>
+      <Tooltip.Content>GitHub repository</Tooltip.Content>
+    </Tooltip.Root>
+  </SiteFooter>
+</Tooltip.Provider>

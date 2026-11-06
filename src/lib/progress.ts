@@ -7,6 +7,16 @@ export interface ProgressSnapshot {
   readonly updatedAt: string;
 }
 
+export const PROGRESS_CHANGE_EVENT = 'frontend-atlas:progress-change';
+
+export function announceProgressChange(snapshot: ProgressSnapshot): void {
+  if (typeof window === 'undefined' || typeof CustomEvent === 'undefined') {return;}
+
+  window.dispatchEvent(
+    new CustomEvent<ProgressSnapshot>(PROGRESS_CHANGE_EVENT, { detail: snapshot }),
+  );
+}
+
 export type ProgressReadResult =
   | { readonly ok: true; readonly snapshot: ProgressSnapshot }
   | { readonly ok: false; readonly reason: 'unavailable' | 'invalid-data' };
@@ -16,7 +26,9 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function isExpectedStorageFailure(error: unknown): boolean {
-  return error instanceof DOMException && ['QuotaExceededError', 'SecurityError'].includes(error.name);
+  return (
+    error instanceof DOMException && ['QuotaExceededError', 'SecurityError'].includes(error.name)
+  );
 }
 
 export function createProgressSnapshot(

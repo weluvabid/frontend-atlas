@@ -1,11 +1,11 @@
 ---
-id: "flexbox-and-grid-layout"
-title: "When should you choose Flexbox versus Grid?"
-domain: "css-rendering"
-summary: "Choose based on one-dimensional flow, two-dimensional track relationships, intrinsic sizing, and content behavior."
-difficulty: "foundation"
+id: 'flexbox-and-grid-layout'
+title: 'When should you choose Flexbox versus Grid?'
+domain: 'css-rendering'
+summary: 'Choose based on one-dimensional flow, two-dimensional track relationships, intrinsic sizing, and content behavior.'
+difficulty: 'foundation'
 minutes: 8
-tags: ["css", "flexbox", "grid"]
+tags: ['css', 'flexbox', 'grid']
 prerequisites: []
 related: []
 featured: false
@@ -22,8 +22,16 @@ Flex items have automatic minimum sizing that can prevent shrinking; `min-width:
 ## A concrete example
 
 ```css
-.layout { display: grid; grid-template-columns: minmax(0, 1fr) 18rem; gap: 1.5rem; }
-@media (max-width: 48rem) { .layout { grid-template-columns: 1fr; } }
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 18rem;
+  gap: 1.5rem;
+}
+@media (max-width: 48rem) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
 ```
 
 ## Boundary cases to reason through
