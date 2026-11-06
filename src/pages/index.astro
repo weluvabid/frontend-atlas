@@ -63,6 +63,11 @@ const featured = featuredQuestionIds.map((id) => {
                   </div>
                   <Card.Title>{domain.name}</Card.Title>
                   <Card.Description>{domain.description}</Card.Description>
+                  <span
+                    data-domain-progress
+                    data-question-ids={questions.filter((question) => question.domain === domain.id).map((question) => question.id).join(',')}
+                    class="hidden mt-3 block text-xs font-medium tabular-nums text-muted-foreground"
+                  ></span>
                 </Card.Header>
               </Card.Root>
             </a>
@@ -92,6 +97,10 @@ const featured = featuredQuestionIds.map((id) => {
               <Card.Header>
                 <Card.Title>{question.title}</Card.Title>
                 <Card.Description>{question.summary}</Card.Description>
+                <span
+                  data-question-progress={question.id}
+                  class="hidden mt-3 inline-flex rounded-full border border-border px-2.5 py-1 text-xs font-medium text-muted-foreground"
+                ></span>
               </Card.Header>
             </Card.Root>
           </a>

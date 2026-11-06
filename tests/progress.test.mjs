@@ -76,6 +76,30 @@ test('storage reports corrupt JSON without throwing', () => {
   assert.deepEqual(result, { ok: false, reason: 'invalid-data' });
 });
 
+
+test('completion updates refuse to overwrite corrupt saved progress', async () => {
+  const { toggleQuestionCompletion } = await import('../src/lib/progress/service.ts');
+  const originalWindow = globalThis.window;
+  const values = new Map([[PROGRESS_STORAGE_KEY, '{broken']]);
+  globalThis.window = {
+    localStorage: {
+      getItem(key) { return values.get(key) ?? null; },
+      setItem(key, value) { values.set(key, value); },
+    },
+  };
+
+  try {
+    assert.throws(
+      () => toggleQuestionCompletion('event-loop-tasks-and-microtasks', []),
+      /Cannot save progress: saved progress is invalid/,
+    );
+    assert.equal(values.get(PROGRESS_STORAGE_KEY), '{broken');
+  } finally {
+    if (originalWindow === undefined) delete globalThis.window;
+    else globalThis.window = originalWindow;
+  }
+});
+
 test('storage reports expected browser security failures', () => {
   const storage = {
     getItem() {

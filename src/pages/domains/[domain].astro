@@ -64,6 +64,10 @@ const ordered = orderDomainQuestions(questions).map((question) => {
                     <p class="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
                       {question.summary}
                     </p>
+                    <span
+                      data-question-progress={question.id}
+                      class="hidden mt-3 inline-flex rounded-full border border-border px-2.5 py-1 text-xs font-medium text-muted-foreground"
+                    ></span>
                   </div>
                 </div>
                 <Badge.Badge variant="outline" class="shrink-0 capitalize">

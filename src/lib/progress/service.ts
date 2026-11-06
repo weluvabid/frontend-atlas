@@ -13,6 +13,9 @@ export interface ProgressSaveResult {
 export function saveProgress(completed: readonly string[]): ProgressSaveResult {
   const storage = getProgressStorage();
   const existing = readProgress(storage);
+  if (!existing.ok && existing.reason === 'invalid-data') {
+    throw new Error('Cannot save progress: saved progress is invalid');
+  }
   const current = existing.ok ? existing.snapshot : existing.reason === 'unavailable' ? volatileSnapshot : undefined;
   const snapshot = createProgressSnapshot(completed, new Date(), current?.readingProgress ?? {});
   const persisted = writeProgress(storage, snapshot);

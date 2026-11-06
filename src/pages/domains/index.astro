@@ -50,6 +50,11 @@ const counts = new Map(
               </div>
               <Card.Title>{domain.name}</Card.Title>
               <Card.Description>{domain.description}</Card.Description>
+              <span
+                data-domain-progress
+                data-question-ids={questions.filter((question) => question.domain === domain.id).map((question) => question.id).join(',')}
+                class="hidden mt-3 block text-xs font-medium tabular-nums text-muted-foreground"
+              ></span>
             </Card.Header>
           </Card.Root>
         </a>
