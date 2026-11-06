@@ -42,6 +42,15 @@ export const QUESTION_MANIFEST = [
   'xss-and-safe-dom-sinks',
   'focus-management-systems',
   'request-lifecycle-and-race-conditions',
+  'form-state-architecture',
+  'client-side-routing-mental-model',
+  'memoization-that-matters',
+  'css-performance-and-thrashing',
+  'error-surfaces-and-boundaries',
+  'stale-while-revalidate-and-offline',
+  'feature-flags-and-progressive-delivery',
+  'responsive-images-and-loading',
+  'realtime-ui-patterns',
 ] as const;
 
 export const MAX_QUESTION_COUNT = 150;
