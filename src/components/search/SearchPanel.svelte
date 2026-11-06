@@ -3,7 +3,6 @@
   import { Command, Alert, Spinner, Kbd } from '@weluvabid/iris/components';
   import { questionHref, rankSearchResults, type SearchDocument } from '@lib/atlas';
   import { isAbortError, loadSearchIndex } from '@lib/search';
-  import { domains } from '@data/domains';
 
   interface Props {
     open?: boolean;
@@ -62,31 +61,26 @@
         >
       </div>
     {:else if !normalizedQuery}
-      <Command.Empty>Start typing to search all 42 questions.</Command.Empty>
+      <Command.Empty>Start typing to search {documents.length} questions.</Command.Empty>
     {:else if results.length === 0}
       <Command.Empty>No results for “{normalizedQuery}”. Try a broader term.</Command.Empty>
     {:else}
-      {#each domains as domain (domain.id)}
-        {@const domainResults = results.filter((result) => result.domain === domain.id)}
-        {#if domainResults.length > 0}
-          <Command.Group heading={domain.name}>
-            {#each domainResults as result (result.id)}
-              <Command.LinkItem
-                href={questionHref(result.id)}
-                value={`${result.title} ${result.summary} ${result.tags.join(' ')}`}
+      <Command.Group heading="Questions">
+        {#each results as result (result.id)}
+          <Command.LinkItem
+            href={questionHref(result.id)}
+            value={`${result.title} ${result.summary} ${result.tags.join(' ')}`}
+          >
+            <span class="min-w-0 flex-1">
+              <span class="block truncate font-medium">{result.title}</span>
+              <span class="mt-0.5 block truncate text-xs text-muted-foreground"
+                >{result.summary}</span
               >
-                <span class="min-w-0 flex-1">
-                  <span class="block truncate font-medium">{result.title}</span>
-                  <span class="mt-0.5 block truncate text-xs text-muted-foreground"
-                    >{result.summary}</span
-                  >
-                </span>
-                <span class="shrink-0 text-xs text-muted-foreground">{result.minutes} min</span>
-              </Command.LinkItem>
-            {/each}
-          </Command.Group>
-        {/if}
-      {/each}
+            </span>
+            <span class="shrink-0 text-xs text-muted-foreground">{result.minutes} min</span>
+          </Command.LinkItem>
+        {/each}
+      </Command.Group>
     {/if}
   </Command.List>
   {#if !loading && !loadError}
@@ -103,7 +97,9 @@
 <Command.Dialog
   bind:open
   title="Search Frontend Atlas"
-  description="Search questions and concepts across the handbook."
+  description={documents.length > 0
+    ? `Search ${documents.length} questions and concepts across the handbook.`
+    : 'Search questions and concepts across the handbook.'}
   shouldFilter={false}
 >
   {@render commandContents()}

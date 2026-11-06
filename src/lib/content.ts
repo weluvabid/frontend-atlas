@@ -14,6 +14,7 @@ export function toQuestionSummary(entry: QuestionEntry): QuestionSummary {
     difficulty: entry.data.difficulty,
     minutes: entry.data.minutes,
     tags: entry.data.tags,
+    searchTerms: entry.data.searchTerms,
     prerequisites: entry.data.prerequisites,
     related: entry.data.related,
     featured: entry.data.featured,

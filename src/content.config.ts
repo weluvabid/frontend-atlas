@@ -21,6 +21,7 @@ const questions = defineCollection({
     difficulty: z.enum(['foundation', 'intermediate', 'advanced']),
     minutes: z.number().int().min(3).max(45),
     tags: z.array(z.string().min(2)).min(1).max(8),
+    searchTerms: z.array(z.string().min(2).max(80)).max(12).default([]),
     prerequisites: z.array(z.string()).default([]),
     related: z.array(z.string()).default([]),
     featured: z.boolean().default(false),

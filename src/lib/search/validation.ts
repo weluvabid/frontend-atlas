@@ -14,6 +14,14 @@ function isStringArray(value: unknown): value is string[] {
   return Array.isArray(value) && value.every((item) => typeof item === 'string');
 }
 
+function isSearchTermArray(value: unknown): value is string[] {
+  return (
+    isStringArray(value) &&
+    value.length <= 12 &&
+    value.every((term) => term.length >= 2 && term.length <= 80)
+  );
+}
+
 function isDomainId(value: unknown): value is DomainId {
   return typeof value === 'string' && (DOMAIN_IDS as readonly string[]).includes(value);
 }
@@ -39,6 +47,7 @@ export function isSearchDocument(value: unknown): value is SearchDocument {
     typeof value.minutes === 'number' &&
     Number.isSafeInteger(value.minutes) &&
     isStringArray(value.tags) &&
+    (value.searchTerms === undefined || isSearchTermArray(value.searchTerms)) &&
     isStringArray(value.prerequisites) &&
     isStringArray(value.related) &&
     typeof value.featured === 'boolean' &&

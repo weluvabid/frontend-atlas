@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { loadSearchIndex } from '../src/lib/search/index.ts';
 import { isSearchDocument, parseSearchIndex } from '../src/lib/search/validation.ts';
+import { normalizeSearchText, rankSearchResults } from '../src/lib/atlas.ts';
 
 function document(id, overrides = {}) {
   return {
@@ -25,6 +26,15 @@ test('search document guard validates the complete indexed shape', () => {
   assert.equal(isSearchDocument(document('event-loop')), true);
   assert.equal(isSearchDocument({ ...document('event-loop'), minutes: 1.5 }), false);
   assert.equal(isSearchDocument({ ...document('event-loop'), domain: 'unknown' }), false);
+  assert.equal(isSearchDocument({ ...document('event-loop'), searchTerms: ['valid alias'] }), true);
+  assert.equal(isSearchDocument({ ...document('event-loop'), searchTerms: [42] }), false);
+  assert.equal(
+    isSearchDocument({
+      ...document('event-loop'),
+      searchTerms: Array.from({ length: 13 }, () => 'alias'),
+    }),
+    false,
+  );
 });
 
 test('search index parser validates payload shape and question relationships', () => {
@@ -65,4 +75,68 @@ test('search loader passes its abort signal and reports HTTP failures', async ()
     loadSearchIndex(controller.signal, async () => new Response('', { status: 503 })),
     /HTTP 503/u,
   );
+});
+
+test('search normalization handles case, punctuation, accents, and whitespace', () => {
+  assert.equal(normalizeSearchText('  RÉALTIME   UI — WebSockets! '), 'realtime ui websockets');
+});
+
+test('ranking prioritizes exact title phrases over incidental body mentions', () => {
+  const exact = document('browser-rendering', {
+    title: 'Browser Rendering Pipeline',
+    searchableText: 'style layout paint compositing',
+  });
+  const incidental = document('miscellaneous', {
+    title: 'A Practical Frontend Guide',
+    searchableText: 'browser rendering pipeline appears in this paragraph',
+  });
+
+  assert.deepEqual(
+    rankSearchResults([incidental, exact], 'browser rendering').map(({ id }) => id),
+    ['browser-rendering', 'miscellaneous'],
+  );
+});
+
+test('ranking rewards complete query coverage and curated search terms', () => {
+  const aliasMatch = document('realtime-ui-patterns', {
+    title: 'Reliable Realtime UI',
+    searchTerms: ['websocket reconnect', 'live updates'],
+    searchableText: 'A persistent connection can fail.',
+  });
+  const partialMatch = document('network-basics', {
+    title: 'Network Basics',
+    searchableText: 'Reconnect after the browser loses connectivity.',
+  });
+
+  assert.equal(
+    rankSearchResults([partialMatch, aliasMatch], 'websocket reconnect')[0].id,
+    'realtime-ui-patterns',
+  );
+});
+
+test('ranking supports conservative one-character typo tolerance in metadata', () => {
+  const target = document('websocket-guide', {
+    title: 'WebSocket Connection Recovery',
+    tags: ['realtime'],
+  });
+
+  assert.equal(rankSearchResults([target], 'websoket')[0].id, 'websocket-guide');
+});
+
+test('ranking uses token boundaries rather than arbitrary substring matches', () => {
+  const unrelated = document('statement-guide', {
+    title: 'Understanding Statements',
+    summary: 'A guide to application statements.',
+    tags: ['statement'],
+    searchableText: 'statement statements',
+  });
+
+  assert.deepEqual(rankSearchResults([unrelated], 'tate'), []);
+});
+
+test('ranking returns no results for empty queries and validates limits', () => {
+  const item = document('event-loop');
+
+  assert.deepEqual(rankSearchResults([item], '   '), []);
+  assert.throws(() => rankSearchResults([item], 'event', 0), /positive safe integer/u);
 });

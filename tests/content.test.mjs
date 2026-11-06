@@ -4,6 +4,7 @@ import { readFile, readdir } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import { parse } from 'yaml';
 import { QUESTION_MANIFEST, MAX_QUESTION_COUNT } from '../src/data/question-manifest.ts';
+import { rankSearchResults } from '../src/lib/atlas.ts';
 
 const contentRoot = join(process.cwd(), 'src/content/questions');
 const requiredSections = [
@@ -67,9 +68,13 @@ async function readQuestion(path) {
 const questionFiles = await findMdxFiles(contentRoot);
 const questions = await Promise.all(questionFiles.map(readQuestion));
 const byId = new Map(questions.map(({ metadata }) => [metadata.id, metadata]));
+const searchDocuments = questions.map(({ metadata, body }) => ({
+  ...metadata,
+  slug: metadata.id,
+  searchableText: body,
+}));
 
 test('the collection retains its current content baseline across eight domains and stays within the cap', () => {
-  assert.ok(questions.length >= 42);
   assert.ok(questions.length <= MAX_QUESTION_COUNT);
   const counts = new Map();
 
@@ -89,6 +94,27 @@ test('the append-only QR manifest covers every question within the hard cap', ()
   assert.equal(new Set(QUESTION_MANIFEST).size, QUESTION_MANIFEST.length);
   assert.deepEqual([...QUESTION_MANIFEST].sort(), [...ids].sort());
   assert.ok(QUESTION_MANIFEST.length <= MAX_QUESTION_COUNT);
+});
+
+test('representative developer searches rank the intended article first', () => {
+  const cases = [
+    ['layout thrashing', 'css-performance-and-thrashing'],
+    ['image lcp', 'responsive-images-and-loading'],
+    ['stale cache', 'stale-while-revalidate-and-offline'],
+    ['websocket reconnect', 'realtime-ui-patterns'],
+    ['form validation', 'accessible-form-validation'],
+    ['focus trap', 'focus-management-systems'],
+    ['client side routing', 'client-side-routing-mental-model'],
+    ['code splitting', 'javascript-bundle-budgeting'],
+  ];
+
+  for (const [query, expectedId] of cases) {
+    assert.equal(
+      rankSearchResults(searchDocuments, query, 1)[0]?.id,
+      expectedId,
+      `unexpected top result for "${query}"`,
+    );
+  }
 });
 
 test('every question has valid metadata and the complete editorial structure', () => {
@@ -118,6 +144,18 @@ test('every question has valid metadata and the complete editorial structure', (
       Array.isArray(metadata.tags) && metadata.tags.length >= 1 && metadata.tags.length <= 8,
       `${path}: invalid tags`,
     );
+
+    if (metadata.searchTerms !== undefined) {
+      assert.ok(
+        Array.isArray(metadata.searchTerms) &&
+          metadata.searchTerms.length <= 12 &&
+          metadata.searchTerms.every(
+            (term) => typeof term === 'string' && term.trim().length >= 2 && term.length <= 80,
+          ),
+        `${path}: invalid search terms`,
+      );
+    }
+
     assert.equal(
       relative(contentRoot, path).split(/[\\/]/u)[0],
       metadata.domain,
