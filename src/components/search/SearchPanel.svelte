@@ -63,7 +63,7 @@
         >
       </div>
     {:else if !normalizedQuery}
-      <Command.Empty>Start typing to search all 40 questions.</Command.Empty>
+      <Command.Empty>Start typing to search all 42 questions.</Command.Empty>
     {:else if results.length === 0}
       <Command.Empty>No results for “{normalizedQuery}”. Try a broader term.</Command.Empty>
     {:else}
