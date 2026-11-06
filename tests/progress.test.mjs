@@ -171,6 +171,54 @@ test('shared progress service toggles one question without mutating the caller c
   assert.deepEqual(removed.snapshot.completed, ['event-loop']);
 });
 
+test('clearing progress removes both storage versions and publishes an empty snapshot', async () => {
+  const { clearProgress, replaceProgress } = await import('../src/lib/progress/service.ts');
+  const originalWindow = globalThis.window;
+  const values = new Map([
+    [PROGRESS_STORAGE_KEY, JSON.stringify(createProgressSnapshot(['event-loop']))],
+    ['frontend-atlas:progress:v1', 'legacy'],
+  ]);
+  let announced;
+
+  globalThis.window = {
+    localStorage: {
+      getItem(key) {
+        return values.get(key) ?? null;
+      },
+      setItem(key, value) {
+        values.set(key, value);
+      },
+      removeItem(key) {
+        values.delete(key);
+      },
+    },
+    dispatchEvent(event) {
+      announced = event.detail;
+
+      return true;
+    },
+  };
+
+  try {
+    replaceProgress(createProgressSnapshot(['event-loop']));
+    const result = clearProgress();
+
+    assert.equal(result.persisted, true);
+    assert.deepEqual(result.snapshot.completed, []);
+    assert.deepEqual(result.snapshot.readingProgress, {});
+    assert.equal(values.has(PROGRESS_STORAGE_KEY), false);
+    assert.equal(values.has('frontend-atlas:progress:v1'), false);
+    assert.deepEqual(announced.completed, []);
+    assert.deepEqual(announced.readingProgress, {});
+  } finally {
+    if (originalWindow === undefined) {
+      delete globalThis.window;
+    } else {
+      globalThis.window = originalWindow;
+    }
+  }
+});
+
 test('legacy version 1 progress migrates to the version 2 model', async () => {
   const { parseProgressSnapshot } = await import('../src/lib/progress/model.ts');
   const migrated = parseProgressSnapshot({

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { AlertDialog, Button, Dialog, Progress } from '@weluvabid/iris/components';
-  import { Download, ImageUp, Trash2 } from '@weluvabid/iris/lucide';
+  import { ArrowLeft, Download, ImageUp, Trash2 } from '@weluvabid/iris/lucide';
   import { notify } from '@lib/notifications';
   import { decodeProgressQr, encodeProgressQr } from '@lib/progress/qr';
   import { clearProgress, mergeProgress, replaceProgress } from '@lib/progress/service';
@@ -243,9 +243,10 @@
       </div>
     {:else if mode === 'export'}
       <div class="space-y-4">
-        <Button.Root variant="ghost" size="sm" onclick={() => (mode = 'overview')}
-          >← Back to progress</Button.Root
-        >
+        <Button.Root variant="ghost" size="sm" onclick={() => (mode = 'overview')}>
+          <ArrowLeft class="size-4" aria-hidden="true" />
+          Back to progress
+        </Button.Root>
         <div class="flex flex-col items-center gap-3 py-2">
           {#if qrUrl}
             <img
@@ -273,9 +274,10 @@
       </div>
     {:else}
       <div class="space-y-3">
-        <Button.Root variant="ghost" size="sm" onclick={() => (mode = 'overview')}
-          >← Back to progress</Button.Root
-        >
+        <Button.Root variant="ghost" size="sm" onclick={() => (mode = 'overview')}>
+          <ArrowLeft class="size-4" aria-hidden="true" />
+          Back to progress
+        </Button.Root>
         <p class="text-sm text-muted-foreground">
           Select a previously exported Frontend Atlas QR image. We'll validate it and show you what
           it contains before changing progress on this device.

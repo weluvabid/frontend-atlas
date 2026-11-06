@@ -15,6 +15,7 @@
   let frame = 0;
   let lastPersisted = -1;
   let storageWarningShown = false;
+  let trackingPaused = false;
 
   function measure(): number {
     if (!article) return 0;
@@ -56,6 +57,7 @@
   }
 
   function handleScroll(): void {
+    trackingPaused = false;
     if (frame) return;
     frame = window.requestAnimationFrame(() => {
       frame = 0;
@@ -70,6 +72,7 @@
   }
 
   function flush(): void {
+    if (trackingPaused) return;
     if (persistTimer !== undefined) window.clearTimeout(persistTimer);
     position = Math.max(position, measure());
     persist(true);
@@ -91,6 +94,28 @@
     const unsubscribe = subscribeToProgress((result) => {
       if (!result.ok) return;
       const savedPosition = result.snapshot.readingProgress[questionId]?.position ?? 0;
+      const isReset =
+        savedPosition < lastPersisted ||
+        (savedPosition === 0 &&
+          position > 0 &&
+          result.snapshot.completed.length === 0 &&
+          Object.keys(result.snapshot.readingProgress).length === 0);
+
+      if (isReset) {
+        if (persistTimer !== undefined) {
+          window.clearTimeout(persistTimer);
+          persistTimer = undefined;
+        }
+        if (frame) {
+          window.cancelAnimationFrame(frame);
+          frame = 0;
+        }
+        trackingPaused = true;
+        position = savedPosition / 65535;
+        lastPersisted = savedPosition;
+        return;
+      }
+
       position = Math.max(position, savedPosition / 65535);
       lastPersisted = Math.max(lastPersisted, savedPosition);
     });
