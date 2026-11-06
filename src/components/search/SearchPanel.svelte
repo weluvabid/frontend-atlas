@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { Command, Alert, Spinner, Kbd } from '@weluvabid/iris/components';
-  import { rankSearchResults, type SearchDocument } from '@lib/atlas';
+  import { questionHref, rankSearchResults, type SearchDocument } from '@lib/atlas';
   import { isAbortError, loadSearchIndex } from '@lib/search';
   import { domains } from '@data/domains';
 
@@ -73,7 +73,7 @@
           <Command.Group heading={domain.name}>
             {#each domainResults as result (result.id)}
               <Command.LinkItem
-                href={`/questions/${result.slug}/`}
+                href={questionHref(result.id)}
                 value={`${result.title} ${result.summary} ${result.tags.join(' ')}`}
               >
                 <span class="min-w-0 flex-1">

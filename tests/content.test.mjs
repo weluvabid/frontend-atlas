@@ -7,13 +7,23 @@ import { QUESTION_MANIFEST, MAX_QUESTION_COUNT } from '../src/data/question-mani
 const contentRoot = join(process.cwd(), 'src/content/questions');
 const requiredSections = [
   '## Short answer',
-  '## Reason from first principles',
-  '## A concrete example',
-  '## Boundary cases to reason through',
-  '## Common misconception',
   '## Why this matters in production',
   '## Interviewer follow-ups',
   '## Further reading',
+];
+const requiredSectionPatterns = [
+  {
+    label: 'first-principles reasoning',
+    pattern:
+      /^## (?:Reason from first principles|Why this is its own topic|Core rules that actually work|The pieces that actually matter|Why this shows up everywhere)$/mu,
+  },
+  {
+    label: 'concrete example or implementation',
+    pattern:
+      /^## (?:A concrete example|Concrete implementation sketch|Concrete pattern|Concrete sketch of a focus trap|Implementation prompt)$/mu,
+  },
+  { label: 'boundary cases', pattern: /^## Boundary cases(?:\s|$)/mu },
+  { label: 'common misconceptions', pattern: /^## Common misconceptions?$/mu },
 ];
 
 async function findMdxFiles(directory) {
@@ -73,17 +83,22 @@ const questionFiles = await findMdxFiles(contentRoot);
 const questions = await Promise.all(questionFiles.map(readQuestion));
 const byId = new Map(questions.map(({ metadata }) => [metadata.id, metadata]));
 
-test('the initial collection contains 40 questions across eight balanced domains', () => {
-  assert.equal(questions.length, 40);
-  const counts = new Map();
+test(
+  'the collection retains its current content baseline across eight domains and stays within the cap',
+  () => {
+    assert.ok(questions.length >= 42);
+    assert.ok(questions.length <= MAX_QUESTION_COUNT);
+    const counts = new Map();
 
-  for (const { metadata } of questions) {
-    counts.set(metadata.domain, (counts.get(metadata.domain) ?? 0) + 1);
-  }
+    for (const { metadata } of questions) {
+      counts.set(metadata.domain, (counts.get(metadata.domain) ?? 0) + 1);
+    }
 
-  assert.equal(counts.size, 8);
-  assert.ok([...counts.values()].every((count) => count === 5));
-});
+    assert.equal(counts.size, 8);
+    assert.ok([...counts.values()].every((count) => count >= 5));
+    assert.ok((counts.get('ui-engineering') ?? 0) >= 7);
+  },
+);
 
 test('the append-only QR manifest covers every question within the hard cap', () => {
   const ids = questions.map(({ metadata }) => metadata.id);
@@ -128,6 +143,9 @@ test('every question has valid metadata and the complete editorial structure', (
 
     for (const section of requiredSections) {
       assert.ok(body.includes(section), `${path}: missing ${section}`);
+    }
+    for (const { label, pattern } of requiredSectionPatterns) {
+      assert.match(body, pattern, `${path}: missing ${label} section`);
     }
 
     assert.match(

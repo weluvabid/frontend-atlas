@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro';
 import { Button, Empty } from '@weluvabid/iris/components';
+import { withBase } from '@lib/atlas';
 ---
 
 <BaseLayout
@@ -16,8 +17,8 @@ import { Button, Empty } from '@weluvabid/iris/components';
       >
     </Empty.Header>
     <Empty.Content class="flex-row justify-center gap-3">
-      <Button.Root class="rounded-full" href="/search/">Search the handbook</Button.Root>
-      <Button.Root variant="outline" class="rounded-full" href="/domains/"
+      <Button.Root class="rounded-full" href={withBase('/search/')}>Search the handbook</Button.Root>
+      <Button.Root variant="outline" class="rounded-full" href={withBase('/domains/')}
         >Browse domains</Button.Root
       >
     </Empty.Content>

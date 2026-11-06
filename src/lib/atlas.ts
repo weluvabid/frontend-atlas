@@ -32,13 +32,24 @@ export interface SearchDocument extends QuestionSummary {
   readonly searchableText: string;
 }
 
+/** Prefix an internal site path with Astro's configured deployment base. */
+export function withBase(path: string, baseUrl = import.meta.env?.BASE_URL ?? '/'): string {
+  if (/^(?:[a-z][a-z\d+.-]*:|\/\/|#)/iu.test(path)) {
+    return path;
+  }
+
+  const base = baseUrl.replace(/\/+$/u, '');
+  const pathname = `/${path.replace(/^\/+/, '')}`;
+  return `${base}${pathname}` || '/';
+}
+
 /** Build the canonical question URL from its immutable content ID. */
 export function questionHref(id: string): string {
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/u.test(id)) {
     throw new TypeError(`Invalid question id for URL: ${id}`);
   }
 
-  return `/questions/${id}/`;
+  return withBase(`/questions/${id}/`);
 }
 
 const difficultyOrder: Record<Difficulty, number> = {

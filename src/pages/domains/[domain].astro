@@ -4,7 +4,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 import { Card, Badge, Breadcrumb } from '@weluvabid/iris/components';
 import { domainById, domains } from '@data/domains';
 import { assertValidQuestionGraph } from '@lib/content';
-import { orderDomainQuestions, questionHref } from '@lib/atlas';
+import { orderDomainQuestions, questionHref, withBase } from '@lib/atlas';
 
 export async function getStaticPaths() {
   const entries = await getCollection('questions');
@@ -25,7 +25,7 @@ const ordered = orderDomainQuestions(questions).map((question) => {
 <BaseLayout title={`${domain.name} — Frontend Atlas`} description={domain.description}>
   <Breadcrumb.Root class="mb-8">
     <Breadcrumb.List>
-      <Breadcrumb.Item><Breadcrumb.Link href="/domains/">Domains</Breadcrumb.Link></Breadcrumb.Item>
+      <Breadcrumb.Item><Breadcrumb.Link href={withBase('/domains/')}>Domains</Breadcrumb.Link></Breadcrumb.Item>
       <Breadcrumb.Separator />
       <Breadcrumb.Item><Breadcrumb.Page>{domain.name}</Breadcrumb.Page></Breadcrumb.Item>
     </Breadcrumb.List>

@@ -4,6 +4,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 import { Card, Badge } from '@weluvabid/iris/components';
 import { domains } from '@data/domains';
 import { assertValidQuestionGraph } from '@lib/content';
+import { withBase } from '@lib/atlas';
 
 const entries = await getCollection('questions');
 const questions = assertValidQuestionGraph(entries);
@@ -36,7 +37,7 @@ const counts = new Map(
     {
       domains.map((domain, index) => (
         <a
-          href={`/domains/${domain.id}/`}
+          href={withBase(`/domains/${domain.id}/`)}
           data-card-navigation
           class="block h-full rounded-2xl no-underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
         >

@@ -5,6 +5,7 @@ import {
   questionHref,
   rankSearchResults,
   validateQuestionGraph,
+  withBase,
 } from '../src/lib/atlas.ts';
 
 const question = (id, overrides = {}) => ({
@@ -89,6 +90,15 @@ test('search handles whitespace and empty queries', () => {
 test('search rejects invalid limits instead of silently changing behavior', () => {
   assert.throws(() => rankSearchResults([], 'query', 0), RangeError);
   assert.throws(() => rankSearchResults([], 'query', 1.5), RangeError);
+});
+
+test('base paths are applied only to internal URLs', () => {
+  assert.equal(
+    withBase('/search-index.json', '/frontend-atlas/'),
+    '/frontend-atlas/search-index.json',
+  );
+  assert.equal(withBase('/', '/frontend-atlas/'), '/frontend-atlas/');
+  assert.equal(withBase('https://example.com/docs', '/frontend-atlas/'), 'https://example.com/docs');
 });
 
 test('question URLs are derived from immutable IDs, never loader slugs', () => {

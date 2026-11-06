@@ -1,13 +1,14 @@
 <script lang="ts">
   import { SiteFooter, Button, Tooltip } from '@weluvabid/iris/components';
   import { SiGithub } from '@weluvabid/iris/simple-icons';
+  import { withBase } from '@lib/atlas';
 </script>
 
 <Tooltip.Provider delayDuration={300}>
   <SiteFooter>
     <a
       class="font-semibold tracking-tight text-foreground no-underline"
-      href="/"
+      href={withBase('/')}
       aria-label="Frontend Atlas home"
     >
       fa

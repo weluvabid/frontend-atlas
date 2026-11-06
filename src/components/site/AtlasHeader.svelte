@@ -7,6 +7,7 @@
   import SearchPanel from '@components/search/SearchPanel.svelte';
   import HelpDialog from '@components/site/HelpDialog.svelte';
   import { installKeyboardController } from '@lib/keyboard/controller';
+  import { withBase } from '@lib/atlas';
 
   let theme = $state<'light' | 'dark'>('light');
   let searchOpen = $state(false);
@@ -35,7 +36,7 @@
   <SiteHeader>
     <a
       class="inline-flex min-h-10 shrink-0 items-center rounded-full font-semibold tracking-tight text-foreground no-underline"
-      href="/"
+      href={withBase('/')}
       aria-label="Frontend Atlas home"
     >
       fa
@@ -50,7 +51,7 @@
               variant="ghost"
               size="icon"
               class="rounded-full"
-              href="/domains/"
+              href={withBase('/domains/')}
               aria-label="Explore domains"
             >
               <BookSearch aria-hidden="true" />
