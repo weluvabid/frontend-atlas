@@ -90,16 +90,29 @@
   });
 </script>
 
-<div
-  class="pointer-events-none fixed inset-x-0 top-0 z-[100] h-[3px] bg-transparent"
-  role="progressbar"
-  aria-label="Article reading progress"
-  aria-valuemin="0"
-  aria-valuemax="100"
-  aria-valuenow={Math.round(position * 100)}
->
+{#if position > 0}
   <div
-    class="h-full origin-left bg-primary transition-[width] duration-150"
-    style={`width: ${position * 100}%`}
-  ></div>
-</div>
+    class="pointer-events-none fixed bottom-6 right-6 z-50 grid size-8 place-items-center rounded-full bg-background/90 text-border ring-1 ring-border/70 backdrop-blur-sm"
+    role="progressbar"
+    aria-label="Article reading progress"
+    aria-valuemin="0"
+    aria-valuemax="100"
+    aria-valuenow={Math.round(position * 100)}
+    title={`Reading progress: ${Math.round(position * 100)}%`}
+  >
+    <svg aria-hidden="true" class="size-7 -rotate-90" viewBox="0 0 28 28" fill="none">
+      <circle cx="14" cy="14" r="11" stroke="currentColor" stroke-width="2" />
+      <circle
+        class="text-primary transition-[stroke-dashoffset] duration-150"
+        cx="14"
+        cy="14"
+        r="11"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-dasharray="69.115"
+        stroke-dashoffset={69.115 * (1 - position)}
+      />
+    </svg>
+  </div>
+{/if}

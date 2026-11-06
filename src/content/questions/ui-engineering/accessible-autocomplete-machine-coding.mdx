@@ -13,7 +13,7 @@ featured: false
 
 ## Short answer
 
-Treat autocomplete as a small interaction system, not an input with a dropdown. Separate query state, request state, active option, and selected value. Implement the WAI-ARIA combobox pattern, support the expected keyboard model, and make asynchronous results latest-request-wins.
+Treat autocomplete as a small interaction system, not an input with a dropdown glued on. Keep four pieces of state independent: the text the user is editing, the actual selected value, which option is active for keyboard navigation, and the in-flight request. Implement the WAI-ARIA combobox pattern properly, support the expected keyboard model, and make sure only the latest request can update the results.
 
 ## Implementation prompt
 
@@ -21,32 +21,35 @@ Build a reusable autocomplete for selecting a customer from a remote directory.
 
 **Functional requirements**
 
-- Accept a controlled or clearly documented uncontrolled input value.
-- Wait briefly after typing before requesting suggestions.
-- Show loading, results, no-results, and recoverable error states.
-- Support Arrow Down/Up, Enter, Escape, and normal text editing.
-- Allow pointer selection without losing the intended focus behavior.
-- Close the popup when appropriate and expose the selected value to the parent.
+- Support both controlled and clearly documented uncontrolled usage.
+- Debounce the network request while the user is typing.
+- Show distinct loading, results, empty, and error states.
+- Handle Arrow Down/Up, Enter, Escape, and normal text editing.
+- Allow pointer selection without fighting focus behaviour.
+- Close the popup at the right times and surface the selected value to the parent.
 
 **Correctness and accessibility requirements**
 
-- Use the combobox/listbox/option semantics and relationships required by the WAI-ARIA pattern.
-- Keep `aria-expanded`, `aria-controls`, and `aria-activedescendant` synchronized with the actual popup and active option.
-- Never allow an older response to replace results for a newer query.
-- Do not treat the highlighted option as selected until the user commits it.
-- Preserve IME composition and ordinary input editing behavior.
+- Follow the WAI-ARIA combobox / listbox / option pattern.
+- Keep `aria-expanded`, `aria-controls`, and `aria-activedescendant` in sync with reality.
+- Never let an older response overwrite results for a newer query.
+- Do not treat a highlighted option as selected until the user commits it.
+- Preserve IME composition and ordinary editing behaviour.
 
 ## Reason from first principles
 
-There are at least four independent values: the text being edited, the selected domain value, the currently active option for keyboard navigation, and the asynchronous request state. Conflating them creates bugs—for example, pressing Arrow Down should move the highlight without committing a selection, while Escape should close the popup without unexpectedly changing the text.
+There are at least four values that must stay independent:
 
-The request lifecycle is also independent from the interaction lifecycle. Debouncing reduces request volume, but it does not solve response reordering. Abort the previous request when possible and also associate each request with a monotonically increasing sequence or query identity. Only the latest request may update the visible result state.
+1. The text currently in the input (what the user is typing).
+2. The committed domain value (the customer that was actually selected).
+3. The active option index (for keyboard highlighting).
+4. The request state (idle / loading / success / empty / error).
 
-## A concrete example
+Mixing them is the source of most autocomplete bugs. Arrow Down should move the highlight without changing the selected value. Escape should close the list without wiping the text the user has already typed. A slow response for an old query should never replace the results for the query the user is looking at now.
 
-A request controller and sequence token make the latest-query rule explicit:
+Debouncing only reduces how many requests you send. It does nothing about responses arriving out of order. You need both cancellation (AbortController) and a sequence token (or equivalent) so that only the latest request is allowed to update visible state.
 
-### Implementation sketch
+## Concrete implementation sketch
 
 ```ts
 let requestSequence = 0;
@@ -75,39 +78,72 @@ async function loadSuggestions(query: string) {
     const payload: unknown = await response.json();
     const parsed = parseCustomerSuggestions(payload);
 
+    // Stale response — ignore it
     if (sequence !== requestSequence || controller.signal.aborted) return;
+
     suggestions = parsed;
     status = parsed.length === 0 ? 'empty' : 'success';
   } catch (error) {
     if (controller.signal.aborted) return;
     if (sequence !== requestSequence) return;
     status = 'error';
-    throw error;
+    // surface the error to whatever error reporting you use
   }
 }
 ```
 
-The sketch leaves `parseCustomerSuggestions` and rendering to the application. Validate the response at the trust boundary; a TypeScript assertion is not runtime validation. In production, debounce the call, clear pending timers on teardown, and ensure an expected abort is not reported as an application failure.
+A few production details that are easy to miss:
 
-## Boundary cases to reason through
+- Debounce the *call* to `loadSuggestions`, not the abort logic inside it.
+- Clear any pending debounce timer on unmount or when the component is disabled.
+- Treat an expected abort as normal control flow, not as an application error.
+- Validate the response at the boundary. A TypeScript type assertion is not runtime validation.
 
-IME composition must not trigger a request for every intermediate composition string; use composition events and avoid committing a value before composition ends. Pointer selection can race with blur: if the input loses focus before the option click runs, the popup may disappear before selection. Model pointer-down/selection deliberately rather than adding arbitrary timeouts. Also test empty queries, duplicate labels with distinct IDs, server errors, slow responses, and a result set that changes while an option is active.
+## Boundary cases that matter
 
-## Common misconception
+**IME composition.**  
+While the user is composing (common with Chinese, Japanese, Korean keyboards), intermediate composition strings should not fire requests or commit values. Listen to `compositionstart` / `compositionend` and ignore input events that are part of an ongoing composition.
 
-A dropdown that works with a mouse is not an accessible autocomplete. Adding `role="combobox"` to an input is also not enough: the popup role, active descendant, expanded state, option IDs, keyboard transitions, and focus behavior must agree.
+**Pointer selection vs blur.**  
+If the input blurs before the option’s click handler runs, the popup can disappear and the selection is lost. The usual fix is to select on `pointerdown` (or `mousedown`) rather than `click`, or to keep the popup open until the selection is committed. Arbitrary `setTimeout` hacks are fragile.
+
+**Active option becomes invalid.**  
+When new results arrive, the previously active index may now point at a different item or beyond the end of the list. Reset or clamp the active index when the result set changes.
+
+**Duplicate labels, distinct IDs.**  
+Users select by identity, not by display string. If two customers can have the same name, the option must carry a stable ID and the selected value must use that ID.
+
+**Empty query, slow network, server error.**  
+All three need explicit UI states. A spinner that never resolves and a silent failure are both worse than a clear empty or error message.
+
+**Keyboard + screen reader agreement.**  
+`aria-activedescendant` must point at a real option that exists in the DOM. The option needs an ID. When the active option changes, the screen reader should hear the new option. This is easy to get wrong when results are virtualised or when the list is re-rendered.
+
+## Common misconceptions
+
+- “If it works with a mouse it is accessible.”  
+  Keyboard and screen reader behaviour are part of the contract. A mouse-only dropdown is not an autocomplete.
+
+- “Adding `role="combobox"` is enough.”  
+  The role is only the start. Expanded state, controls relationship, active descendant, option roles, and keyboard handling all have to agree.
+
+- “Debounce solves race conditions.”  
+  Debounce only limits how often you *send* requests. Responses can still arrive out of order.
 
 ## Why this matters in production
 
-Autocomplete is a compact example of frontend systems engineering: asynchronous consistency, cancellation, state modeling, keyboard interaction, accessible semantics, and boundary validation all meet in one control. A weak implementation can select the wrong record, lose typed text, announce stale options, or become unusable without a pointer.
+Autocomplete is a compact example of real frontend systems work. You have asynchronous consistency, cancellation, state modelling, keyboard interaction, accessible semantics, and trust-boundary validation all in one control. A weak implementation can select the wrong record, lose typed text, announce stale options, or become unusable without a pointer.
+
+Teams that treat it as “just a dropdown with search” usually rediscover these problems in production, often after the component is already widely used.
 
 ## Interviewer follow-ups
 
-- How would you make the component support multi-select tokens?
-- How would you handle 50,000 possible options without rendering every result?
-- What should happen when the selected customer is deleted after selection?
+- How would you extend this to multi-select with tokens?
+- How would you handle tens of thousands of possible options without rendering every result?
+- What should happen if the selected customer is deleted on the server after selection?
+- How would you test the race between a slow response and a newer query?
 
 ## Further reading
 
-- [WAI-ARIA combobox pattern](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/) — keyboard and accessibility behavior.
-- [Playwright network mocking](https://playwright.dev/docs/network) — deterministic testing of request ordering and failures.
+- [WAI-ARIA Authoring Practices — Combobox](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/) — the keyboard and accessibility behaviour you should match.
+- [Playwright network mocking](https://playwright.dev/docs/network) — deterministic tests for request ordering and failures.

@@ -40,6 +40,8 @@ export const QUESTION_MANIFEST = [
   'typescript-structural-typing',
   'unit-integration-and-e2e-testing',
   'xss-and-safe-dom-sinks',
+  'focus-management-systems',
+  'request-lifecycle-and-race-conditions',
 ] as const;
 
 export const MAX_QUESTION_COUNT = 150;
