@@ -80,7 +80,7 @@ export function getInProgressIds(snapshot: ProgressSnapshot): string[] {
   return Object.keys(snapshot.readingProgress).filter((id) => !snapshot.completed.includes(id)).sort();
 }
 
-/** Merge snapshots without regressing completion or moving a reader backwards in time. */
+/** Merge snapshots while keeping completion and maximum reading depth monotonic. */
 export function mergeProgressSnapshots(
   current: ProgressSnapshot,
   incoming: ProgressSnapshot,
@@ -92,7 +92,7 @@ export function mergeProgressSnapshots(
   const readingProgress = { ...left.readingProgress };
   for (const [id, candidate] of Object.entries(right.readingProgress)) {
     const existing = readingProgress[id];
-    if (!existing || Date.parse(candidate.updatedAt) > Date.parse(existing.updatedAt)) {
+    if (!existing || candidate.position > existing.position) {
       readingProgress[id] = candidate;
     }
   }

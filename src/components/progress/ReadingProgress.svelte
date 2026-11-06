@@ -27,7 +27,9 @@
     if (next === lastPersisted) return;
     try {
       const result = updateQuestionReadingProgress(questionId, next);
-      lastPersisted = next;
+      const savedPosition = result.snapshot.readingProgress[questionId]?.position ?? 0;
+      position = Math.max(position, savedPosition / 65535);
+      lastPersisted = Math.max(lastPersisted, savedPosition);
       if (!result.persisted && !storageWarningShown) {
         storageWarningShown = true;
         notify('warning', 'Reading progress is available in this tab only', { description: 'Browser storage is unavailable.' });
@@ -45,7 +47,7 @@
     if (frame) return;
     frame = window.requestAnimationFrame(() => {
       frame = 0;
-      position = measure();
+      position = Math.max(position, measure());
       if (persistTimer !== undefined) window.clearTimeout(persistTimer);
       persistTimer = window.setTimeout(() => persist(), 1200);
     });
@@ -58,7 +60,7 @@
 
   function flush(): void {
     if (persistTimer !== undefined) window.clearTimeout(persistTimer);
-    position = measure();
+    position = Math.max(position, measure());
     persist(true);
   }
 
@@ -67,6 +69,9 @@
     if (!article) throw new Error('Reading progress requires an article container');
     const unsubscribe = subscribeToProgress((result) => {
       if (!result.ok) return;
+      const savedPosition = result.snapshot.readingProgress[questionId]?.position ?? 0;
+      position = Math.max(position, savedPosition / 65535);
+      lastPersisted = Math.max(lastPersisted, savedPosition);
     });
     handleScroll();
     window.addEventListener('scroll', handleScroll, { passive: true });

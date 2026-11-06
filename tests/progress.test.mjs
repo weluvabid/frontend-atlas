@@ -173,7 +173,7 @@ test('volatile fallback preserves completion while reading progress changes with
 });
 
 
-test('progress merge keeps completion and selects the latest per-question reading position', () => {
+test('progress merge keeps completion and the greatest per-question reading position', () => {
   const current = createProgressSnapshot(
     ['closures'],
     new Date('2026-11-06T00:00:00.000Z'),
@@ -189,7 +189,7 @@ test('progress merge keeps completion and selects the latest per-question readin
   );
   const merged = mergeProgressSnapshots(current, incoming);
   assert.deepEqual(merged.completed, ['closures', 'event-loop']);
-  assert.equal(merged.readingProgress['event-loop'].position, 12000);
+  assert.equal(merged.readingProgress['event-loop'].position, 50000);
   assert.equal(merged.readingProgress['browser-rendering'].position, 8000);
 });
 
@@ -207,4 +207,36 @@ test('storage migrates the legacy key into the version 2 key on first read', asy
   assert.equal(result.snapshot.version, 2);
   assert.deepEqual(result.snapshot.completed, ['closures']);
   assert.equal(JSON.parse(values.get(PROGRESS_STORAGE_KEY)).version, 2);
+});
+
+
+test('reading progress is monotonic and scrolling backwards never overwrites the maximum', async () => {
+  const { replaceProgress, updateQuestionReadingProgress } = await import('../src/lib/progress/service.ts');
+  const originalWindow = globalThis.window;
+  const values = new Map();
+  globalThis.window = {
+    localStorage: {
+      getItem(key) { return values.get(key) ?? null; },
+      setItem(key, value) { values.set(key, value); },
+      removeItem(key) { values.delete(key); },
+    },
+    dispatchEvent() { return true; },
+  };
+
+  try {
+    replaceProgress(createProgressSnapshot([]));
+    updateQuestionReadingProgress('event-loop', 48000);
+    const backwards = updateQuestionReadingProgress('event-loop', 12000);
+    assert.equal(backwards.snapshot.readingProgress['event-loop'].position, 48000);
+    updateQuestionReadingProgress('event-loop', 0);
+    const atTop = readProgress(globalThis.window.localStorage);
+    assert.equal(atTop.ok, true);
+    assert.equal(atTop.snapshot.readingProgress['event-loop'].position, 48000);
+
+    const forwards = updateQuestionReadingProgress('event-loop', 52000);
+    assert.equal(forwards.snapshot.readingProgress['event-loop'].position, 52000);
+  } finally {
+    if (originalWindow === undefined) delete globalThis.window;
+    else globalThis.window = originalWindow;
+  }
 });

@@ -9,12 +9,12 @@
 
     for (const indicator of questionIndicators) {
       indicator.textContent = '';
-      indicator.classList.add('hidden');
+      indicator.style.display = 'none';
       indicator.removeAttribute('data-progress-state');
     }
     for (const indicator of domainIndicators) {
       indicator.textContent = '';
-      indicator.classList.add('hidden');
+      indicator.style.display = 'none';
     }
 
     if (!result.ok) return;
@@ -29,14 +29,14 @@
       if (completedIds.has(questionId)) {
         indicator.textContent = 'Completed';
         indicator.dataset.progressState = 'completed';
-        indicator.classList.remove('hidden');
+        indicator.style.display = '';
       } else {
         const reading = readingProgress[questionId];
-        if (!reading) continue;
+        if (!reading || reading.position === 0) continue;
         const percentage = Math.round((reading.position / 65535) * 100);
-        indicator.textContent = percentage > 0 ? `In progress · ${percentage}%` : 'In progress';
+        indicator.textContent = `In progress · ${percentage}%`;
         indicator.dataset.progressState = 'in-progress';
-        indicator.classList.remove('hidden');
+        indicator.style.display = '';
       }
     }
 
@@ -45,9 +45,11 @@
       if (!rawIds) throw new Error('Domain progress indicator is missing its question IDs');
       const ids = rawIds.split(',').filter(Boolean);
       const done = ids.filter((id) => completedIds.has(id)).length;
-      const inProgress = ids.filter((id) => !completedIds.has(id) && readingProgress[id]).length;
+      const inProgress = ids.filter(
+        (id) => !completedIds.has(id) && readingProgress[id] && readingProgress[id].position > 0
+      ).length;
       indicator.textContent = `${done}/${ids.length} completed${inProgress ? ` · ${inProgress} in progress` : ''}`;
-      indicator.classList.remove('hidden');
+      indicator.style.display = '';
     }
   }
 

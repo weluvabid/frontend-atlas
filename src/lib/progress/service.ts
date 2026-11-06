@@ -75,8 +75,10 @@ export function updateQuestionReadingProgress(
   if (!existing.ok && existing.reason === 'invalid-data') throw new Error('Cannot update reading progress: saved progress is invalid');
   const currentSnapshot = existing.ok ? existing.snapshot : existing.reason === 'unavailable' ? volatileSnapshot ?? createProgressSnapshot([]) : createProgressSnapshot([]);
   const readingProgress = { ...currentSnapshot.readingProgress };
-  if (position === 0) delete readingProgress[questionId];
-  else readingProgress[questionId] = { position, updatedAt: new Date().toISOString() };
+  const previous = readingProgress[questionId];
+  if (position > (previous?.position ?? 0)) {
+    readingProgress[questionId] = { position, updatedAt: new Date().toISOString() };
+  }
   const snapshot = createProgressSnapshot(currentSnapshot.completed, new Date(), readingProgress);
   const persisted = writeProgress(current, snapshot);
   volatileSnapshot = snapshot;
@@ -84,7 +86,7 @@ export function updateQuestionReadingProgress(
   return { snapshot, persisted };
 }
 
-/** Merge snapshots: completion is monotonic; reading position uses per-question last-write-wins. */
+/** Merge snapshots without regressing completion or per-question reading position. */
 export function mergeProgress(incoming: ProgressSnapshot): ProgressSaveResult {
   const normalized = parseProgressSnapshot(incoming);
   const storage = getProgressStorage();
