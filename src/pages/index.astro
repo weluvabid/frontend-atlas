@@ -86,20 +86,21 @@ const featured = featuredQuestionIds.map((id) => {
       </div>
       <Button.Root variant="link" href="/domains/">All questions</Button.Root>
     </div>
-    <div class="grid gap-3 sm:grid-cols-2">
+    <div class="grid items-stretch gap-3 sm:grid-cols-2">
       {
         featured.map((question) => (
           <a
             href={questionHref(question.id)}
-            class="block rounded-2xl no-underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+            class="block h-full rounded-2xl no-underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
           >
-            <Card.Root class="rounded-2xl border border-border transition-colors hover:ring-ring/50 [--card-spacing:--spacing(5)]">
-              <Card.Header>
+            <Card.Root class="h-full rounded-2xl border border-border transition-colors hover:ring-ring/50 [--card-spacing:--spacing(5)]">
+              <Card.Header class="flex h-full flex-col">
                 <Card.Title>{question.title}</Card.Title>
                 <Card.Description>{question.summary}</Card.Description>
                 <span
                   data-question-progress={question.id}
-                  style="display: none" class="mt-3 inline-flex rounded-full border border-border px-2.5 py-1 text-xs font-medium text-muted-foreground"
+                  data-featured-progress
+                  style="display: none" class="mt-auto inline-flex w-fit rounded-full border border-border px-2.5 py-1 text-xs font-medium text-muted-foreground"
                 ></span>
               </Card.Header>
             </Card.Root>

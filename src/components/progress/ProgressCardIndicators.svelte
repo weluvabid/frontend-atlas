@@ -11,7 +11,7 @@
       indicator.textContent = '';
       indicator.style.display = 'none';
       indicator.removeAttribute('data-progress-state');
-      indicator.className = 'mt-3 hidden rounded-full border border-border px-2.5 py-1 text-xs font-medium text-muted-foreground';
+      indicator.className = `${indicator.hasAttribute('data-featured-progress') ? 'mt-auto' : 'mt-3'} hidden w-fit rounded-full border border-border px-2.5 py-1 text-xs font-medium text-muted-foreground`;
     }
     for (const indicator of domainIndicators) {
       indicator.textContent = '';
@@ -30,7 +30,7 @@
       if (completedIds.has(questionId)) {
         indicator.textContent = 'Completed';
         indicator.dataset.progressState = 'completed';
-        indicator.className = 'mt-3 inline-flex w-fit self-start rounded-full border border-border px-2.5 py-1 text-xs font-medium text-muted-foreground';
+        indicator.className = `${indicator.hasAttribute('data-featured-progress') ? 'mt-auto' : 'mt-3'} inline-flex w-fit self-start rounded-full border border-border px-2.5 py-1 text-xs font-medium text-muted-foreground`;
         indicator.style.display = '';
       } else {
         const reading = readingProgress[questionId];
@@ -38,7 +38,7 @@
         const percentage = Math.round((reading.position / 65535) * 100);
         indicator.textContent = `In progress · ${percentage}%`;
         indicator.dataset.progressState = 'in-progress';
-        indicator.className = 'mt-3 inline-flex w-fit self-start rounded-full border border-border px-2.5 py-1 text-xs font-medium text-muted-foreground';
+        indicator.className = `${indicator.hasAttribute('data-featured-progress') ? 'mt-auto' : 'mt-3'} inline-flex w-fit self-start rounded-full border border-border px-2.5 py-1 text-xs font-medium text-muted-foreground`;
         indicator.style.display = '';
       }
     }
