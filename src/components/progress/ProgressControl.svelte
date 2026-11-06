@@ -2,15 +2,8 @@
   import { onMount } from 'svelte';
   import { Button, Alert } from '@weluvabid/iris/components';
   import { Check, Circle } from '@weluvabid/iris/lucide';
-  import {
-    announceProgressChange,
-    createProgressSnapshot,
-    parseProgressSnapshot,
-    PROGRESS_CHANGE_EVENT,
-    PROGRESS_STORAGE_KEY,
-    readProgress,
-    writeProgress,
-  } from '@lib/progress';
+  import { subscribeToProgress, toggleQuestionCompletion } from '@lib/progress/service';
+  import type { ProgressReadResult } from '@lib/progress/storage';
 
   interface Props {
     questionId: string;
@@ -22,43 +15,23 @@
   let status = $state('');
   let storageAvailable = $state(true);
 
-  function getStorage(): Storage | undefined {
-    try {
-      return window.localStorage;
-    } catch (error) {
-      if (error instanceof DOMException && error.name === 'SecurityError') {
-        return undefined;
-      }
+  function toggleCompleted(): void {
+    const result = toggleQuestionCompletion(questionId, completedIds);
+    completedIds = [...result.snapshot.completed];
+    completed = result.snapshot.completed.includes(questionId);
 
-      throw error;
-    }
-  }
-
-  function persist(ids: readonly string[]): boolean {
-    const snapshot = createProgressSnapshot(ids);
-    completedIds = [...snapshot.completed];
-    completed = snapshot.completed.includes(questionId);
-
-    const stored = writeProgress(getStorage(), snapshot);
-    announceProgressChange(snapshot);
-
-    if (!stored) {
+    if (!result.persisted) {
       storageAvailable = false;
       status = 'Browser storage is unavailable. Progress is only available in this tab.';
-      return false;
+      return;
     }
 
+    storageAvailable = true;
     status = 'Progress saved on this device.';
-
-    return true;
   }
 
   onMount(() => {
-    const storage = getStorage();
-
-    function syncFromStorage(): void {
-      const result = readProgress(storage);
-
+    function handleProgressResult(result: ProgressReadResult): void {
       if (!result.ok) {
         storageAvailable = result.reason !== 'unavailable';
         status =
@@ -73,43 +46,8 @@
       completed = result.snapshot.completed.includes(questionId);
     }
 
-    function handleStorageChange(event: StorageEvent): void {
-      if (event.key !== PROGRESS_STORAGE_KEY && event.key !== null) {
-        return;
-      }
-
-      syncFromStorage();
-    }
-
-    function handleProgressChange(event: Event): void {
-      if (!(event instanceof CustomEvent)) return;
-      const snapshot = parseProgressSnapshot(event.detail);
-      completedIds = [...snapshot.completed];
-      completed = snapshot.completed.includes(questionId);
-      status = 'Progress updated in this tab.';
-    }
-
-    syncFromStorage();
-    window.addEventListener('storage', handleStorageChange);
-    window.addEventListener(PROGRESS_CHANGE_EVENT, handleProgressChange);
-
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener(PROGRESS_CHANGE_EVENT, handleProgressChange);
-    };
+    return subscribeToProgress(handleProgressResult);
   });
-
-  function toggleCompleted(): void {
-    const next = new Set(completedIds);
-
-    if (next.has(questionId)) {
-      next.delete(questionId);
-    } else {
-      next.add(questionId);
-    }
-
-    persist([...next]);
-  }
 </script>
 
 <div class="flex flex-wrap items-center gap-3">

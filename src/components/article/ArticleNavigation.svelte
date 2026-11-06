@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { attachArticleSwipeNavigation } from '@lib/navigation/article-gestures';
   import { Button, Tooltip } from '@weluvabid/iris/components';
   import { ChevronLeft, ChevronRight } from '@weluvabid/iris/lucide';
 
@@ -15,71 +16,12 @@
 
   let { previous, next }: Props = $props();
 
-  const ignoredSwipeTargets = [
-    'a',
-    'button',
-    'input',
-    'textarea',
-    'select',
-    'summary',
-    'pre',
-    'code',
-    '[contenteditable="true"]',
-    '[data-no-swipe]',
-  ].join(',');
-
-  onMount(() => {
-    let start: { x: number; y: number; pointerId: number; article: HTMLElement } | null = null;
-
-    function onPointerDown(event: PointerEvent): void {
-      if (event.pointerType !== 'touch' || !event.isPrimary || event.button !== 0) return;
-      if (event.clientX < 24 || event.clientX > window.innerWidth - 24) return;
-      if (!(event.target instanceof Element)) return;
-
-      const article = event.target.closest<HTMLElement>('article[data-article-swipe]');
-      if (!article || event.target.closest(ignoredSwipeTargets)) return;
-
-      start = {
-        x: event.clientX,
-        y: event.clientY,
-        pointerId: event.pointerId,
-        article,
-      };
-    }
-
-    function onPointerUp(event: PointerEvent): void {
-      if (!start || event.pointerId !== start.pointerId) return;
-
-      const origin = start;
-      start = null;
-
-      if (event.pointerType !== 'touch' || !(event.target instanceof Element)) return;
-      if (event.target.closest('article[data-article-swipe]') !== origin.article) return;
-      if (event.target.closest(ignoredSwipeTargets)) return;
-      if (window.getSelection()?.toString()) return;
-
-      const deltaX = event.clientX - origin.x;
-      const deltaY = event.clientY - origin.y;
-      if (Math.abs(deltaX) < 72 || Math.abs(deltaX) < Math.abs(deltaY) * 1.25) return;
-
-      const destination = deltaX < 0 ? next : previous;
-      if (destination) window.location.assign(destination.url);
-    }
-
-    function reset(): void {
-      start = null;
-    }
-
-    window.addEventListener('pointerdown', onPointerDown, { passive: true });
-    window.addEventListener('pointerup', onPointerUp, { passive: true });
-    window.addEventListener('pointercancel', reset, { passive: true });
-
-    return () => {
-      window.removeEventListener('pointerdown', onPointerDown);
-      window.removeEventListener('pointerup', onPointerUp);
-      window.removeEventListener('pointercancel', reset);
-    };
-  });
+  onMount(() =>
+    attachArticleSwipeNavigation({
+      previousUrl: previous?.url ?? null,
+      nextUrl: next?.url ?? null,
+    }),
+  );
 </script>
 
 {#if previous || next}

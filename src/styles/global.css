@@ -35,11 +35,9 @@
   }
 }
 
+/* Semantic typography for rendered MDX content. Descendant styles cannot be expressed
+   cleanly at each Astro call site without duplicating selectors across content pages. */
 @layer components {
-  .eyebrow {
-    @apply text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground;
-  }
-
   .prose-atlas {
     @apply text-[0.96rem] leading-8 text-foreground;
   }

@@ -114,3 +114,17 @@ test('storage write returns false for quota failures but propagates unknown fail
     /unexpected write failure/,
   );
 });
+
+test('shared progress service toggles one question without mutating the caller collection', async () => {
+  const { toggleQuestionCompletion } = await import('../src/lib/progress/service.ts');
+  const initial = ['closures'];
+  const added = toggleQuestionCompletion('event-loop', initial);
+
+  assert.deepEqual(added.snapshot.completed, ['closures', 'event-loop']);
+  assert.deepEqual(initial, ['closures']);
+  assert.equal(added.persisted, false);
+
+  const removed = toggleQuestionCompletion('closures', added.snapshot.completed);
+
+  assert.deepEqual(removed.snapshot.completed, ['event-loop']);
+});

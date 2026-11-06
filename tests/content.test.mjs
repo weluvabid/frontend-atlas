@@ -46,7 +46,23 @@ async function readQuestion(path) {
     const key = line.slice(0, separator);
     const value = line.slice(separator + 2);
 
-    metadata[key] = JSON.parse(value);
+    if (value.startsWith("'") && value.endsWith("'")) {
+      metadata[key] = value.slice(1, -1).replaceAll("''", "'");
+    } else if (value.startsWith('[') && value.endsWith(']')) {
+      const contents = value.slice(1, -1).trim();
+
+      metadata[key] = contents
+        ? contents.split(/,\s*/u).map((item) => {
+            if (item.startsWith("'") && item.endsWith("'")) {
+              return item.slice(1, -1).replaceAll("''", "'");
+            }
+
+            return JSON.parse(item);
+          })
+        : [];
+    } else {
+      metadata[key] = JSON.parse(value);
+    }
   }
 
   return { metadata, body: sections[2], path };

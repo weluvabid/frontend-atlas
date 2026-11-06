@@ -2,16 +2,14 @@
   import { onMount, tick } from 'svelte';
   import { Button, DropdownMenu, Progress } from '@weluvabid/iris/components';
   import { ChevronDown, Download, Upload } from '@weluvabid/iris/lucide';
+  import { createProgressSnapshot, type ProgressSnapshot } from '@lib/progress/model';
   import {
-    announceProgressChange,
-    createProgressSnapshot,
-    parseProgressSnapshot,
-    PROGRESS_CHANGE_EVENT,
-    PROGRESS_STORAGE_KEY,
-    readProgress,
-    writeProgress,
-    type ProgressSnapshot,
-  } from '@lib/progress';
+    downloadProgressBackup,
+    MAX_PROGRESS_BACKUP_BYTES,
+    parseProgressBackup,
+  } from '@lib/progress/backup';
+  import { replaceProgress, subscribeToProgress } from '@lib/progress/service';
+  import type { ProgressReadResult } from '@lib/progress/storage';
 
   interface Props {
     knownIds: string[];
@@ -43,22 +41,8 @@
     storageMessage = '';
   }
 
-  function getStorage(): Storage | undefined {
-    try {
-      return window.localStorage;
-    } catch (error) {
-      if (error instanceof DOMException && error.name === 'SecurityError') return undefined;
-      throw error;
-    }
-  }
-
   onMount(() => {
-    const storage = getStorage();
-    if (!storage) storageMessage = 'Progress storage is disabled in this browser.';
-
-    function syncFromStorage(): void {
-      const result = readProgress(storage);
-
+    function handleProgressResult(result: ProgressReadResult): void {
       if (!result.ok) {
         progressInvalid = result.reason === 'invalid-data';
         storageMessage =
@@ -71,43 +55,36 @@
       applySnapshot(result.snapshot);
     }
 
-    async function handleCardNavigationPrompt(event: Event): Promise<void> {
-      if (!(event instanceof CustomEvent)) return;
+    function handleCardNavigationPrompt(event: Event): void {
+      if (!(event instanceof CustomEvent)) {
+        return;
+      }
+
       const detail = event.detail as { active?: boolean; value?: string; message?: string };
       navigationMode = detail.active === true;
       navigationSequence = typeof detail.value === 'string' ? detail.value : '';
       navigationMessage = typeof detail.message === 'string' ? detail.message : '';
-      if (navigationMessageTimer !== undefined) window.clearTimeout(navigationMessageTimer);
+
+      if (navigationMessageTimer !== undefined) {
+        window.clearTimeout(navigationMessageTimer);
+      }
 
       if (navigationMode) {
-        await tick();
-        navigationInput?.focus({ preventScroll: true });
+        void tick().then(() => navigationInput?.focus({ preventScroll: true }));
       } else if (navigationMessage) {
         navigationMessageTimer = window.setTimeout(() => (navigationMessage = ''), 3000);
       }
     }
 
-    function handleStorageChange(event: StorageEvent): void {
-      if (event.key !== PROGRESS_STORAGE_KEY && event.key !== null) return;
-      syncFromStorage();
-    }
-
-    function handleProgressChange(event: Event): void {
-      if (!(event instanceof CustomEvent)) return;
-      const snapshot = parseProgressSnapshot(event.detail);
-      applySnapshot(snapshot);
-    }
-
-    syncFromStorage();
-    window.addEventListener('storage', handleStorageChange);
+    const unsubscribe = subscribeToProgress(handleProgressResult);
     window.addEventListener('atlas:card-navigation-prompt', handleCardNavigationPrompt);
-    window.addEventListener(PROGRESS_CHANGE_EVENT, handleProgressChange);
 
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
+      unsubscribe();
       window.removeEventListener('atlas:card-navigation-prompt', handleCardNavigationPrompt);
-      if (navigationMessageTimer !== undefined) window.clearTimeout(navigationMessageTimer);
-      window.removeEventListener(PROGRESS_CHANGE_EVENT, handleProgressChange);
+      if (navigationMessageTimer !== undefined) {
+        window.clearTimeout(navigationMessageTimer);
+      }
     };
   });
 
@@ -117,14 +94,7 @@
       return;
     }
 
-    const snapshot = createProgressSnapshot(currentSnapshot.completed);
-    const blob = new Blob([JSON.stringify(snapshot, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement('a');
-    anchor.href = url;
-    anchor.download = 'frontend-atlas-progress.json';
-    anchor.click();
-    window.setTimeout(() => URL.revokeObjectURL(url), 0);
+    downloadProgressBackup(createProgressSnapshot(currentSnapshot.completed));
     status = 'Progress export created.';
   }
 
@@ -135,25 +105,21 @@
   async function importProgress(event: Event): Promise<void> {
     const input = event.currentTarget;
 
-    if (!(input instanceof HTMLInputElement) || !input.files?.[0]) return;
+    if (!(input instanceof HTMLInputElement) || !input.files?.[0]) {
+      return;
+    }
 
     const file = input.files[0];
     input.value = '';
 
-    if (file.size > 64 * 1024) {
-      status = 'Import rejected: progress file exceeds the 64 KiB limit.';
-      return;
-    }
-
     try {
-      const parsed: unknown = JSON.parse(await file.text());
-      const snapshot = parseProgressSnapshot(parsed);
-      const unknownIds = snapshot.completed.filter((id) => !knownIdSet.has(id));
-
-      if (unknownIds.length > 0) {
-        status = `Import rejected: ${unknownIds.length} question id(s) are not in this handbook version.`;
-        return;
+      if (file.size > MAX_PROGRESS_BACKUP_BYTES) {
+        throw new RangeError(
+          `Progress file exceeds the ${MAX_PROGRESS_BACKUP_BYTES / 1024} KiB limit`,
+        );
       }
+
+      const snapshot = parseProgressBackup(await file.text(), knownIdSet);
 
       if (
         !window.confirm(
@@ -164,10 +130,9 @@
         return;
       }
 
-      const stored = writeProgress(getStorage(), snapshot);
-      applySnapshot(snapshot);
-      announceProgressChange(snapshot);
-      status = stored
+      const result = replaceProgress(snapshot);
+      applySnapshot(result.snapshot);
+      status = result.persisted
         ? 'Progress imported successfully.'
         : 'Progress imported for this tab, but browser storage is unavailable.';
     } catch (error) {

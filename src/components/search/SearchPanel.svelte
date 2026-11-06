@@ -1,12 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { Command, Alert, Spinner, Kbd } from '@weluvabid/iris/components';
-  import {
-    DOMAIN_IDS,
-    rankSearchResults,
-    validateQuestionGraph,
-    type SearchDocument,
-  } from '@lib/atlas';
+  import { rankSearchResults, type SearchDocument } from '@lib/atlas';
+  import { isAbortError, loadSearchIndex } from '@lib/search';
   import { domains } from '@data/domains';
 
   interface Props {
@@ -23,69 +19,26 @@
   const results = $derived(rankSearchResults(documents, query, 10));
   const normalizedQuery = $derived(query.trim());
 
-  function isSearchDocument(value: unknown): value is SearchDocument {
-    if (typeof value !== 'object' || value === null) return false;
-
-    const item = value as Record<string, unknown>;
-    const stringArray = (candidate: unknown) =>
-      Array.isArray(candidate) && candidate.every((part) => typeof part === 'string');
-
-    return (
-      typeof item.id === 'string' &&
-      /^[a-z0-9]+(?:-[a-z0-9]+)*$/u.test(item.id) &&
-      typeof item.slug === 'string' &&
-      item.slug.length > 0 &&
-      typeof item.title === 'string' &&
-      typeof item.summary === 'string' &&
-      typeof item.domain === 'string' &&
-      DOMAIN_IDS.includes(item.domain as (typeof DOMAIN_IDS)[number]) &&
-      ['foundation', 'intermediate', 'advanced'].includes(String(item.difficulty)) &&
-      typeof item.minutes === 'number' &&
-      Number.isSafeInteger(item.minutes) &&
-      stringArray(item.tags) &&
-      stringArray(item.prerequisites) &&
-      stringArray(item.related) &&
-      typeof item.featured === 'boolean' &&
-      typeof item.searchableText === 'string'
-    );
-  }
-
   onMount(() => {
     const controller = new AbortController();
 
     async function loadIndex(): Promise<void> {
       try {
-        const response = await fetch('/search-index.json', { signal: controller.signal });
-        if (!response.ok)
-          throw new Error(`Search index request failed with HTTP ${response.status}`);
-
-        const payload: unknown = await response.json();
-        if (
-          typeof payload !== 'object' ||
-          payload === null ||
-          !('version' in payload) ||
-          payload.version !== 1 ||
-          !('documents' in payload) ||
-          !Array.isArray(payload.documents)
-        ) {
-          throw new TypeError('Search index has an unsupported or invalid format');
-        }
-
-        if (!payload.documents.every(isSearchDocument)) {
-          throw new TypeError('Search index contains an invalid question document');
-        }
-
-        validateQuestionGraph(payload.documents);
-        documents = payload.documents;
+        documents = await loadSearchIndex(controller.signal);
       } catch (error) {
-        if (error instanceof DOMException && error.name === 'AbortError') return;
-        loadError = error instanceof Error ? error.message : 'An unexpected search error occurred';
+        if (!isAbortError(error)) {
+          loadError =
+            error instanceof Error ? error.message : 'An unexpected search error occurred';
+        }
       } finally {
-        if (!controller.signal.aborted) loading = false;
+        if (!controller.signal.aborted) {
+          loading = false;
+        }
       }
     }
 
     void loadIndex();
+
     return () => controller.abort();
   });
 </script>
