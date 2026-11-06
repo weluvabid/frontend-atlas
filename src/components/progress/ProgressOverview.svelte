@@ -20,7 +20,7 @@
   let menuOpen = $state(false);
   let qrOpen = $state(false);
   let qrMode = $state<'overview' | 'export' | 'import'>('overview');
-  let navigationInput: HTMLInputElement;
+  let navigationInput = $state<HTMLInputElement>();
   let navigationMode = $state(false);
   let navigationSequence = $state('');
   let navigationMessage = $state('');

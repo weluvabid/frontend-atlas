@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { Sonner } from '@weluvabid/iris/components';
+  import { notify } from '@lib/notifications';
   import { subscribeToProgress, updateQuestionReadingProgress } from '@lib/progress/service';
 
   interface Props { questionId: string }
@@ -30,11 +30,11 @@
       lastPersisted = next;
       if (!result.persisted && !storageWarningShown) {
         storageWarningShown = true;
-        Sonner.toast.warning('Reading progress is available in this tab only', { description: 'Browser storage is unavailable.' });
+        notify('warning', 'Reading progress is available in this tab only', { description: 'Browser storage is unavailable.' });
       }
     } catch (error) {
       if (error instanceof Error && error.message === 'Cannot update reading progress: saved progress is invalid') {
-        Sonner.toast.error('Reading position could not be saved', { description: 'Stored progress is invalid. Use Manage Progress to recover it.' });
+        notify('error', 'Reading position could not be saved', { description: 'Stored progress is invalid. Use Manage Progress to recover it.' });
         return;
       }
       throw error;

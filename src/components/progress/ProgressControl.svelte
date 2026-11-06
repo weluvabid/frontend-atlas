@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { Button, Alert } from '@weluvabid/iris/components';
   import { Check, Circle } from '@weluvabid/iris/lucide';
-  import { Sonner } from '@weluvabid/iris/components';
+  import { notify } from '@lib/notifications';
   import { subscribeToProgress, toggleQuestionCompletion } from '@lib/progress/service';
   import type { ProgressReadResult } from '@lib/progress/storage';
 
@@ -24,13 +24,13 @@
     if (!result.persisted) {
       storageAvailable = false;
       status = '';
-      Sonner.toast.warning('Progress is available in this tab only', { description: 'Browser storage is unavailable.' });
+      notify('warning', 'Progress is available in this tab only', { description: 'Browser storage is unavailable.' });
       return;
     }
 
     storageAvailable = true;
     status = '';
-    Sonner.toast.success(completed ? 'Question marked complete' : 'Question marked incomplete');
+    notify('success', completed ? 'Question marked complete' : 'Question marked incomplete');
   }
 
   onMount(() => {
@@ -39,7 +39,7 @@
         storageAvailable = result.reason !== 'unavailable';
         status = '';
         if (result.reason === 'invalid-data') {
-          Sonner.toast.error('Saved progress is invalid', { description: 'Use Manage Progress to import a valid QR image or replace local progress.' });
+          notify('error', 'Saved progress is invalid', { description: 'Use Manage Progress to import a valid QR image or replace local progress.' });
         }
         return;
       }

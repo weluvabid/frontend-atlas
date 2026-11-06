@@ -114,17 +114,14 @@ importers:
   .:
     dependencies:
       '@weluvabid/iris':
-        specifier: 0.3.0
-        version: 0.3.0(@sveltejs/kit@2.70.3(@sveltejs/vite-plugin-svelte@7.3.1(svelte@5.57.3(@typescript-eslint/types@8.46.0))(vite@8.3.6(jiti@2.7.0)(yaml@2.9.1)))(svelte@5.57.3(@typescript-eslint/types@8.46.0))(typescript@5.9.3)(vite@8.3.6(jiti@2.7.0)(yaml@2.9.1)))(@types/json-schema@7.0.15)(svelte@5.57.3(@typescript-eslint/types@8.46.0))(tailwind-merge@3.7.0)(tailwindcss@4.3.3)(typescript@5.9.3)(zod@4.6.7)
+        specifier: 0.4.0
+        version: 0.4.0(@sveltejs/kit@2.70.3(@sveltejs/vite-plugin-svelte@7.3.1(svelte@5.57.3(@typescript-eslint/types@8.46.0))(vite@8.3.6(jiti@2.7.0)(yaml@2.9.1)))(svelte@5.57.3(@typescript-eslint/types@8.46.0))(typescript@5.9.3)(vite@8.3.6(jiti@2.7.0)(yaml@2.9.1)))(@types/json-schema@7.0.15)(svelte@5.57.3(@typescript-eslint/types@8.46.0))(tailwind-merge@3.7.0)(tailwindcss@4.3.3)(typescript@5.9.3)(zod@4.6.7)
       qr:
         specifier: 0.7.2
         version: 0.7.2
       svelte:
         specifier: ^5.0.0
         version: 5.57.3(@typescript-eslint/types@8.46.0)
-      svelte-sonner:
-        specifier: 1.2.3
-        version: 1.2.3
     devDependencies:
       '@astrojs/check':
         specifier: 0.9.12
@@ -1225,8 +1222,8 @@ packages:
   '@vscode/l10n@0.0.18':
     resolution: {integrity: sha512-KYSIHVmslkaCDyw013pphY+d7x1qV8IZupYfeIfzNA+nsaWHbn5uPuQRvdRFsa9zFzGeudPuoGoZ1Op4jrJXIQ==}
 
-  '@weluvabid/iris@0.3.0':
-    resolution: {integrity: sha512-bvWTph+pQt970qIEmvXcIkfm8GNS5ztlA7f51qXT/LqpkVdb3JX2GAEoUeXr6R/4g8gs4/vsEV+CJW+r2qWQ1A==}
+  '@weluvabid/iris@0.4.0':
+    resolution: {integrity: sha512-pPyQ/VFIG8SnoqHCoXcJB+qUROzt2SeK7OEr2ScRv7uyvlu5id5frmKuiFhl+ENSLSNiTTZjVsz56e9NwF4PMQ==}
     engines: {node: '>=26.0.0', pnpm: '>=12.0.0'}
     peerDependencies:
       svelte: ^5.0.0
@@ -4193,7 +4190,7 @@ snapshots:
 
   '@vscode/l10n@0.0.18': {}
 
-  '@weluvabid/iris@0.3.0(@sveltejs/kit@2.70.3(@sveltejs/vite-plugin-svelte@7.3.1(svelte@5.57.3(@typescript-eslint/types@8.46.0))(vite@8.3.6(jiti@2.7.0)(yaml@2.9.1)))(svelte@5.57.3(@typescript-eslint/types@8.46.0))(typescript@5.9.3)(vite@8.3.6(jiti@2.7.0)(yaml@2.9.1)))(@types/json-schema@7.0.15)(svelte@5.57.3(@typescript-eslint/types@8.46.0))(tailwind-merge@3.7.0)(tailwindcss@4.3.3)(typescript@5.9.3)(zod@4.6.7)':
+  '@weluvabid/iris@0.4.0(@sveltejs/kit@2.70.3(@sveltejs/vite-plugin-svelte@7.3.1(svelte@5.57.3(@typescript-eslint/types@8.46.0))(vite@8.3.6(jiti@2.7.0)(yaml@2.9.1)))(svelte@5.57.3(@typescript-eslint/types@8.46.0))(typescript@5.9.3)(vite@8.3.6(jiti@2.7.0)(yaml@2.9.1)))(@types/json-schema@7.0.15)(svelte@5.57.3(@typescript-eslint/types@8.46.0))(tailwind-merge@3.7.0)(tailwindcss@4.3.3)(typescript@5.9.3)(zod@4.6.7)':
     dependencies:
       '@icons-pack/svelte-simple-icons': 7.2.0(@sveltejs/kit@2.70.3(@sveltejs/vite-plugin-svelte@7.3.1(svelte@5.57.3(@typescript-eslint/types@8.46.0))(vite@8.3.6(jiti@2.7.0)(yaml@2.9.1)))(svelte@5.57.3(@typescript-eslint/types@8.46.0))(typescript@5.9.3)(vite@8.3.6(jiti@2.7.0)(yaml@2.9.1)))(svelte@5.57.3(@typescript-eslint/types@8.46.0))
       '@internationalized/date': 3.12.4

@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { Button, Dialog, Progress } from '@weluvabid/iris/components';
+  import { AlertDialog, Button, Dialog, Progress } from '@weluvabid/iris/components';
   import { Download, ImageUp, Trash2 } from '@weluvabid/iris/lucide';
-  import { Sonner } from '@weluvabid/iris/components';
+  import { notify } from '@lib/notifications';
   import { decodeProgressQr, encodeProgressQr } from '@lib/progress/qr';
   import { clearProgress, mergeProgress, replaceProgress } from '@lib/progress/service';
   import { getInProgressIds, type ProgressSnapshot } from '@lib/progress/model';
@@ -18,6 +18,7 @@
   let qrUrl = $state('');
   let pendingSnapshot = $state<ProgressSnapshot | undefined>();
   let busy = $state(false);
+  let clearDialogOpen = $state(false);
   let fileInput = $state<HTMLInputElement>();
 
   const inProgressCount = $derived(getInProgressIds(snapshot).filter((id) => questionIds.includes(id)).length);
@@ -41,7 +42,7 @@
       qrUrl = pngDataUrl;
     })().catch((error: unknown) => {
       if (cancelled) return;
-      Sonner.toast.error('Could not generate progress QR image', {
+      notify('error', 'Could not generate progress QR image', {
         description: error instanceof Error ? error.message : 'An unexpected QR generation error occurred.',
       });
     });
@@ -62,11 +63,11 @@
     pendingSnapshot = undefined;
 
     if (!file.type.startsWith('image/')) {
-      Sonner.toast.error('Choose an image file containing a Frontend Atlas QR code.');
+      notify('error', 'Choose an image file containing a Frontend Atlas QR code.');
       return;
     }
     if (file.size === 0 || file.size > 10 * 1024 * 1024) {
-      Sonner.toast.error('Image rejected', { description: 'The image must be between 1 byte and 10 MiB.' });
+      notify('error', 'Image rejected', { description: 'The image must be between 1 byte and 10 MiB.' });
       return;
     }
 
@@ -91,14 +92,20 @@
       });
       pendingSnapshot = decodeProgressQr(payload, questionIds);
     } catch (error) {
-      if (error instanceof TypeError || error instanceof RangeError || error instanceof SyntaxError) {
-        Sonner.toast.error('QR image rejected', { description: error.message });
-      } else if (error instanceof DOMException && ['EncodingError', 'InvalidStateError', 'NotSupportedError', 'OperationError', 'SecurityError'].includes(error.name)) {
-        Sonner.toast.error('This image format could not be read', { description: 'Try a PNG or JPEG image.' });
-      } else if (error instanceof Error && /QR|barcode|finder|pattern|decode/iu.test(error.message)) {
-        Sonner.toast.error('No readable Frontend Atlas progress QR code was found.');
+      // Image decoders can throw different Error subclasses depending on the
+      // browser and the failure stage. Every failed import needs user feedback;
+      // unexpected failures are also logged with their original error.
+      if (error instanceof DOMException && ['EncodingError', 'InvalidStateError', 'NotSupportedError', 'OperationError', 'SecurityError'].includes(error.name)) {
+        notify('error', 'This image format could not be read', { description: 'Try a PNG or JPEG image.' });
+      } else if (error instanceof TypeError || error instanceof RangeError || error instanceof SyntaxError) {
+        notify('error', 'QR image rejected', { description: error.message });
+      } else if (error instanceof Error && /QR|barcode|finder|pattern|decode|payload|manifest|checksum|integrity/iu.test(error.message)) {
+        notify('error', 'No valid Frontend Atlas progress QR code was found.', { description: error.message });
       } else {
-        throw error;
+        console.error('Unexpected error while importing a progress QR image:', error);
+        notify('error', 'Could not import progress QR image', {
+          description: error instanceof Error ? error.message : 'An unexpected error occurred while reading this image.',
+        });
       }
     } finally {
       bitmap?.close();
@@ -114,16 +121,16 @@
       onImported(result.snapshot);
       pendingSnapshot = undefined;
       if (!result.persisted) {
-        Sonner.toast.warning('Progress is available in this tab only', { description: 'Browser storage is unavailable, so the change was not saved permanently.' });
+        notify('warning', 'Progress is available in this tab only', { description: 'Browser storage is unavailable, so the change was not saved permanently.' });
       } else {
-        Sonner.toast.success(strategy === 'merge' ? 'Progress merged' : 'Progress replaced', {
+        notify('success', strategy === 'merge' ? 'Progress merged' : 'Progress replaced', {
           description: `${incomingCount} completed questions imported.`,
         });
       }
       mode = 'overview';
     } catch (error) {
       if (error instanceof Error && error.message === 'Cannot merge progress: saved progress is invalid') {
-        Sonner.toast.error('Local progress is invalid', { description: 'Replace local progress to recover it.' });
+        notify('error', 'Local progress is invalid', { description: 'Replace local progress to recover it.' });
         return;
       }
       throw error;
@@ -132,15 +139,15 @@
 
   function exportDownloaded(): void {
     if (!qrUrl) throw new Error('Cannot export progress before the QR image has been generated.');
-    Sonner.toast.success('Progress QR image downloaded');
+    notify('success', 'Progress QR image downloaded');
   }
 
   function handleClearProgress(): void {
-    if (!window.confirm('Clear all learning and reading progress stored on this device? This cannot be undone.')) return;
     const result = clearProgress();
     onImported(result.snapshot);
-    if (result.persisted) Sonner.toast.success('Local progress cleared');
-    else Sonner.toast.warning('Progress cleared for this tab only', { description: 'Browser storage is unavailable.' });
+    clearDialogOpen = false;
+    if (result.persisted) notify('success', 'Local progress cleared');
+    else notify('warning', 'Progress cleared for this tab only', { description: 'Browser storage is unavailable.' });
   }
 </script>
 
@@ -179,7 +186,11 @@
       </section>
 
       <div class="border-t border-border pt-3">
-        <Button.Root variant="ghost" class="text-destructive hover:text-destructive" onclick={handleClearProgress}>
+        <Button.Root
+          variant="ghost"
+          class="text-destructive hover:text-destructive"
+          onclick={() => (clearDialogOpen = true)}
+        >
           <Trash2 class="size-4" /> Clear local progress
         </Button.Root>
       </div>
@@ -195,13 +206,17 @@
           {:else}
             <p class="text-sm text-muted-foreground" role="status">Generating QR image…</p>
           {/if}
-          <p class="max-w-sm text-center text-xs text-muted-foreground">Keep the saved image somewhere safe. Anyone with the image can read its progress data.</p>
+          <p class="max-w-sm text-center text-xs text-muted-foreground">
+            This image contains your learning states and saved reading positions. Transfer it to another device and import it there. Anyone with the image can read its progress data, so keep it somewhere safe.
+          </p>
         </div>
       </div>
     {:else}
       <div class="space-y-3">
         <Button.Root variant="ghost" size="sm" onclick={() => (mode = 'overview')}>← Back to progress</Button.Root>
-        <p class="text-sm text-muted-foreground">Choose a PNG, JPEG, WebP, or other supported image containing a Frontend Atlas progress QR code.</p>
+        <p class="text-sm text-muted-foreground">
+          Select a previously exported Frontend Atlas QR image. We'll validate it and show you what it contains before changing progress on this device.
+        </p>
         <Button.Root variant="outline" class="w-full" disabled={busy} onclick={() => fileInput.click()}>
           <ImageUp class="size-4" /> {busy ? 'Reading image…' : 'Choose QR image'}
         </Button.Root>
@@ -209,10 +224,22 @@
         {#if pendingSnapshot}
           <div class="space-y-3 rounded-md border border-border p-3 text-sm">
             <p class="font-medium">QR code validated</p>
-            <p class="text-muted-foreground">{pendingSnapshot.completed.length} completed · {Object.keys(pendingSnapshot.readingProgress).length} saved reading positions</p>
-            <div class="flex flex-wrap gap-2">
-              <Button.Root size="sm" onclick={() => applyImportedProgress('merge')}>Merge progress</Button.Root>
-              <Button.Root size="sm" variant="outline" onclick={() => applyImportedProgress('replace')}>Replace local progress</Button.Root>
+            <p class="text-muted-foreground">
+              {pendingSnapshot.completed.length} completed · {Object.keys(pendingSnapshot.readingProgress).length} saved reading positions.
+            </p>
+            <div class="space-y-3">
+              <div>
+                <Button.Root size="sm" onclick={() => applyImportedProgress('merge')}>Merge progress</Button.Root>
+                <p class="mt-1 text-xs text-muted-foreground">
+                  Combine this QR snapshot with progress already on this device. Completed states are preserved, and the latest saved reading position wins.
+                </p>
+              </div>
+              <div>
+                <Button.Root size="sm" variant="outline" onclick={() => applyImportedProgress('replace')}>Replace local progress</Button.Root>
+                <p class="mt-1 text-xs text-muted-foreground">
+                  Replace all progress on this device with the contents of this QR image.
+                </p>
+              </div>
             </div>
           </div>
         {/if}
@@ -224,3 +251,21 @@
     </Dialog.Footer>
   </Dialog.Content>
 </Dialog.Root>
+
+<AlertDialog.Root bind:open={clearDialogOpen}>
+  <AlertDialog.Content>
+    <AlertDialog.Header>
+      <AlertDialog.Title>Clear all progress?</AlertDialog.Title>
+      <AlertDialog.Description>
+        This permanently deletes all learning states and saved reading positions stored on this device.
+        This action cannot be undone.
+      </AlertDialog.Description>
+    </AlertDialog.Header>
+    <AlertDialog.Footer>
+      <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
+      <AlertDialog.Action onclick={handleClearProgress}>
+        Clear progress
+      </AlertDialog.Action>
+    </AlertDialog.Footer>
+  </AlertDialog.Content>
+</AlertDialog.Root>

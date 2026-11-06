@@ -2,7 +2,7 @@
 import AtlasFooter from '@components/site/AtlasFooter.svelte';
 import AtlasHeader from '@components/site/AtlasHeader.svelte';
 import ProgressOverview from '@components/progress/ProgressOverview.svelte';
-import { Sonner } from '@weluvabid/iris/components';
+import AtlasToaster from '@components/site/AtlasToaster.svelte';
 import { getCollection } from 'astro:content';
 import { assertValidQuestionGraph } from '@lib/content';
 import { QUESTION_MANIFEST, MAX_QUESTION_COUNT } from '@data/question-manifest';
@@ -58,7 +58,7 @@ if (
         <slot />
       </main>
       <AtlasFooter />
-      <Sonner.Toaster client:load position="bottom-right" richColors closeButton />
+      <AtlasToaster client:load />
     </div>
   </body>
 </html>
