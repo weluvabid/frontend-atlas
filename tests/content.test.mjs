@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile, readdir } from 'node:fs/promises';
 import { join, relative } from 'node:path';
+import { parse } from 'yaml';
 import { QUESTION_MANIFEST, MAX_QUESTION_COUNT } from '../src/data/question-manifest.ts';
 
 const contentRoot = join(process.cwd(), 'src/content/questions');
@@ -45,38 +46,22 @@ async function findMdxFiles(directory) {
 
 async function readQuestion(path) {
   const source = await readFile(path, 'utf8');
-  const sections = source.split('---', 3);
+  const frontmatter = source.match(/^---[ \t]*\r?\n([\s\S]*?)\r?\n---[ \t]*(?:\r?\n|$)/u);
 
-  assert.equal(sections.length, 3, `${path} must have YAML frontmatter`);
-  const metadata = {};
+  assert.ok(frontmatter, `${path} must have YAML frontmatter`);
 
-  for (const line of sections[1].trim().split('\n')) {
-    const separator = line.indexOf(': ');
+  const metadata = parse(frontmatter[1]);
 
-    assert.notEqual(separator, -1, `Invalid frontmatter line in ${path}: ${line}`);
-    const key = line.slice(0, separator);
-    const value = line.slice(separator + 2);
+  assert.ok(
+    metadata !== null && typeof metadata === 'object' && !Array.isArray(metadata),
+    `${path}: frontmatter must be a YAML mapping`,
+  );
 
-    if (value.startsWith("'") && value.endsWith("'")) {
-      metadata[key] = value.slice(1, -1).replaceAll("''", "'");
-    } else if (value.startsWith('[') && value.endsWith(']')) {
-      const contents = value.slice(1, -1).trim();
-
-      metadata[key] = contents
-        ? contents.split(/,\s*/u).map((item) => {
-            if (item.startsWith("'") && item.endsWith("'")) {
-              return item.slice(1, -1).replaceAll("''", "'");
-            }
-
-            return JSON.parse(item);
-          })
-        : [];
-    } else {
-      metadata[key] = JSON.parse(value);
-    }
-  }
-
-  return { metadata, body: sections[2], path };
+  return {
+    metadata,
+    body: source.slice(frontmatter[0].length),
+    path,
+  };
 }
 
 const questionFiles = await findMdxFiles(contentRoot);
