@@ -25,3 +25,10 @@ test('invalid swipe thresholds fail explicitly', () => {
     RangeError,
   );
 });
+
+test('horizontal swipe direction is available even when the destination is missing', async () => {
+  const { resolveArticleSwipeDirection } = await import('../src/lib/navigation/article-gestures.ts');
+  assert.equal(resolveArticleSwipeDirection(-100, 0), 'next');
+  assert.equal(resolveArticleSwipeDirection(100, 0), 'previous');
+  assert.equal(resolveArticleSwipeDirection(-30, 0), null);
+});

@@ -1,16 +1,18 @@
+import { notify } from '../notifications.ts';
+
 export interface ArticleSwipeTargets {
   readonly previousUrl: string | null;
   readonly nextUrl: string | null;
   readonly threshold?: number;
 }
 
-export function resolveArticleSwipeDestination(
+export type ArticleSwipeDirection = 'previous' | 'next';
+
+export function resolveArticleSwipeDirection(
   deltaX: number,
   deltaY: number,
-  targets: ArticleSwipeTargets,
-): string | null {
-  const threshold = targets.threshold ?? 72;
-
+  threshold = 72,
+): ArticleSwipeDirection | null {
   if (!Number.isFinite(threshold) || threshold <= 0) {
     throw new RangeError(`Swipe threshold must be a positive finite number; received ${threshold}`);
   }
@@ -19,7 +21,17 @@ export function resolveArticleSwipeDestination(
     return null;
   }
 
-  return deltaX < 0 ? targets.nextUrl : targets.previousUrl;
+  return deltaX < 0 ? 'next' : 'previous';
+}
+
+export function resolveArticleSwipeDestination(
+  deltaX: number,
+  deltaY: number,
+  targets: ArticleSwipeTargets,
+): string | null {
+  const direction = resolveArticleSwipeDirection(deltaX, deltaY, targets.threshold);
+  if (!direction) return null;
+  return direction === 'next' ? targets.nextUrl : targets.previousUrl;
 }
 
 const ignoredSwipeTargets = [
@@ -34,6 +46,35 @@ const ignoredSwipeTargets = [
   '[contenteditable="true"]',
   '[data-no-swipe]',
 ].join(',');
+
+const BOUNDARY_NOTICE_INTERVAL = 1400;
+
+function signalSwipeBoundary(article: HTMLElement, direction: ArticleSwipeDirection): void {
+  const message = direction === 'next'
+    ? "You've reached the last question"
+    : "You're at the first question";
+  const now = Date.now();
+  const previousNotice = boundaryNoticeTimes.get(direction) ?? 0;
+
+  if (now - previousNotice >= BOUNDARY_NOTICE_INTERVAL) {
+    boundaryNoticeTimes.set(direction, now);
+    notify('info', message, { duration: 1800 });
+  }
+
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const offset = direction === 'next' ? -4 : 4;
+    article.animate(
+      [
+        { transform: 'translateX(0)' },
+        { transform: `translateX(${offset}px)` },
+        { transform: 'translateX(0)' },
+      ],
+      { duration: 180, easing: 'ease-out' },
+    );
+  }
+}
+
+const boundaryNoticeTimes = new Map<ArticleSwipeDirection, number>();
 
 /** Attach touch-only horizontal article navigation and return deterministic cleanup. */
 export function attachArticleSwipeNavigation(targets: ArticleSwipeTargets): () => void {
@@ -83,14 +124,18 @@ export function attachArticleSwipeNavigation(targets: ArticleSwipeTargets): () =
       return;
     }
 
-    const destination = resolveArticleSwipeDestination(
+    const direction = resolveArticleSwipeDirection(
       event.clientX - origin.x,
       event.clientY - origin.y,
-      targets,
+      targets.threshold,
     );
+    if (!direction) return;
 
+    const destination = direction === 'next' ? targets.nextUrl : targets.previousUrl;
     if (destination) {
       root.location.assign(destination);
+    } else {
+      signalSwipeBoundary(origin.article, direction);
     }
   }
 
