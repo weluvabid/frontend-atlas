@@ -3,12 +3,14 @@ node_modules/
 .pnpm-store/
 vendor/
 
-# Build output
+# Build output and generated framework files
 dist/
+dist-client/
 build/
 target/
 coverage/
 out/
+.astro/
 
 # Environment and secrets
 .env
@@ -28,3 +30,6 @@ out/
 .vscode/*
 !.vscode/extensions.json
 !.vscode/settings.json
+
+# Astro generated types and cache
+.astro/

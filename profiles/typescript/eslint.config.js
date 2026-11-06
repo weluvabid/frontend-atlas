@@ -16,13 +16,7 @@ const paddingLineBetweenStatements = [
 
 export default tseslint.config(
   {
-    ignores: [
-      '**/node_modules/**',
-      '**/coverage/**',
-      '**/dist/**',
-      '**/build/**',
-      '**/target/**',
-    ],
+    ignores: ['**/node_modules/**', '**/coverage/**', '**/dist/**', '**/build/**', '**/target/**'],
   },
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
@@ -55,7 +49,10 @@ export default tseslint.config(
       'no-unreachable': 'error',
       'no-var': 'error',
       'object-shorthand': ['error', 'always'],
-      'padding-line-between-statements': paddingLineBetweenStatements,
+      'padding-line-between-statements': [
+        'error',
+        ...paddingLineBetweenStatements,
+      ],
       'prefer-const': 'error',
       'prefer-template': 'error',
       quotes: ['error', 'single', { avoidEscape: true }],

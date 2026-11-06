@@ -1,0 +1,75 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { domains } from '@data/domains';
+---
+
+<BaseLayout>
+  <section class="mx-auto max-w-4xl py-10 text-center sm:py-16">
+    <p class="mb-5 text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+      The frontend engineering handbook
+    </p>
+    <h1 class="text-balance text-4xl font-semibold tracking-tight sm:text-6xl">
+      Understand the platform.<br class="hidden sm:block" />
+      <span class="text-muted-foreground">Build with intention.</span>
+    </h1>
+    <p
+      class="mx-auto mt-6 max-w-2xl text-pretty text-base leading-8 text-muted-foreground sm:text-lg"
+    >
+      A curated field guide to the ideas, browser mechanics, and engineering decisions behind modern
+      frontend development. Built for understanding, not memorising answers.
+    </p>
+    <a
+      class="mt-9 inline-flex min-h-12 items-center justify-center rounded-full bg-primary px-6 text-sm font-semibold text-primary-foreground no-underline transition-opacity hover:opacity-85"
+      href="#domains"
+    >
+      Explore the domains <span class="ml-2" aria-hidden="true">↓</span>
+    </a>
+  </section>
+
+  <section id="domains" class="mx-auto max-w-5xl scroll-mt-8 py-10 sm:py-14">
+    <div class="mb-8 flex flex-col gap-2 sm:mb-10">
+      <p class="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">The map</p>
+      <h2 class="text-2xl font-semibold tracking-tight sm:text-3xl">
+        Eight areas of frontend craft
+      </h2>
+      <p class="max-w-2xl text-sm leading-7 text-muted-foreground">
+        Each domain will connect foundational concepts to practical engineering decisions.
+      </p>
+    </div>
+
+    <div class="grid gap-3 sm:grid-cols-2">
+      {
+        domains.map((domain, index) => (
+          <article class="rounded-2xl border border-border bg-card p-5 sm:p-6">
+            <div class="mb-5 flex items-center justify-between">
+              <span class="text-xs font-medium tabular-nums text-muted-foreground">
+                {String(index + 1).padStart(2, '0')}
+              </span>
+              <span class="rounded-full border border-border px-2.5 py-1 text-[11px] text-muted-foreground">
+                Coming in the first collection
+              </span>
+            </div>
+            <h3 class="text-lg font-semibold tracking-tight">{domain.name}</h3>
+            <p class="mt-2 text-sm leading-6 text-muted-foreground">{domain.description}</p>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+
+  <section
+    class="mx-auto mt-10 max-w-5xl rounded-3xl border border-border bg-muted/40 p-6 sm:mt-16 sm:p-10"
+  >
+    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+      Editorial principle
+    </p>
+    <h2 class="mt-3 max-w-2xl text-2xl font-semibold tracking-tight sm:text-3xl">
+      Fewer questions. Better explanations.
+    </h2>
+    <p class="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground">
+      The first collection is planned around 40 carefully selected questions. Every entry should
+      explain why something works, where it breaks, and how the underlying idea applies in real
+      software.
+    </p>
+  </section>
+</BaseLayout>

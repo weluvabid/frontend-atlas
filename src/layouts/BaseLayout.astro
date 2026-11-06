@@ -1,0 +1,42 @@
+---
+import AtlasFooter from '@components/site/AtlasFooter.svelte';
+import AtlasHeader from '@components/site/AtlasHeader.svelte';
+import { createThemeScript } from '@weluvabid/iris/theme';
+import '@styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'Frontend Atlas — A field guide to frontend engineering',
+  description = 'A carefully curated, open-source handbook for understanding modern frontend engineering.',
+} = Astro.props;
+
+const themeBootstrap = createThemeScript();
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#fafaf8" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <title>{title}</title>
+    <script is:inline set:html={themeBootstrap} />
+  </head>
+  <body>
+    <div class="mx-auto flex min-h-svh w-full max-w-6xl flex-col px-4 sm:px-6">
+      <AtlasHeader />
+      <main class="min-h-0 flex-1 py-12 sm:py-16">
+        <slot />
+      </main>
+      <AtlasFooter />
+    </div>
+  </body>
+</html>
