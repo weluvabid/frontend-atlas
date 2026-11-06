@@ -38,6 +38,17 @@ test('snapshot normalizes ordering and duplicates', () => {
   assert.equal(snapshot.version, 2);
 });
 
+test('explicit completion implies 100 percent reading progress', () => {
+  const snapshot = createProgressSnapshot(
+    ['event-loop'],
+    new Date('2026-01-02T00:00:00.000Z'),
+    { 'event-loop': { position: 12000, updatedAt: '2026-01-01T00:00:00.000Z' } },
+  );
+
+  assert.equal(snapshot.readingProgress['event-loop'].position, 65535);
+  assert.equal(snapshot.readingProgress['event-loop'].updatedAt, '2026-01-02T00:00:00.000Z');
+});
+
 test('snapshot rejects malformed ids and invalid dates', () => {
   assert.throws(() => createProgressSnapshot(['not a valid id']), TypeError);
   assert.throws(() => createProgressSnapshot([], new Date('invalid')), RangeError);
@@ -146,6 +157,7 @@ test('shared progress service toggles one question without mutating the caller c
   const added = toggleQuestionCompletion('event-loop', initial);
 
   assert.deepEqual(added.snapshot.completed, ['closures', 'event-loop']);
+  assert.equal(added.snapshot.readingProgress['event-loop'].position, 65535);
   assert.deepEqual(initial, ['closures']);
   assert.equal(added.persisted, false);
 
@@ -160,7 +172,7 @@ test('legacy version 1 progress migrates to the version 2 model', async () => {
   const migrated = parseProgressSnapshot({ version: 1, completed: ['event-loop'], updatedAt: '2026-01-01T00:00:00.000Z' });
   assert.equal(migrated.version, 2);
   assert.deepEqual(migrated.completed, ['event-loop']);
-  assert.deepEqual(migrated.readingProgress, {});
+  assert.equal(migrated.readingProgress['event-loop'].position, 65535);
 });
 
 test('volatile fallback preserves completion while reading progress changes without storage', async () => {
@@ -189,7 +201,7 @@ test('progress merge keeps completion and the greatest per-question reading posi
   );
   const merged = mergeProgressSnapshots(current, incoming);
   assert.deepEqual(merged.completed, ['closures', 'event-loop']);
-  assert.equal(merged.readingProgress['event-loop'].position, 50000);
+  assert.equal(merged.readingProgress['event-loop'].position, 65535);
   assert.equal(merged.readingProgress['browser-rendering'].position, 8000);
 });
 

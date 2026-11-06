@@ -26,8 +26,9 @@ test('QR protocol rejects a different question manifest', () => {
 
 test('QR protocol detects payload corruption before importing progress', () => {
   const payload = encodeProgressQr(createProgressSnapshot(['closures']), ids);
-  const corrupted = `${payload.slice(0, -1)}${payload.endsWith('A') ? 'B' : 'A'}`;
-  assert.throws(() => decodeProgressQr(corrupted, ids), /integrity|base64url/u);
+  const replacement = payload[8] === 'A' ? 'B' : 'A';
+  const corrupted = `${payload.slice(0, 8)}${replacement}${payload.slice(9)}`;
+  assert.throws(() => decodeProgressQr(corrupted, ids), /magic identifier|integrity|base64url/u);
 });
 
 test('QR protocol enforces the 150-question editorial cap', () => {

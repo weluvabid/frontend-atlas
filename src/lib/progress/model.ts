@@ -48,6 +48,15 @@ export function createProgressSnapshot(
     if (reading.position > 0) positions[id] = { position: reading.position, updatedAt: new Date(reading.updatedAt).toISOString() };
   }
 
+  // Explicit completion means the reader has finished the article. Keep the
+  // reading-depth record in sync while leaving completion a separate action.
+  for (const id of normalized) {
+    const existing = positions[id];
+    if (!existing || existing.position < 65535) {
+      positions[id] = { position: 65535, updatedAt: now.toISOString() };
+    }
+  }
+
   if (new Set([...normalized, ...Object.keys(positions)]).size > MAX_QUESTIONS) {
     throw new RangeError(`Progress cannot contain more than ${MAX_QUESTIONS} questions`);
   }
