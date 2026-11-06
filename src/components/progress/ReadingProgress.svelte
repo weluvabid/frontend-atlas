@@ -1,11 +1,13 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { Tooltip } from '@weluvabid/iris/components';
   import { notify } from '@lib/notifications';
   import { subscribeToProgress, updateQuestionReadingProgress } from '@lib/progress/service';
 
   interface Props { questionId: string }
   let { questionId }: Props = $props();
   let position = $state(0);
+  let footerVisible = $state(false);
   let article: HTMLElement | null = null;
   let persistTimer: number | undefined;
   let frame = 0;
@@ -67,6 +69,16 @@
   onMount(() => {
     article = document.querySelector<HTMLElement>('[data-article-swipe]');
     if (!article) throw new Error('Reading progress requires an article container');
+    const footer = document.querySelector<HTMLElement>('footer');
+    if (!footer) throw new Error('Reading progress requires a footer element');
+    const footerObserver = new IntersectionObserver(
+      ([entry]) => {
+        footerVisible = entry.isIntersecting;
+      },
+      { threshold: 0 },
+    );
+    footerObserver.observe(footer);
+
     const unsubscribe = subscribeToProgress((result) => {
       if (!result.ok) return;
       const savedPosition = result.snapshot.readingProgress[questionId]?.position ?? 0;
@@ -80,6 +92,7 @@
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => {
       unsubscribe();
+      footerObserver.disconnect();
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleScroll);
       window.removeEventListener('pagehide', flush);
@@ -90,29 +103,39 @@
   });
 </script>
 
-{#if position > 0}
-  <div
-    class="pointer-events-none fixed bottom-6 right-6 z-50 grid size-8 place-items-center rounded-full bg-background/90 text-border ring-1 ring-border/70 backdrop-blur-sm"
-    role="progressbar"
-    aria-label="Article reading progress"
-    aria-valuemin="0"
-    aria-valuemax="100"
-    aria-valuenow={Math.round(position * 100)}
-    title={`Reading progress: ${Math.round(position * 100)}%`}
-  >
-    <svg aria-hidden="true" class="size-7 -rotate-90" viewBox="0 0 28 28" fill="none">
-      <circle cx="14" cy="14" r="11" stroke="currentColor" stroke-width="2" />
-      <circle
-        class="text-primary transition-[stroke-dashoffset] duration-150"
-        cx="14"
-        cy="14"
-        r="11"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-dasharray="69.115"
-        stroke-dashoffset={69.115 * (1 - position)}
-      />
-    </svg>
-  </div>
+{#if position > 0 && !footerVisible}
+  <Tooltip.Provider delayDuration={300}>
+    <Tooltip.Root>
+      <Tooltip.Trigger>
+        {#snippet child({ props })}
+          <div
+            {...props}
+            class="fixed bottom-6 right-6 z-50 grid size-8 cursor-default place-items-center rounded-full bg-background/90 text-border ring-1 ring-border/70 backdrop-blur-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            role="progressbar"
+            tabindex="0"
+            aria-label="Article reading progress"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow={Math.round(position * 100)}
+          >
+            <svg aria-hidden="true" class="size-7 -rotate-90" viewBox="0 0 28 28" fill="none">
+              <circle cx="14" cy="14" r="11" stroke="currentColor" stroke-width="2" />
+              <circle
+                class="text-primary transition-[stroke-dashoffset] duration-150"
+                cx="14"
+                cy="14"
+                r="11"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-dasharray="69.115"
+                stroke-dashoffset={69.115 * (1 - position)}
+              />
+            </svg>
+          </div>
+        {/snippet}
+      </Tooltip.Trigger>
+      <Tooltip.Content>Reading progress · {Math.round(position * 100)}%</Tooltip.Content>
+    </Tooltip.Root>
+  </Tooltip.Provider>
 {/if}
