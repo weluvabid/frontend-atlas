@@ -5,6 +5,7 @@ import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
   output: 'static',
+  trailingSlash: 'always',
   integrations: [mdx(), svelte()],
   vite: {
     plugins: [tailwindcss()],

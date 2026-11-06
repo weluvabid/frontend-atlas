@@ -1,5 +1,7 @@
+import type { DomainId } from '@lib/atlas';
+
 export interface Domain {
-  readonly id: string;
+  readonly id: DomainId;
   readonly name: string;
   readonly description: string;
 }
@@ -27,8 +29,8 @@ export const domains = [
   },
   {
     id: 'ui-engineering',
-    name: 'UI Engineering',
-    description: 'Practical interface implementation, forms, tables, and interaction design.',
+    name: 'UI Engineering & Machine Coding',
+    description: 'Practical interface implementation, machine-coding exercises, forms, and interaction design.',
   },
   {
     id: 'performance-reliability',
@@ -46,3 +48,14 @@ export const domains = [
     description: 'Inclusive interfaces, browser security, and dependable verification.',
   },
 ] as const satisfies readonly Domain[];
+
+export const domainById = new Map(domains.map((domain) => [domain.id, domain]));
+
+export const featuredQuestionIds = [
+  'execution-context-and-call-stack',
+  'event-loop-tasks-and-microtasks',
+  'browser-rendering-pipeline',
+  'hydration-and-islands',
+  'core-web-vitals-and-user-experience',
+  'designing-a-search-experience',
+] as const;

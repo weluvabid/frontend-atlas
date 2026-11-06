@@ -17,8 +17,9 @@
     "lint:fix": "eslint . --ext .js,.ts --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "check": "pnpm format:check && pnpm lint && pnpm check:types && pnpm build",
-    "hooks:install": "sh ./scripts/install-hooks.sh"
+    "check": "pnpm format:check && pnpm lint && pnpm test && pnpm check:types && pnpm build",
+    "hooks:install": "sh ./scripts/install-hooks.sh",
+    "test": "node --experimental-strip-types --test tests/*.test.mjs"
   },
   "dependencies": {
     "@weluvabid/iris": "0.3.0",

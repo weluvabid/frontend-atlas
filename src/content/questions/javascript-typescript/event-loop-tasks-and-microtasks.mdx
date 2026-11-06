@@ -1,0 +1,52 @@
+---
+id: "event-loop-tasks-and-microtasks"
+title: "How does the event loop order tasks, microtasks, and rendering?"
+domain: "javascript-typescript"
+summary: "Reason about observable ordering without relying on slogans such as “promises always run first.”"
+difficulty: "intermediate"
+minutes: 12
+tags: ["event-loop", "microtasks", "rendering"]
+prerequisites: ["execution-context-and-call-stack"]
+related: ["promise-composition-and-failure", "long-tasks-and-cooperative-scheduling"]
+featured: true
+---
+
+## Short answer
+
+A task runs to completion. After the task, the browser performs a microtask checkpoint, draining the microtask queue (including newly queued microtasks) before it can proceed to a rendering opportunity or another task.
+
+## Reason from first principles
+
+The event loop coordinates task sources, microtask checkpoints, and rendering opportunities. Rendering is not guaranteed after every task. A long task or an endlessly replenished microtask queue can delay paint even when the code uses promises.
+
+## A concrete example
+
+```js
+console.log("sync");
+setTimeout(() => console.log("task"), 0);
+Promise.resolve().then(() => console.log("microtask"));
+queueMicrotask(() => console.log("also microtask"));
+// sync, microtask, also microtask, task
+```
+
+## Boundary cases to reason through
+
+Do not assume a universal FIFO order across every task source: timers, user interaction, networking, and rendering are coordinated by the HTML event-loop rules. The reliable interview-level guarantee is that the current task completes and a microtask checkpoint runs before the next task. Rendering opportunities are browser-controlled, not a promise after every callback.
+
+## Common misconception
+
+`setTimeout(fn, 0)` does not mean “run immediately,” and a microtask is not a rendering callback.
+
+## Why this matters in production
+
+Promise-heavy loops can starve input and rendering. Use task yielding or scheduler APIs for long-running cooperative work.
+
+## Interviewer follow-ups
+
+- Where do MutationObserver callbacks run?
+- Why can recursive `queueMicrotask` calls freeze a page?
+
+## Further reading
+
+- [JavaScript execution model and event loop](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Execution_model) — primary or authoritative documentation for the underlying behavior.
+- [MDN Web Docs](https://developer.mozilla.org/) — use the relevant API reference for adjacent browser details.

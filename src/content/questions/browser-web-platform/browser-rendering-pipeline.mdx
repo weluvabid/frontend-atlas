@@ -1,0 +1,51 @@
+---
+id: "browser-rendering-pipeline"
+title: "What happens between changing the DOM and pixels appearing on screen?"
+domain: "browser-web-platform"
+summary: "Trace style calculation, layout, paint, rasterization, compositing, and the limits of “GPU accelerated.”"
+difficulty: "intermediate"
+minutes: 12
+tags: ["rendering", "layout", "paint", "compositing"]
+prerequisites: ["event-loop-tasks-and-microtasks"]
+related: ["core-web-vitals-and-user-experience"]
+featured: true
+---
+
+## Short answer
+
+A DOM or style change may invalidate style, layout, paint, or compositing state. The browser updates the necessary pipeline stages before presenting a frame; not every change requires every stage.
+
+## Reason from first principles
+
+Changing geometry commonly triggers layout and paint. Changing paint-only properties may skip layout. Compositor-friendly transforms and opacity can often update without repainting the whole page, but layer promotion has memory and scheduling costs.
+
+## A concrete example
+
+```css
+/* Often composited without layout */
+.card { transform: translateY(4px); opacity: 0.98; }
+/* Changes geometry and commonly requires layout */
+.card { width: 24rem; }
+```
+
+## Boundary cases to reason through
+
+A style write followed by a geometry read can force synchronous layout because the browser must provide a current measurement. Avoid alternating reads and writes across many nodes. Paint invalidation and layer composition are implementation-dependent, so profile with the Performance panel and rendering diagnostics rather than inferring the pipeline from a CSS property name alone.
+
+## Common misconception
+
+“GPU accelerated” is not a blanket performance guarantee. Too many layers consume memory and can increase compositing cost.
+
+## Why this matters in production
+
+Batch DOM reads before writes, avoid layout thrashing, and profile the actual page. Optimize the bottleneck measured on target devices.
+
+## Interviewer follow-ups
+
+- What causes forced synchronous layout?
+- Why can `will-change` hurt?
+
+## Further reading
+
+- [Rendering performance](https://web.dev/articles/rendering-performance) — primary or authoritative documentation for the underlying behavior.
+- [MDN Web Docs](https://developer.mozilla.org/) — use the relevant API reference for adjacent browser details.

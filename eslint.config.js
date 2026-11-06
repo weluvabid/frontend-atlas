@@ -64,7 +64,7 @@ export default tseslint.config(
       },
     },
     rules: {
-      '@typescript-eslint/no-floating-promises': ['error', { ignoreVoid: false }],
+      '@typescript-eslint/no-floating-promises': ['error', { ignoreVoid: true }],
     },
   },
 );

@@ -1,0 +1,15 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Page not found — Frontend Atlas" description="The page you requested could not be found.">
+  <section class="mx-auto max-w-2xl py-16 text-center">
+    <p class="eyebrow">404 · Not found</p>
+    <h1 class="mt-4 text-4xl font-semibold tracking-tight">This page isn't in the atlas.</h1>
+    <p class="mt-4 text-sm leading-7 text-muted-foreground">The link may have moved, or the page may never have existed. Try searching the handbook or return to the domain map.</p>
+    <div class="mt-8 flex flex-wrap justify-center gap-3">
+      <a class="inline-flex min-h-11 items-center rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground no-underline" href="/search/">Search the handbook</a>
+      <a class="inline-flex min-h-11 items-center rounded-full border border-border px-5 text-sm font-semibold text-foreground no-underline hover:bg-muted" href="/domains/">Browse domains</a>
+    </div>
+  </section>
+</BaseLayout>

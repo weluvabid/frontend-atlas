@@ -1,0 +1,51 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '@layouts/BaseLayout.astro';
+import ProgressControl from '@components/progress/ProgressControl.svelte';
+import { domainById } from '@data/domains';
+import { assertValidQuestionGraph } from '@lib/content';
+import { questionHref } from '@lib/atlas';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('questions');
+  const summaries = assertValidQuestionGraph(entries);
+  const byId = new Map(summaries.map((question) => [question.id, question]));
+  return entries.map((entry) => {
+    const question = byId.get(entry.data.id);
+    if (!question) throw new Error(`Missing validated metadata for ${entry.data.id}`);
+    return { params: { slug: question.id }, props: { entry, question, summaries, entries } };
+  });
+}
+
+const { entry, question, summaries, entries } = Astro.props;
+const { Content } = await render(entry);
+const domain = domainById.get(question.domain);
+if (!domain) throw new Error(`Unknown question domain: ${question.domain}`);
+const byId = new Map(entries.map((item) => [item.data.id, item]));
+const resolve = (ids: readonly string[]) => ids.map((id) => {
+  const related = byId.get(id);
+  if (!related) throw new Error(`Question ${question.id} references missing content ${id}`);
+  const summary = summaries.find((item) => item.id === id);
+  if (!summary) throw new Error(`Question ${question.id} references missing metadata ${id}`);
+  return { ...summary, url: questionHref(summary.id) };
+});
+const prerequisites = resolve(question.prerequisites);
+const related = resolve(question.related);
+const allIds = summaries.map((item) => item.id);
+---
+
+<BaseLayout title={`${question.title} — Frontend Atlas`} description={question.summary}>
+  <article class="mx-auto max-w-3xl">
+    <nav class="mb-8 text-sm text-muted-foreground" aria-label="Breadcrumb"><a href="/domains/" class="hover:text-foreground">Domains</a><span class="mx-2" aria-hidden="true">/</span><a href={`/domains/${domain.id}/`} class="hover:text-foreground">{domain.name}</a></nav>
+    <header class="mb-10 border-b border-border pb-8">
+      <div class="flex flex-wrap items-center gap-2 text-xs text-muted-foreground"><span>{domain.name}</span><span aria-hidden="true">·</span><span class="capitalize">{question.difficulty}</span><span aria-hidden="true">·</span><span>{question.minutes} min read</span></div>
+      <h1 class="mt-4 text-balance text-3xl font-semibold tracking-tight sm:text-4xl">{question.title}</h1>
+      <p class="mt-5 text-base leading-8 text-muted-foreground">{question.summary}</p>
+      <div class="mt-6"><ProgressControl client:load questionId={question.id} knownIds={allIds} /></div>
+    </header>
+    <div class="prose-atlas"><Content /></div>
+    {prerequisites.length > 0 && <section class="mt-12 border-t border-border pt-8"><h2 class="text-lg font-semibold">Useful prerequisites</h2><ul class="mt-4 space-y-2">{prerequisites.map((item) => <li><a class="text-sm text-primary underline-offset-4 hover:underline" href={item.url}>{item.title}</a></li>)}</ul></section>}
+    {related.length > 0 && <section class="mt-10 border-t border-border pt-8"><h2 class="text-lg font-semibold">Explore next</h2><ul class="mt-4 space-y-2">{related.map((item) => <li><a class="text-sm text-primary underline-offset-4 hover:underline" href={item.url}>{item.title}</a></li>)}</ul></section>}
+    <div class="mt-12 border-t border-border pt-6"><a class="text-sm text-muted-foreground hover:text-foreground" href={`/domains/${domain.id}/`}>← Back to {domain.name}</a></div>
+  </article>
+</BaseLayout>

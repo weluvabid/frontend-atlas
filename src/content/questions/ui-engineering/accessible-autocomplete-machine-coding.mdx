@@ -1,0 +1,113 @@
+---
+id: "accessible-autocomplete-machine-coding"
+title: "How would you build an accessible, async autocomplete?"
+domain: "ui-engineering"
+summary: "Implement a production-minded autocomplete with async results, keyboard navigation, race protection, and correct combobox semantics."
+difficulty: "advanced"
+minutes: 18
+tags: ["machine-coding", "autocomplete", "accessibility", "async-ui"]
+prerequisites: ["dom-event-propagation", "semantic-html-and-accessibility-tree"]
+related: ["accessible-form-validation", "testing-async-ui-races"]
+featured: false
+---
+
+## Short answer
+
+Treat autocomplete as a small interaction system, not an input with a dropdown. Separate query state, request state, active option, and selected value. Implement the WAI-ARIA combobox pattern, support the expected keyboard model, and make asynchronous results latest-request-wins.
+
+## Implementation prompt
+
+Build a reusable autocomplete for selecting a customer from a remote directory.
+
+**Functional requirements**
+
+- Accept a controlled or clearly documented uncontrolled input value.
+- Wait briefly after typing before requesting suggestions.
+- Show loading, results, no-results, and recoverable error states.
+- Support Arrow Down/Up, Enter, Escape, and normal text editing.
+- Allow pointer selection without losing the intended focus behavior.
+- Close the popup when appropriate and expose the selected value to the parent.
+
+**Correctness and accessibility requirements**
+
+- Use the combobox/listbox/option semantics and relationships required by the WAI-ARIA pattern.
+- Keep `aria-expanded`, `aria-controls`, and `aria-activedescendant` synchronized with the actual popup and active option.
+- Never allow an older response to replace results for a newer query.
+- Do not treat the highlighted option as selected until the user commits it.
+- Preserve IME composition and ordinary input editing behavior.
+
+## Reason from first principles
+
+There are at least four independent values: the text being edited, the selected domain value, the currently active option for keyboard navigation, and the asynchronous request state. Conflating them creates bugs—for example, pressing Arrow Down should move the highlight without committing a selection, while Escape should close the popup without unexpectedly changing the text.
+
+The request lifecycle is also independent from the interaction lifecycle. Debouncing reduces request volume, but it does not solve response reordering. Abort the previous request when possible and also associate each request with a monotonically increasing sequence or query identity. Only the latest request may update the visible result state.
+
+## A concrete example
+
+A request controller and sequence token make the latest-query rule explicit:
+
+### Implementation sketch
+
+```ts
+let requestSequence = 0;
+let activeController: AbortController | undefined;
+
+async function loadSuggestions(query: string) {
+  const sequence = ++requestSequence;
+  activeController?.abort();
+
+  if (!query.trim()) {
+    suggestions = [];
+    status = 'idle';
+    return;
+  }
+
+  const controller = new AbortController();
+  activeController = controller;
+  status = 'loading';
+
+  try {
+    const response = await fetch(`/api/customers?q=${encodeURIComponent(query)}`, {
+      signal: controller.signal,
+    });
+
+    if (!response.ok) throw new Error(`Suggestion request failed: ${response.status}`);
+    const payload: unknown = await response.json();
+    const parsed = parseCustomerSuggestions(payload);
+
+    if (sequence !== requestSequence || controller.signal.aborted) return;
+    suggestions = parsed;
+    status = parsed.length === 0 ? 'empty' : 'success';
+  } catch (error) {
+    if (controller.signal.aborted) return;
+    if (sequence !== requestSequence) return;
+    status = 'error';
+    throw error;
+  }
+}
+```
+
+The sketch leaves `parseCustomerSuggestions` and rendering to the application. Validate the response at the trust boundary; a TypeScript assertion is not runtime validation. In production, debounce the call, clear pending timers on teardown, and ensure an expected abort is not reported as an application failure.
+
+## Boundary cases to reason through
+
+IME composition must not trigger a request for every intermediate composition string; use composition events and avoid committing a value before composition ends. Pointer selection can race with blur: if the input loses focus before the option click runs, the popup may disappear before selection. Model pointer-down/selection deliberately rather than adding arbitrary timeouts. Also test empty queries, duplicate labels with distinct IDs, server errors, slow responses, and a result set that changes while an option is active.
+
+## Common misconception
+
+A dropdown that works with a mouse is not an accessible autocomplete. Adding `role="combobox"` to an input is also not enough: the popup role, active descendant, expanded state, option IDs, keyboard transitions, and focus behavior must agree.
+
+## Why this matters in production
+
+Autocomplete is a compact example of frontend systems engineering: asynchronous consistency, cancellation, state modeling, keyboard interaction, accessible semantics, and boundary validation all meet in one control. A weak implementation can select the wrong record, lose typed text, announce stale options, or become unusable without a pointer.
+
+## Interviewer follow-ups
+
+- How would you make the component support multi-select tokens?
+- How would you handle 50,000 possible options without rendering every result?
+- What should happen when the selected customer is deleted after selection?
+
+## Further reading
+
+- [WAI-ARIA combobox pattern](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/) — keyboard and accessibility behavior.
+- [Playwright network mocking](https://playwright.dev/docs/network) — deterministic testing of request ordering and failures.

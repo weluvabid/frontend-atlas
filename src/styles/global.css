@@ -34,3 +34,46 @@
     }
   }
 }
+
+
+@layer components {
+  .eyebrow {
+    @apply text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground;
+  }
+
+  .prose-atlas {
+    @apply text-[0.96rem] leading-8 text-foreground;
+  }
+
+  .prose-atlas h2 {
+    @apply mb-4 mt-10 text-xl font-semibold tracking-tight;
+  }
+
+  .prose-atlas p {
+    @apply mb-5 text-muted-foreground;
+  }
+
+  .prose-atlas ul {
+    @apply mb-6 list-disc space-y-2 pl-6 text-muted-foreground;
+  }
+
+  .prose-atlas a {
+    @apply text-primary underline underline-offset-4;
+  }
+
+  .prose-atlas pre {
+    @apply my-6 overflow-x-auto rounded-xl border border-border bg-muted/60 p-4 text-sm leading-6;
+  }
+
+  .prose-atlas code {
+    @apply rounded bg-muted px-1.5 py-0.5 text-[0.9em];
+  }
+
+  .prose-atlas pre code {
+    @apply bg-transparent p-0;
+  }
+
+  .prose-atlas blockquote {
+    @apply my-6 border-l-2 border-primary pl-4 text-muted-foreground;
+  }
+}
