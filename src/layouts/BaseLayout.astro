@@ -2,8 +2,10 @@
 import AtlasFooter from '@components/site/AtlasFooter.svelte';
 import AtlasHeader from '@components/site/AtlasHeader.svelte';
 import ProgressOverview from '@components/progress/ProgressOverview.svelte';
+import { Sonner } from '@weluvabid/iris/components';
 import { getCollection } from 'astro:content';
 import { assertValidQuestionGraph } from '@lib/content';
+import { QUESTION_MANIFEST, MAX_QUESTION_COUNT } from '@data/question-manifest';
 import { createThemeScript } from '@weluvabid/iris/theme';
 import '@styles/global.css';
 
@@ -20,6 +22,14 @@ const {
 const themeBootstrap = createThemeScript();
 const entries = await getCollection('questions');
 const knownIds = assertValidQuestionGraph(entries).map((question) => question.id);
+if (knownIds.length > MAX_QUESTION_COUNT) throw new Error(`Frontend Atlas cannot exceed ${MAX_QUESTION_COUNT} questions`);
+if (
+  QUESTION_MANIFEST.length !== knownIds.length ||
+  new Set(QUESTION_MANIFEST).size !== QUESTION_MANIFEST.length ||
+  QUESTION_MANIFEST.some((id) => !knownIds.includes(id))
+) {
+  throw new Error('Question manifest must contain every current question exactly once; append new IDs without reordering existing slots.');
+}
 ---
 
 <!doctype html>
@@ -42,12 +52,13 @@ const knownIds = assertValidQuestionGraph(entries).map((question) => question.id
     <div class="mx-auto flex min-h-svh w-full max-w-6xl flex-col px-4 sm:px-6">
       <AtlasHeader client:load />
       <div class="sticky top-[5.25rem] z-40 -mb-2">
-        <ProgressOverview client:load knownIds={knownIds} />
+        <ProgressOverview client:load knownIds={knownIds} questionManifest={[...QUESTION_MANIFEST]} />
       </div>
       <main class="min-h-0 flex-1 py-12 sm:py-16">
         <slot />
       </main>
       <AtlasFooter />
+      <Sonner.Toaster client:load position="bottom-right" richColors closeButton />
     </div>
   </body>
 </html>

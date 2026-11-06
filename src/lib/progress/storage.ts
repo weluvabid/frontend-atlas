@@ -2,6 +2,7 @@ import {
   createProgressSnapshot,
   parseProgressSnapshot,
   PROGRESS_STORAGE_KEY,
+  LEGACY_PROGRESS_STORAGE_KEY,
   type ProgressSnapshot,
 } from './model.ts';
 
@@ -38,9 +39,14 @@ export function readProgress(storage: Storage | undefined): ProgressReadResult {
   }
 
   let raw: string | null;
+  let legacy = false;
 
   try {
     raw = storage.getItem(PROGRESS_STORAGE_KEY);
+    if (raw === null) {
+      raw = storage.getItem(LEGACY_PROGRESS_STORAGE_KEY);
+      legacy = raw !== null;
+    }
   } catch (error) {
     if (isExpectedStorageFailure(error)) {
       return { ok: false, reason: 'unavailable' };
@@ -49,12 +55,12 @@ export function readProgress(storage: Storage | undefined): ProgressReadResult {
     throw error;
   }
 
-  if (raw === null) {
-    return { ok: true, snapshot: createProgressSnapshot([]) };
-  }
+  if (raw === null) return { ok: true, snapshot: createProgressSnapshot([]) };
 
   try {
-    return { ok: true, snapshot: parseProgressSnapshot(JSON.parse(raw) as unknown) };
+    const snapshot = parseProgressSnapshot(JSON.parse(raw) as unknown);
+    if (legacy) writeProgress(storage, snapshot);
+    return { ok: true, snapshot };
   } catch (error) {
     if (error instanceof SyntaxError || error instanceof TypeError || error instanceof RangeError) {
       return { ok: false, reason: 'invalid-data' };

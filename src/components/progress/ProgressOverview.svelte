@@ -1,28 +1,25 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte';
   import { Button, DropdownMenu, Progress } from '@weluvabid/iris/components';
-  import { ChevronDown, Download, Upload } from '@weluvabid/iris/lucide';
+  import { ChevronDown, SlidersHorizontal } from '@weluvabid/iris/lucide';
   import { createProgressSnapshot, type ProgressSnapshot } from '@lib/progress/model';
-  import {
-    downloadProgressBackup,
-    MAX_PROGRESS_BACKUP_BYTES,
-    parseProgressBackup,
-  } from '@lib/progress/backup';
-  import { replaceProgress, subscribeToProgress } from '@lib/progress/service';
+  import { subscribeToProgress } from '@lib/progress/service';
+  import ProgressQrTransfer from './ProgressQrTransfer.svelte';
   import type { ProgressReadResult } from '@lib/progress/storage';
 
   interface Props {
     knownIds: string[];
+    questionManifest: string[];
   }
 
-  let { knownIds }: Props = $props();
+  let { knownIds, questionManifest }: Props = $props();
   let completed = $state(0);
   let currentSnapshot = $state(createProgressSnapshot([]));
   let storageMessage = $state('');
-  let status = $state('');
   let progressInvalid = $state(false);
   let menuOpen = $state(false);
-  let fileInput: HTMLInputElement;
+  let qrOpen = $state(false);
+  let qrMode = $state<'overview' | 'export' | 'import'>('overview');
   let navigationInput: HTMLInputElement;
   let navigationMode = $state(false);
   let navigationSequence = $state('');
@@ -47,7 +44,7 @@
         progressInvalid = result.reason === 'invalid-data';
         storageMessage =
           result.reason === 'invalid-data'
-            ? 'Saved progress is invalid. Import a valid backup to recover it.'
+            ? 'Saved progress is invalid. Progress transfer is disabled until it is recovered.'
             : 'Progress storage is unavailable in this browser.';
         return;
       }
@@ -88,66 +85,7 @@
     };
   });
 
-  function exportProgress(): void {
-    if (progressInvalid) {
-      status = 'Cannot export invalid saved progress. Import a valid backup first.';
-      return;
-    }
 
-    downloadProgressBackup(createProgressSnapshot(currentSnapshot.completed));
-    status = 'Progress export created.';
-  }
-
-  function openFilePicker(): void {
-    fileInput.click();
-  }
-
-  async function importProgress(event: Event): Promise<void> {
-    const input = event.currentTarget;
-
-    if (!(input instanceof HTMLInputElement) || !input.files?.[0]) {
-      return;
-    }
-
-    const file = input.files[0];
-    input.value = '';
-
-    try {
-      if (file.size > MAX_PROGRESS_BACKUP_BYTES) {
-        throw new RangeError(
-          `Progress file exceeds the ${MAX_PROGRESS_BACKUP_BYTES / 1024} KiB limit`,
-        );
-      }
-
-      const snapshot = parseProgressBackup(await file.text(), knownIdSet);
-
-      if (
-        !window.confirm(
-          `Replace this device's progress with ${snapshot.completed.length} completed question(s)?`,
-        )
-      ) {
-        status = 'Import cancelled.';
-        return;
-      }
-
-      const result = replaceProgress(snapshot);
-      applySnapshot(result.snapshot);
-      status = result.persisted
-        ? 'Progress imported successfully.'
-        : 'Progress imported for this tab, but browser storage is unavailable.';
-    } catch (error) {
-      if (
-        error instanceof SyntaxError ||
-        error instanceof TypeError ||
-        error instanceof RangeError
-      ) {
-        status = `Import rejected: ${error.message}`;
-        return;
-      }
-
-      throw error;
-    }
-  }
 </script>
 
 <div class="pointer-events-none relative flex flex-col items-center py-3">
@@ -196,20 +134,14 @@
         />
       </div>
       <DropdownMenu.Separator />
-      <DropdownMenu.Group>
-        <DropdownMenu.Item onSelect={exportProgress} disabled={progressInvalid}>
-          <Download aria-hidden="true" />
-          Export progress
-        </DropdownMenu.Item>
-        <DropdownMenu.Item onSelect={openFilePicker}>
-          <Upload aria-hidden="true" />
-          Import progress
-        </DropdownMenu.Item>
-      </DropdownMenu.Group>
-      {#if storageMessage || status}
+      <DropdownMenu.Item onSelect={() => { qrMode = 'overview'; qrOpen = true; }}>
+        <SlidersHorizontal aria-hidden="true" />
+        Manage Progress
+      </DropdownMenu.Item>
+      {#if storageMessage}
         <DropdownMenu.Separator />
         <div class="px-2 py-1.5 text-xs text-muted-foreground">
-          {status || storageMessage}
+          {storageMessage}
         </div>
       {/if}
     </DropdownMenu.Content>
@@ -240,13 +172,12 @@
       {/if}
     </div>
   {/if}
-  <input
-    bind:this={fileInput}
-    class="sr-only"
-    type="file"
-    accept="application/json,.json"
-    onchange={importProgress}
-    aria-label="Import Frontend Atlas progress file"
+  <ProgressQrTransfer
+    bind:open={qrOpen}
+    bind:mode={qrMode}
+    snapshot={currentSnapshot}
+    questionIds={questionManifest}
+    onImported={applySnapshot}
   />
-  <span class="sr-only" role="status" aria-live="polite">{status || storageMessage}</span>
+  <span class="sr-only" role="status" aria-live="polite">{storageMessage}</span>
 </div>

@@ -1,4 +1,4 @@
-import { parseProgressSnapshot, PROGRESS_STORAGE_KEY, type ProgressSnapshot } from './model.ts';
+import { parseProgressSnapshot, PROGRESS_STORAGE_KEY, LEGACY_PROGRESS_STORAGE_KEY, type ProgressSnapshot } from './model.ts';
 import { getProgressStorage, readProgress, type ProgressReadResult } from './storage.ts';
 
 export const PROGRESS_CHANGE_EVENT = 'frontend-atlas:progress-change';
@@ -28,7 +28,7 @@ export function subscribeToProgressChanges(
   }
 
   function handleStorageChange(event: StorageEvent): void {
-    if (event.key !== PROGRESS_STORAGE_KEY && event.key !== null) {
+    if (event.key !== PROGRESS_STORAGE_KEY && event.key !== LEGACY_PROGRESS_STORAGE_KEY && event.key !== null) {
       return;
     }
 

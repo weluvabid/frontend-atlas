@@ -22,7 +22,8 @@
     "test": "node --experimental-strip-types --test tests/*.test.mjs"
   },
   "dependencies": {
-    "@weluvabid/iris": "0.3.0",
+    "@weluvabid/iris": "0.4.0",
+    "qr": "0.7.2",
     "svelte": "^5.0.0"
   },
   "devDependencies": {

@@ -4,6 +4,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 import { Breadcrumb, Badge, Button } from '@weluvabid/iris/components';
 import { ArrowLeft, ArrowRight } from '@weluvabid/iris/lucide';
 import ProgressControl from '@components/progress/ProgressControl.svelte';
+import ReadingProgress from '@components/progress/ReadingProgress.svelte';
 import ArticleNavigation from '@components/article/ArticleNavigation.svelte';
 import { domainById } from '@data/domains';
 import { assertValidQuestionGraph } from '@lib/content';
@@ -46,6 +47,7 @@ const nextQuestion = domainOrder[currentIndex + 1];
 ---
 
 <BaseLayout title={`${question.title} — Frontend Atlas`} description={question.summary}>
+  <ReadingProgress client:load questionId={question.id} />
   <article data-article-swipe class="mx-auto max-w-3xl [touch-action:pan-y]">
     <Breadcrumb.Root class="mb-8">
       <Breadcrumb.List>

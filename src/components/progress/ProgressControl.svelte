@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { Button, Alert } from '@weluvabid/iris/components';
   import { Check, Circle } from '@weluvabid/iris/lucide';
+  import { Sonner } from '@weluvabid/iris/components';
   import { subscribeToProgress, toggleQuestionCompletion } from '@lib/progress/service';
   import type { ProgressReadResult } from '@lib/progress/storage';
 
@@ -22,22 +23,24 @@
 
     if (!result.persisted) {
       storageAvailable = false;
-      status = 'Browser storage is unavailable. Progress is only available in this tab.';
+      status = '';
+      Sonner.toast.warning('Progress is available in this tab only', { description: 'Browser storage is unavailable.' });
       return;
     }
 
     storageAvailable = true;
-    status = 'Progress saved on this device.';
+    status = '';
+    Sonner.toast.success(completed ? 'Question marked complete' : 'Question marked incomplete');
   }
 
   onMount(() => {
     function handleProgressResult(result: ProgressReadResult): void {
       if (!result.ok) {
         storageAvailable = result.reason !== 'unavailable';
-        status =
-          result.reason === 'invalid-data'
-            ? 'Saved progress is invalid. Use the progress menu to import a valid backup or mark a question to replace it.'
-            : 'Browser storage is unavailable. Progress will remain in memory for this tab.';
+        status = '';
+        if (result.reason === 'invalid-data') {
+          Sonner.toast.error('Saved progress is invalid', { description: 'Use Manage Progress to import a valid QR image or replace local progress.' });
+        }
         return;
       }
 

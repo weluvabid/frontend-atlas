@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   createProgressSnapshot,
+  mergeProgressSnapshots,
   parseProgressSnapshot,
   PROGRESS_STORAGE_KEY,
   readProgress,
@@ -34,7 +35,7 @@ test('snapshot normalizes ordering and duplicates', () => {
   );
 
   assert.deepEqual(snapshot.completed, ['alpha', 'zeta']);
-  assert.equal(snapshot.version, 1);
+  assert.equal(snapshot.version, 2);
 });
 
 test('snapshot rejects malformed ids and invalid dates', () => {
@@ -44,7 +45,7 @@ test('snapshot rejects malformed ids and invalid dates', () => {
 
 test('import rejects unknown schema versions and malformed fields', () => {
   assert.throws(
-    () => parseProgressSnapshot({ version: 2, completed: [], updatedAt: new Date().toISOString() }),
+    () => parseProgressSnapshot({ version: 3, completed: [], updatedAt: new Date().toISOString() }),
     /Unsupported progress version/,
   );
   assert.throws(
@@ -127,4 +128,59 @@ test('shared progress service toggles one question without mutating the caller c
   const removed = toggleQuestionCompletion('closures', added.snapshot.completed);
 
   assert.deepEqual(removed.snapshot.completed, ['event-loop']);
+});
+
+
+test('legacy version 1 progress migrates to the version 2 model', async () => {
+  const { parseProgressSnapshot } = await import('../src/lib/progress/model.ts');
+  const migrated = parseProgressSnapshot({ version: 1, completed: ['event-loop'], updatedAt: '2026-01-01T00:00:00.000Z' });
+  assert.equal(migrated.version, 2);
+  assert.deepEqual(migrated.completed, ['event-loop']);
+  assert.deepEqual(migrated.readingProgress, {});
+});
+
+test('volatile fallback preserves completion while reading progress changes without storage', async () => {
+  const { replaceProgress, updateQuestionReadingProgress } = await import('../src/lib/progress/service.ts');
+  replaceProgress(createProgressSnapshot(['closures']));
+  const updated = updateQuestionReadingProgress('event-loop', 12000);
+  assert.equal(updated.persisted, false);
+  assert.deepEqual(updated.snapshot.completed, ['closures']);
+  assert.equal(updated.snapshot.readingProgress['event-loop'].position, 12000);
+});
+
+
+test('progress merge keeps completion and selects the latest per-question reading position', () => {
+  const current = createProgressSnapshot(
+    ['closures'],
+    new Date('2026-11-06T00:00:00.000Z'),
+    { 'event-loop': { position: 50000, updatedAt: '2026-11-06T00:00:00.000Z' } },
+  );
+  const incoming = createProgressSnapshot(
+    ['event-loop'],
+    new Date('2026-11-06T00:00:00.000Z'),
+    {
+      'event-loop': { position: 12000, updatedAt: '2026-11-06T00:00:01.000Z' },
+      'browser-rendering': { position: 8000, updatedAt: '2026-11-06T00:00:02.000Z' },
+    },
+  );
+  const merged = mergeProgressSnapshots(current, incoming);
+  assert.deepEqual(merged.completed, ['closures', 'event-loop']);
+  assert.equal(merged.readingProgress['event-loop'].position, 12000);
+  assert.equal(merged.readingProgress['browser-rendering'].position, 8000);
+});
+
+test('storage migrates the legacy key into the version 2 key on first read', async () => {
+  const { LEGACY_PROGRESS_STORAGE_KEY } = await import('../src/lib/progress/model.ts');
+  const values = new Map([
+    [LEGACY_PROGRESS_STORAGE_KEY, JSON.stringify({ version: 1, completed: ['closures'], updatedAt: '2026-01-01T00:00:00.000Z' })],
+  ]);
+  const storage = {
+    getItem(key) { return values.get(key) ?? null; },
+    setItem(key, value) { values.set(key, value); },
+  };
+  const result = readProgress(storage);
+  assert.equal(result.ok, true);
+  assert.equal(result.snapshot.version, 2);
+  assert.deepEqual(result.snapshot.completed, ['closures']);
+  assert.equal(JSON.parse(values.get(PROGRESS_STORAGE_KEY)).version, 2);
 });

@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile, readdir } from 'node:fs/promises';
 import { join, relative } from 'node:path';
+import { QUESTION_MANIFEST, MAX_QUESTION_COUNT } from '../src/data/question-manifest.ts';
 
 const contentRoot = join(process.cwd(), 'src/content/questions');
 const requiredSections = [
@@ -82,6 +83,14 @@ test('the initial collection contains 40 questions across eight balanced domains
 
   assert.equal(counts.size, 8);
   assert.ok([...counts.values()].every((count) => count === 5));
+});
+
+test('the append-only QR manifest covers every question within the hard cap', () => {
+  const ids = questions.map(({ metadata }) => metadata.id);
+  assert.equal(QUESTION_MANIFEST.length, ids.length);
+  assert.equal(new Set(QUESTION_MANIFEST).size, QUESTION_MANIFEST.length);
+  assert.deepEqual([...QUESTION_MANIFEST].sort(), [...ids].sort());
+  assert.ok(QUESTION_MANIFEST.length <= MAX_QUESTION_COUNT);
 });
 
 test('every question has valid metadata and the complete editorial structure', () => {
