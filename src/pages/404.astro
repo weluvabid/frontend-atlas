@@ -11,16 +11,21 @@ import { withBase } from '@lib/atlas';
   <Empty.Root class="mx-auto max-w-2xl border-0 py-16">
     <Empty.Header>
       <Empty.Title class="text-4xl tracking-tight">This page isn't in the atlas.</Empty.Title>
-      <Empty.Description class="max-w-lg text-sm leading-7"
-        >404 · Not found. The link may have moved, or the page may never have existed. Try searching
-        the handbook or return to the domain map.</Empty.Description
-      >
     </Empty.Header>
-    <Empty.Content class="flex-row justify-center gap-3">
-      <Button.Root class="rounded-full" href={withBase('/search/')}>Search the handbook</Button.Root>
-      <Button.Root variant="outline" class="rounded-full" href={withBase('/domains/')}
-        >Browse domains</Button.Root
-      >
+    <Empty.Content class="w-full max-w-lg">
+      <div class="text-left">
+        <p class="mb-3 text-sm font-medium text-foreground">Try one of these:</p>
+        <ul class="list-inside list-disc space-y-2 text-sm leading-6 text-muted-foreground">
+          <li>Open Search in the header to find a question or concept.</li>
+          <li>Browse the domain map to explore the handbook.</li>
+          <li>Return to the homepage and start again.</li>
+        </ul>
+      </div>
+      <div class="flex flex-wrap justify-center gap-3 pt-2">
+        <Button.Root variant="outline" class="rounded-full" href={withBase('/domains/')}
+          >Browse domains</Button.Root
+        >
+      </div>
     </Empty.Content>
   </Empty.Root>
 </BaseLayout>

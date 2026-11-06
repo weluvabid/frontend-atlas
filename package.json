@@ -12,14 +12,14 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "check:types": "astro check",
-    "lint": "eslint . --ext .js,.ts --max-warnings 0",
-    "lint:fix": "eslint . --ext .js,.ts --fix",
+    "typecheck": "astro check",
+    "lint": "eslint . --max-warnings 0",
+    "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "check": "pnpm format:check && pnpm lint && pnpm test && pnpm check:types && pnpm build",
-    "hooks:install": "sh ./scripts/install-hooks.sh",
-    "test": "node --experimental-strip-types --test tests/*.test.mjs"
+    "test": "node --experimental-strip-types --test tests/*.test.mjs",
+    "check": "pnpm lint && pnpm format:check && pnpm typecheck && pnpm test && pnpm build",
+    "hooks:install": "sh ./scripts/install-hooks.sh"
   },
   "dependencies": {
     "@weluvabid/iris": "0.4.1",

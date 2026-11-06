@@ -6,11 +6,10 @@
   import { domains } from '@data/domains';
 
   interface Props {
-    mode?: 'dialog' | 'page';
     open?: boolean;
   }
 
-  let { mode = 'page', open = $bindable(false) }: Props = $props();
+  let { open = $bindable(false) }: Props = $props();
   let documents: SearchDocument[] = $state([]);
   let query = $state('');
   let loading = $state(true);
@@ -101,22 +100,11 @@
   {/if}
 {/snippet}
 
-{#if mode === 'dialog'}
-  <Command.Dialog
-    bind:open
-    title="Search Frontend Atlas"
-    description="Search questions and concepts across the handbook."
-    shouldFilter={false}
-  >
-    {@render commandContents()}
-  </Command.Dialog>
-{:else}
-  <section
-    class="overflow-hidden rounded-xl border border-border bg-card"
-    aria-label="Search the handbook"
-  >
-    <Command.Root shouldFilter={false}>
-      {@render commandContents()}
-    </Command.Root>
-  </section>
-{/if}
+<Command.Dialog
+  bind:open
+  title="Search Frontend Atlas"
+  description="Search questions and concepts across the handbook."
+  shouldFilter={false}
+>
+  {@render commandContents()}
+</Command.Dialog>

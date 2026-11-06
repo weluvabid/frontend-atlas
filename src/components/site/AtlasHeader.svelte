@@ -145,4 +145,4 @@
   </SiteHeader>
 </Tooltip.Provider>
 <HelpDialog bind:open={helpOpen} />
-<SearchPanel mode="dialog" bind:open={searchOpen} />
+<SearchPanel bind:open={searchOpen} />
