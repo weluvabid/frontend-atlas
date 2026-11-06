@@ -38,7 +38,7 @@
         const percentage = Math.round((reading.position / 65535) * 100);
         indicator.textContent = `In progress · ${percentage}%`;
         indicator.dataset.progressState = 'in-progress';
-        indicator.className = 'mt-3 flex w-full rounded-full border border-border px-2.5 py-1 text-xs font-medium text-muted-foreground';
+        indicator.className = 'mt-3 inline-flex w-fit self-start rounded-full border border-border px-2.5 py-1 text-xs font-medium text-muted-foreground';
         indicator.style.display = '';
       }
     }

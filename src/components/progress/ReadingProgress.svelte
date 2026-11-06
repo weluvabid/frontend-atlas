@@ -108,12 +108,12 @@
     <Tooltip.Root>
       <Tooltip.Trigger>
         {#snippet child({ props })}
-          <div
+          <button
             {...props}
-            class="fixed bottom-6 right-6 z-50 grid size-8 cursor-default place-items-center rounded-full bg-background/90 text-border ring-1 ring-border/70 backdrop-blur-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            type="button"
+            class="fixed bottom-6 right-6 z-50 grid size-8 appearance-none place-items-center rounded-full border-0 bg-background/90 p-0 text-border ring-1 ring-border/70 backdrop-blur-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             role="progressbar"
-            tabindex="0"
-            aria-label="Article reading progress"
+            aria-label={`Article reading progress: ${Math.round(position * 100)}%`}
             aria-valuemin="0"
             aria-valuemax="100"
             aria-valuenow={Math.round(position * 100)}
@@ -132,7 +132,7 @@
                 stroke-dashoffset={69.115 * (1 - position)}
               />
             </svg>
-          </div>
+          </button>
         {/snippet}
       </Tooltip.Trigger>
       <Tooltip.Content>Reading progress · {Math.round(position * 100)}%</Tooltip.Content>
