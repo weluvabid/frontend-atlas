@@ -24,7 +24,9 @@
     if (!result.persisted) {
       storageAvailable = false;
       status = '';
-      notify('warning', 'Progress is available in this tab only', { description: 'Browser storage is unavailable.' });
+      notify('warning', 'Progress is available in this tab only', {
+        description: 'Browser storage is unavailable.',
+      });
       return;
     }
 
@@ -39,7 +41,10 @@
         storageAvailable = result.reason !== 'unavailable';
         status = '';
         if (result.reason === 'invalid-data') {
-          notify('error', 'Saved progress is invalid', { description: 'Use Manage Progress to import a valid QR image or replace local progress.' });
+          notify('error', 'Saved progress is invalid', {
+            description:
+              'Use Manage Progress to import a valid QR image or replace local progress.',
+          });
         }
         return;
       }

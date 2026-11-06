@@ -49,7 +49,7 @@
       const ids = rawIds.split(',').filter(Boolean);
       const done = ids.filter((id) => completedIds.has(id)).length;
       const inProgress = ids.filter(
-        (id) => !completedIds.has(id) && readingProgress[id] && readingProgress[id].position > 0
+        (id) => !completedIds.has(id) && readingProgress[id] && readingProgress[id].position > 0,
       ).length;
       indicator.textContent = `${done}/${ids.length} completed${inProgress ? ` · ${inProgress} in progress` : ''}`;
       indicator.style.display = '';

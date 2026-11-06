@@ -39,11 +39,9 @@ test('snapshot normalizes ordering and duplicates', () => {
 });
 
 test('explicit completion implies 100 percent reading progress', () => {
-  const snapshot = createProgressSnapshot(
-    ['event-loop'],
-    new Date('2026-01-02T00:00:00.000Z'),
-    { 'event-loop': { position: 12000, updatedAt: '2026-01-01T00:00:00.000Z' } },
-  );
+  const snapshot = createProgressSnapshot(['event-loop'], new Date('2026-01-02T00:00:00.000Z'), {
+    'event-loop': { position: 12000, updatedAt: '2026-01-01T00:00:00.000Z' },
+  });
 
   assert.equal(snapshot.readingProgress['event-loop'].position, 65535);
   assert.equal(snapshot.readingProgress['event-loop'].updatedAt, '2026-01-02T00:00:00.000Z');
@@ -87,15 +85,19 @@ test('storage reports corrupt JSON without throwing', () => {
   assert.deepEqual(result, { ok: false, reason: 'invalid-data' });
 });
 
-
 test('completion updates refuse to overwrite corrupt saved progress', async () => {
   const { toggleQuestionCompletion } = await import('../src/lib/progress/service.ts');
   const originalWindow = globalThis.window;
   const values = new Map([[PROGRESS_STORAGE_KEY, '{broken']]);
+
   globalThis.window = {
     localStorage: {
-      getItem(key) { return values.get(key) ?? null; },
-      setItem(key, value) { values.set(key, value); },
+      getItem(key) {
+        return values.get(key) ?? null;
+      },
+      setItem(key, value) {
+        values.set(key, value);
+      },
     },
   };
 
@@ -106,8 +108,11 @@ test('completion updates refuse to overwrite corrupt saved progress', async () =
     );
     assert.equal(values.get(PROGRESS_STORAGE_KEY), '{broken');
   } finally {
-    if (originalWindow === undefined) delete globalThis.window;
-    else globalThis.window = originalWindow;
+    if (originalWindow === undefined) {
+      delete globalThis.window;
+    } else {
+      globalThis.window = originalWindow;
+    }
   }
 });
 
@@ -166,40 +171,42 @@ test('shared progress service toggles one question without mutating the caller c
   assert.deepEqual(removed.snapshot.completed, ['event-loop']);
 });
 
-
 test('legacy version 1 progress migrates to the version 2 model', async () => {
   const { parseProgressSnapshot } = await import('../src/lib/progress/model.ts');
-  const migrated = parseProgressSnapshot({ version: 1, completed: ['event-loop'], updatedAt: '2026-01-01T00:00:00.000Z' });
+  const migrated = parseProgressSnapshot({
+    version: 1,
+    completed: ['event-loop'],
+    updatedAt: '2026-01-01T00:00:00.000Z',
+  });
+
   assert.equal(migrated.version, 2);
   assert.deepEqual(migrated.completed, ['event-loop']);
   assert.equal(migrated.readingProgress['event-loop'].position, 65535);
 });
 
 test('volatile fallback preserves completion while reading progress changes without storage', async () => {
-  const { replaceProgress, updateQuestionReadingProgress } = await import('../src/lib/progress/service.ts');
+  const { replaceProgress, updateQuestionReadingProgress } = await import(
+    '../src/lib/progress/service.ts'
+  );
+
   replaceProgress(createProgressSnapshot(['closures']));
   const updated = updateQuestionReadingProgress('event-loop', 12000);
+
   assert.equal(updated.persisted, false);
   assert.deepEqual(updated.snapshot.completed, ['closures']);
   assert.equal(updated.snapshot.readingProgress['event-loop'].position, 12000);
 });
 
-
 test('progress merge keeps completion and the greatest per-question reading position', () => {
-  const current = createProgressSnapshot(
-    ['closures'],
-    new Date('2026-11-06T00:00:00.000Z'),
-    { 'event-loop': { position: 50000, updatedAt: '2026-11-06T00:00:00.000Z' } },
-  );
-  const incoming = createProgressSnapshot(
-    ['event-loop'],
-    new Date('2026-11-06T00:00:00.000Z'),
-    {
-      'event-loop': { position: 12000, updatedAt: '2026-11-06T00:00:01.000Z' },
-      'browser-rendering': { position: 8000, updatedAt: '2026-11-06T00:00:02.000Z' },
-    },
-  );
+  const current = createProgressSnapshot(['closures'], new Date('2026-11-06T00:00:00.000Z'), {
+    'event-loop': { position: 50000, updatedAt: '2026-11-06T00:00:00.000Z' },
+  });
+  const incoming = createProgressSnapshot(['event-loop'], new Date('2026-11-06T00:00:00.000Z'), {
+    'event-loop': { position: 12000, updatedAt: '2026-11-06T00:00:01.000Z' },
+    'browser-rendering': { position: 8000, updatedAt: '2026-11-06T00:00:02.000Z' },
+  });
   const merged = mergeProgressSnapshots(current, incoming);
+
   assert.deepEqual(merged.completed, ['closures', 'event-loop']);
   assert.equal(merged.readingProgress['event-loop'].position, 65535);
   assert.equal(merged.readingProgress['browser-rendering'].position, 8000);
@@ -208,47 +215,75 @@ test('progress merge keeps completion and the greatest per-question reading posi
 test('storage migrates the legacy key into the version 2 key on first read', async () => {
   const { LEGACY_PROGRESS_STORAGE_KEY } = await import('../src/lib/progress/model.ts');
   const values = new Map([
-    [LEGACY_PROGRESS_STORAGE_KEY, JSON.stringify({ version: 1, completed: ['closures'], updatedAt: '2026-01-01T00:00:00.000Z' })],
+    [
+      LEGACY_PROGRESS_STORAGE_KEY,
+      JSON.stringify({
+        version: 1,
+        completed: ['closures'],
+        updatedAt: '2026-01-01T00:00:00.000Z',
+      }),
+    ],
   ]);
   const storage = {
-    getItem(key) { return values.get(key) ?? null; },
-    setItem(key, value) { values.set(key, value); },
+    getItem(key) {
+      return values.get(key) ?? null;
+    },
+    setItem(key, value) {
+      values.set(key, value);
+    },
   };
   const result = readProgress(storage);
+
   assert.equal(result.ok, true);
   assert.equal(result.snapshot.version, 2);
   assert.deepEqual(result.snapshot.completed, ['closures']);
   assert.equal(JSON.parse(values.get(PROGRESS_STORAGE_KEY)).version, 2);
 });
 
-
 test('reading progress is monotonic and scrolling backwards never overwrites the maximum', async () => {
-  const { replaceProgress, updateQuestionReadingProgress } = await import('../src/lib/progress/service.ts');
+  const { replaceProgress, updateQuestionReadingProgress } = await import(
+    '../src/lib/progress/service.ts'
+  );
   const originalWindow = globalThis.window;
   const values = new Map();
+
   globalThis.window = {
     localStorage: {
-      getItem(key) { return values.get(key) ?? null; },
-      setItem(key, value) { values.set(key, value); },
-      removeItem(key) { values.delete(key); },
+      getItem(key) {
+        return values.get(key) ?? null;
+      },
+      setItem(key, value) {
+        values.set(key, value);
+      },
+      removeItem(key) {
+        values.delete(key);
+      },
     },
-    dispatchEvent() { return true; },
+    dispatchEvent() {
+      return true;
+    },
   };
 
   try {
     replaceProgress(createProgressSnapshot([]));
     updateQuestionReadingProgress('event-loop', 48000);
     const backwards = updateQuestionReadingProgress('event-loop', 12000);
+
     assert.equal(backwards.snapshot.readingProgress['event-loop'].position, 48000);
     updateQuestionReadingProgress('event-loop', 0);
     const atTop = readProgress(globalThis.window.localStorage);
+
     assert.equal(atTop.ok, true);
     assert.equal(atTop.snapshot.readingProgress['event-loop'].position, 48000);
 
     const forwards = updateQuestionReadingProgress('event-loop', 52000);
+
     assert.equal(forwards.snapshot.readingProgress['event-loop'].position, 52000);
   } finally {
-    if (originalWindow === undefined) delete globalThis.window;
-    else globalThis.window = originalWindow;
+    if (originalWindow === undefined) {
+      delete globalThis.window;
+    } else {
+      globalThis.window = originalWindow;
+    }
   }
 });

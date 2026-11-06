@@ -25,7 +25,9 @@ const ordered = orderDomainQuestions(questions).map((question) => {
 <BaseLayout title={`${domain.name} — Frontend Atlas`} description={domain.description}>
   <Breadcrumb.Root class="mb-8">
     <Breadcrumb.List>
-      <Breadcrumb.Item><Breadcrumb.Link href={withBase('/domains/')}>Domains</Breadcrumb.Link></Breadcrumb.Item>
+      <Breadcrumb.Item
+        ><Breadcrumb.Link href={withBase('/domains/')}>Domains</Breadcrumb.Link></Breadcrumb.Item
+      >
       <Breadcrumb.Separator />
       <Breadcrumb.Item><Breadcrumb.Page>{domain.name}</Breadcrumb.Page></Breadcrumb.Item>
     </Breadcrumb.List>
@@ -66,8 +68,9 @@ const ordered = orderDomainQuestions(questions).map((question) => {
                     </p>
                     <span
                       data-question-progress={question.id}
-                      style="display: none" class="mt-3 inline-flex rounded-full border border-border px-2.5 py-1 text-xs font-medium text-muted-foreground"
-                    ></span>
+                      style="display: none"
+                      class="mt-3 inline-flex rounded-full border border-border px-2.5 py-1 text-xs font-medium text-muted-foreground"
+                    />
                   </div>
                 </div>
                 <Badge.Badge variant="outline" class="shrink-0 capitalize">

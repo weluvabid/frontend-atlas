@@ -84,8 +84,6 @@
       }
     };
   });
-
-
 </script>
 
 <div class="pointer-events-none relative flex flex-col items-center py-3">
@@ -134,7 +132,12 @@
         />
       </div>
       <DropdownMenu.Separator />
-      <DropdownMenu.Item onSelect={() => { qrMode = 'overview'; qrOpen = true; }}>
+      <DropdownMenu.Item
+        onSelect={() => {
+          qrMode = 'overview';
+          qrOpen = true;
+        }}
+      >
         <SlidersHorizontal aria-hidden="true" />
         Manage Progress
       </DropdownMenu.Item>

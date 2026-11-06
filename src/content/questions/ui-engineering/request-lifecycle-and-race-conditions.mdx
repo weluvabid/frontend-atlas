@@ -7,7 +7,8 @@ difficulty: 'advanced'
 minutes: 15
 tags: ['async-ui', 'race-conditions', 'abortcontroller', 'request-lifecycle']
 prerequisites: ['abortcontroller-and-request-cancellation', 'event-loop-tasks-and-microtasks']
-related: ['accessible-autocomplete-machine-coding', 'testing-async-ui-races', 'optimistic-ui-and-rollback']
+related:
+  ['accessible-autocomplete-machine-coding', 'testing-async-ui-races', 'optimistic-ui-and-rollback']
 featured: false
 ---
 
@@ -104,7 +105,7 @@ A cache can return a stale value that looks like a successful response. If you p
 ## Common misconceptions
 
 - “Debounce is enough.”  
-  It only limits how often you *start* work. Responses can still arrive out of order.
+  It only limits how often you _start_ work. Responses can still arrive out of order.
 
 - “AbortController solves races.”  
   It cancels work. It does not automatically ignore a response that already reached your code.

@@ -34,7 +34,7 @@ These are not edge cases. They are the normal result of building interactive UI 
 Usually to the first meaningful control or to a heading that has `tabIndex={-1}` so it can receive focus programmatically. Screen readers then announce the new context.
 
 **2. While it is open, trap focus inside it.**  
-Tab and Shift+Tab should cycle through the focusable elements *inside* the overlay. Focus should not escape to the page behind. This is the focus trap.
+Tab and Shift+Tab should cycle through the focusable elements _inside_ the overlay. Focus should not escape to the page behind. This is the focus trap.
 
 **3. When it closes, restore focus.**  
 Send focus back to the element that opened the overlay, or to another logical place if that element no longer exists. Without restoration, keyboard users are dumped somewhere unpredictable.
@@ -90,7 +90,7 @@ The native `<dialog>` element and the `inert` attribute remove a lot of this boi
 If the button that opened the modal has been removed from the DOM (filtered list, page navigation, etc.), restore focus to a sensible fallback — often the main content landmark or the next logical item in a list.
 
 **Nested overlays.**  
-A modal that opens another modal needs a stack. Closing the top one should restore focus to the element that opened it *inside* the lower modal, not all the way back to the original page control.
+A modal that opens another modal needs a stack. Closing the top one should restore focus to the element that opened it _inside_ the lower modal, not all the way back to the original page control.
 
 **Dynamic lists and virtualised content.**  
 If the currently focused item is scrolled out of the virtualised window and unmounted, focus disappears. Keep a stable focus reference or move focus to a nearby item before unmounting.

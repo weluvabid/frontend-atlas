@@ -83,25 +83,23 @@ const questionFiles = await findMdxFiles(contentRoot);
 const questions = await Promise.all(questionFiles.map(readQuestion));
 const byId = new Map(questions.map(({ metadata }) => [metadata.id, metadata]));
 
-test(
-  'the collection retains its current content baseline across eight domains and stays within the cap',
-  () => {
-    assert.ok(questions.length >= 42);
-    assert.ok(questions.length <= MAX_QUESTION_COUNT);
-    const counts = new Map();
+test('the collection retains its current content baseline across eight domains and stays within the cap', () => {
+  assert.ok(questions.length >= 42);
+  assert.ok(questions.length <= MAX_QUESTION_COUNT);
+  const counts = new Map();
 
-    for (const { metadata } of questions) {
-      counts.set(metadata.domain, (counts.get(metadata.domain) ?? 0) + 1);
-    }
+  for (const { metadata } of questions) {
+    counts.set(metadata.domain, (counts.get(metadata.domain) ?? 0) + 1);
+  }
 
-    assert.equal(counts.size, 8);
-    assert.ok([...counts.values()].every((count) => count >= 5));
-    assert.ok((counts.get('ui-engineering') ?? 0) >= 7);
-  },
-);
+  assert.equal(counts.size, 8);
+  assert.ok([...counts.values()].every((count) => count >= 5));
+  assert.ok((counts.get('ui-engineering') ?? 0) >= 7);
+});
 
 test('the append-only QR manifest covers every question within the hard cap', () => {
   const ids = questions.map(({ metadata }) => metadata.id);
+
   assert.equal(QUESTION_MANIFEST.length, ids.length);
   assert.equal(new Set(QUESTION_MANIFEST).size, QUESTION_MANIFEST.length);
   assert.deepEqual([...QUESTION_MANIFEST].sort(), [...ids].sort());
@@ -144,6 +142,7 @@ test('every question has valid metadata and the complete editorial structure', (
     for (const section of requiredSections) {
       assert.ok(body.includes(section), `${path}: missing ${section}`);
     }
+
     for (const { label, pattern } of requiredSectionPatterns) {
       assert.match(body, pattern, `${path}: missing ${label} section`);
     }

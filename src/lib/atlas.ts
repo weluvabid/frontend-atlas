@@ -40,6 +40,7 @@ export function withBase(path: string, baseUrl = import.meta.env?.BASE_URL ?? '/
 
   const base = baseUrl.replace(/\/+$/u, '');
   const pathname = `/${path.replace(/^\/+/, '')}`;
+
   return `${base}${pathname}` || '/';
 }
 
@@ -69,7 +70,10 @@ export function orderDomainQuestions(questions: readonly QuestionSummary[]): Que
 }
 
 export function validateQuestionGraph(questions: readonly QuestionSummary[]): void {
-  if (questions.length > MAX_QUESTION_COUNT) throw new RangeError(`Frontend Atlas cannot contain more than ${MAX_QUESTION_COUNT} questions`);
+  if (questions.length > MAX_QUESTION_COUNT) {
+    throw new RangeError(`Frontend Atlas cannot contain more than ${MAX_QUESTION_COUNT} questions`);
+  }
+
   const byId = new Map<string, QuestionSummary>();
 
   for (const question of questions) {

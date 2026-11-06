@@ -19,7 +19,7 @@ A task runs to completion. After it finishes, the browser drains the microtask q
 
 The event loop is the browser’s way of interleaving different kinds of work: script tasks, timer callbacks, network responses, user input, and the chance to paint. It does not run everything in a single FIFO queue.
 
-There are multiple task sources (timers, networking, user interaction, etc.). The browser decides which task to run next according to HTML’s event-loop rules, not a simple global order. What *is* reliable is the relationship between a task and its microtasks:
+There are multiple task sources (timers, networking, user interaction, etc.). The browser decides which task to run next according to HTML’s event-loop rules, not a simple global order. What _is_ reliable is the relationship between a task and its microtasks:
 
 1. The current task runs until it returns.
 2. A microtask checkpoint runs. The queue is drained fully. Any microtask that schedules another microtask is also run before the checkpoint ends.
@@ -71,7 +71,8 @@ If `processItem` itself schedules more microtasks or the loop is large, the brow
 **Different task sources are not strictly ordered relative to each other.**  
 A timer scheduled with `setTimeout(fn, 0)` is not guaranteed to run before or after a network callback that became ready at roughly the same time. The only hard guarantee is the task → microtask checkpoint relationship.
 
-**Recursive microtasks starve rendering.**  
+**Recursive microtasks starve rendering.**
+
 ```js
 function spin() {
   queueMicrotask(spin);
@@ -79,6 +80,7 @@ function spin() {
 spin();
 // the page will not paint and will stop responding to input
 ```
+
 This is not theoretical — it is a real failure mode when people try to “yield” using microtasks instead of tasks.
 
 **MutationObserver callbacks run as microtasks.**  

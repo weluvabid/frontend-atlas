@@ -43,6 +43,7 @@ export function readProgress(storage: Storage | undefined): ProgressReadResult {
 
   try {
     raw = storage.getItem(PROGRESS_STORAGE_KEY);
+
     if (raw === null) {
       raw = storage.getItem(LEGACY_PROGRESS_STORAGE_KEY);
       legacy = raw !== null;
@@ -55,11 +56,17 @@ export function readProgress(storage: Storage | undefined): ProgressReadResult {
     throw error;
   }
 
-  if (raw === null) return { ok: true, snapshot: createProgressSnapshot([]) };
+  if (raw === null) {
+    return { ok: true, snapshot: createProgressSnapshot([]) };
+  }
 
   try {
     const snapshot = parseProgressSnapshot(JSON.parse(raw) as unknown);
-    if (legacy) writeProgress(storage, snapshot);
+
+    if (legacy) {
+      writeProgress(storage, snapshot);
+    }
+
     return { ok: true, snapshot };
   } catch (error) {
     if (error instanceof SyntaxError || error instanceof TypeError || error instanceof RangeError) {

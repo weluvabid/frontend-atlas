@@ -4,7 +4,9 @@
   import { notify } from '@lib/notifications';
   import { subscribeToProgress, updateQuestionReadingProgress } from '@lib/progress/service';
 
-  interface Props { questionId: string }
+  interface Props {
+    questionId: string;
+  }
   let { questionId }: Props = $props();
   let position = $state(0);
   let footerVisible = $state(false);
@@ -19,7 +21,8 @@
     const bounds = article.getBoundingClientRect();
     const articleTop = window.scrollY + bounds.top;
     const scrollable = Math.max(0, article.scrollHeight - window.innerHeight);
-    if (scrollable === 0) return window.scrollY + window.innerHeight >= articleTop + article.scrollHeight ? 1 : 0;
+    if (scrollable === 0)
+      return window.scrollY + window.innerHeight >= articleTop + article.scrollHeight ? 1 : 0;
     return Math.min(1, Math.max(0, (window.scrollY - articleTop) / scrollable));
   }
 
@@ -34,11 +37,18 @@
       lastPersisted = Math.max(lastPersisted, savedPosition);
       if (!result.persisted && !storageWarningShown) {
         storageWarningShown = true;
-        notify('warning', 'Reading progress is available in this tab only', { description: 'Browser storage is unavailable.' });
+        notify('warning', 'Reading progress is available in this tab only', {
+          description: 'Browser storage is unavailable.',
+        });
       }
     } catch (error) {
-      if (error instanceof Error && error.message === 'Cannot update reading progress: saved progress is invalid') {
-        notify('error', 'Reading position could not be saved', { description: 'Stored progress is invalid. Use Manage Progress to recover it.' });
+      if (
+        error instanceof Error &&
+        error.message === 'Cannot update reading progress: saved progress is invalid'
+      ) {
+        notify('error', 'Reading position could not be saved', {
+          description: 'Stored progress is invalid. Use Manage Progress to recover it.',
+        });
         return;
       }
       throw error;
@@ -58,7 +68,6 @@
   function handleVisibilityChange(): void {
     if (document.visibilityState === 'hidden') flush();
   }
-
 
   function flush(): void {
     if (persistTimer !== undefined) window.clearTimeout(persistTimer);

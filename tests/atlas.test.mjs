@@ -98,7 +98,10 @@ test('base paths are applied only to internal URLs', () => {
     '/frontend-atlas/search-index.json',
   );
   assert.equal(withBase('/', '/frontend-atlas/'), '/frontend-atlas/');
-  assert.equal(withBase('https://example.com/docs', '/frontend-atlas/'), 'https://example.com/docs');
+  assert.equal(
+    withBase('https://example.com/docs', '/frontend-atlas/'),
+    'https://example.com/docs',
+  );
 });
 
 test('question URLs are derived from immutable IDs, never loader slugs', () => {

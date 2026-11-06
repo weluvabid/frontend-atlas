@@ -30,7 +30,11 @@ export function resolveArticleSwipeDestination(
   targets: ArticleSwipeTargets,
 ): string | null {
   const direction = resolveArticleSwipeDirection(deltaX, deltaY, targets.threshold);
-  if (!direction) return null;
+
+  if (!direction) {
+    return null;
+  }
+
   return direction === 'next' ? targets.nextUrl : targets.previousUrl;
 }
 
@@ -50,9 +54,8 @@ const ignoredSwipeTargets = [
 const BOUNDARY_NOTICE_INTERVAL = 1400;
 
 function signalSwipeBoundary(article: HTMLElement, direction: ArticleSwipeDirection): void {
-  const message = direction === 'next'
-    ? "You've reached the last question"
-    : "You're at the first question";
+  const message =
+    direction === 'next' ? "You've reached the last question" : "You're at the first question";
   const now = Date.now();
   const previousNotice = boundaryNoticeTimes.get(direction) ?? 0;
 
@@ -63,6 +66,7 @@ function signalSwipeBoundary(article: HTMLElement, direction: ArticleSwipeDirect
 
   if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     const offset = direction === 'next' ? -4 : 4;
+
     article.animate(
       [
         { transform: 'translateX(0)' },
@@ -129,9 +133,13 @@ export function attachArticleSwipeNavigation(targets: ArticleSwipeTargets): () =
       event.clientY - origin.y,
       targets.threshold,
     );
-    if (!direction) return;
+
+    if (!direction) {
+      return;
+    }
 
     const destination = direction === 'next' ? targets.nextUrl : targets.previousUrl;
+
     if (destination) {
       root.location.assign(destination);
     } else {

@@ -24,13 +24,16 @@ const {
 const themeBootstrap = createThemeScript();
 const entries = await getCollection('questions');
 const knownIds = assertValidQuestionGraph(entries).map((question) => question.id);
-if (knownIds.length > MAX_QUESTION_COUNT) throw new Error(`Frontend Atlas cannot exceed ${MAX_QUESTION_COUNT} questions`);
+if (knownIds.length > MAX_QUESTION_COUNT)
+  throw new Error(`Frontend Atlas cannot exceed ${MAX_QUESTION_COUNT} questions`);
 if (
   QUESTION_MANIFEST.length !== knownIds.length ||
   new Set(QUESTION_MANIFEST).size !== QUESTION_MANIFEST.length ||
   QUESTION_MANIFEST.some((id) => !knownIds.includes(id))
 ) {
-  throw new Error('Question manifest must contain every current question exactly once; append new IDs without reordering existing slots.');
+  throw new Error(
+    'Question manifest must contain every current question exactly once; append new IDs without reordering existing slots.',
+  );
 }
 ---
 
@@ -104,14 +107,17 @@ if (
     >
       <span
         class="size-3.5 animate-spin rounded-full border-2 border-primary border-r-transparent motion-reduce:animate-none"
-        aria-hidden="true"
-      ></span>
+        aria-hidden="true"></span>
       Loading
     </div>
     <div class="mx-auto flex min-h-svh w-full max-w-6xl flex-col px-4 sm:px-6">
       <AtlasHeader client:load />
       <div class="sticky top-[5.25rem] z-40 -mb-2">
-        <ProgressOverview client:load knownIds={knownIds} questionManifest={[...QUESTION_MANIFEST]} />
+        <ProgressOverview
+          client:load
+          knownIds={knownIds}
+          questionManifest={[...QUESTION_MANIFEST]}
+        />
       </div>
       <main class="atlas-page-enter min-h-0 flex-1 py-12 sm:py-16">
         <slot />

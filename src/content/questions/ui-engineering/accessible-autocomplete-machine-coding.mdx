@@ -94,7 +94,7 @@ async function loadSuggestions(query: string) {
 
 A few production details that are easy to miss:
 
-- Debounce the *call* to `loadSuggestions`, not the abort logic inside it.
+- Debounce the _call_ to `loadSuggestions`, not the abort logic inside it.
 - Clear any pending debounce timer on unmount or when the component is disabled.
 - Treat an expected abort as normal control flow, not as an application error.
 - Validate the response at the boundary. A TypeScript type assertion is not runtime validation.
@@ -128,7 +128,7 @@ All three need explicit UI states. A spinner that never resolves and a silent fa
   The role is only the start. Expanded state, controls relationship, active descendant, option roles, and keyboard handling all have to agree.
 
 - “Debounce solves race conditions.”  
-  Debounce only limits how often you *send* requests. Responses can still arrive out of order.
+  Debounce only limits how often you _send_ requests. Responses can still arrive out of order.
 
 ## Why this matters in production
 

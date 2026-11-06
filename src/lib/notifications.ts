@@ -20,7 +20,10 @@ export function notify(
   message: string,
   options?: NotificationOptions,
 ): void {
-  if (typeof window === 'undefined') return;
+  if (typeof window === 'undefined') {
+    return;
+  }
+
   window.dispatchEvent(
     new CustomEvent<NotificationMessage>(NOTIFICATION_EVENT, {
       detail: { kind, message, options },
@@ -32,13 +35,17 @@ export function notify(
 export function subscribeToNotifications(
   callback: (notification: NotificationMessage) => void,
 ): () => void {
-  if (typeof window === 'undefined') return () => undefined;
+  if (typeof window === 'undefined') {
+    return () => undefined;
+  }
 
   const listener = (event: Event): void => {
     if (!(event instanceof CustomEvent)) {
       throw new TypeError('Notification event must be a CustomEvent.');
     }
+
     const detail: unknown = event.detail;
+
     if (
       typeof detail !== 'object' ||
       detail === null ||
@@ -50,9 +57,11 @@ export function subscribeToNotifications(
     ) {
       throw new TypeError('Received an invalid Frontend Atlas notification event.');
     }
+
     callback(detail as NotificationMessage);
   };
 
   window.addEventListener(NOTIFICATION_EVENT, listener);
+
   return () => window.removeEventListener(NOTIFICATION_EVENT, listener);
 }

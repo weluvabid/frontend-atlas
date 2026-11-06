@@ -93,7 +93,7 @@ Chrome, Firefox, and Safari do not have identical heuristics for layer promotion
 ## Common misconceptions
 
 - “Anything with `transform` is GPU accelerated and therefore fast.”  
-  Only if the element is on its own layer *and* the animation does not force paint or layout. A transform that is recalculated every frame because of layout changes is still expensive.
+  Only if the element is on its own layer _and_ the animation does not force paint or layout. A transform that is recalculated every frame because of layout changes is still expensive.
 
 - “If I use `requestAnimationFrame` the animation will be smooth.”  
   rAF gives you a chance to update before the next frame. It does not prevent you from doing too much work inside the callback.

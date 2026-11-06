@@ -53,9 +53,13 @@ const counts = new Map(
               <Card.Description>{domain.description}</Card.Description>
               <span
                 data-domain-progress
-                data-question-ids={questions.filter((question) => question.domain === domain.id).map((question) => question.id).join(',')}
-                style="display: none" class="mt-auto block pt-3 text-xs font-medium tabular-nums text-muted-foreground"
-              ></span>
+                data-question-ids={questions
+                  .filter((question) => question.domain === domain.id)
+                  .map((question) => question.id)
+                  .join(',')}
+                style="display: none"
+                class="mt-auto block pt-3 text-xs font-medium tabular-nums text-muted-foreground"
+              />
             </Card.Header>
           </Card.Root>
         </a>

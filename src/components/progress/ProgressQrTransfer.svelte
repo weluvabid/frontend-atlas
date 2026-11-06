@@ -14,16 +14,28 @@
     onImported: (snapshot: ProgressSnapshot) => void;
   }
 
-  let { open = $bindable(false), mode = $bindable('overview'), snapshot, questionIds, onImported }: Props = $props();
+  let {
+    open = $bindable(false),
+    mode = $bindable('overview'),
+    snapshot,
+    questionIds,
+    onImported,
+  }: Props = $props();
   let qrUrl = $state('');
   let pendingSnapshot = $state<ProgressSnapshot | undefined>();
   let busy = $state(false);
   let clearDialogOpen = $state(false);
   let fileInput = $state<HTMLInputElement>();
 
-  const inProgressCount = $derived(getInProgressIds(snapshot).filter((id) => questionIds.includes(id)).length);
-  const completedCount = $derived(snapshot.completed.filter((id) => questionIds.includes(id)).length);
-  const completionPercentage = $derived(questionIds.length ? completedCount / questionIds.length * 100 : 0);
+  const inProgressCount = $derived(
+    getInProgressIds(snapshot).filter((id) => questionIds.includes(id)).length,
+  );
+  const completedCount = $derived(
+    snapshot.completed.filter((id) => questionIds.includes(id)).length,
+  );
+  const completionPercentage = $derived(
+    questionIds.length ? (completedCount / questionIds.length) * 100 : 0,
+  );
 
   $effect(() => {
     if (!open || mode !== 'export') return;
@@ -43,11 +55,14 @@
     })().catch((error: unknown) => {
       if (cancelled) return;
       notify('error', 'Could not generate progress QR image', {
-        description: error instanceof Error ? error.message : 'An unexpected QR generation error occurred.',
+        description:
+          error instanceof Error ? error.message : 'An unexpected QR generation error occurred.',
       });
     });
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   });
 
   function selectMode(next: 'export' | 'import'): void {
@@ -67,7 +82,9 @@
       return;
     }
     if (file.size === 0 || file.size > 10 * 1024 * 1024) {
-      notify('error', 'Image rejected', { description: 'The image must be between 1 byte and 10 MiB.' });
+      notify('error', 'Image rejected', {
+        description: 'The image must be between 1 byte and 10 MiB.',
+      });
       return;
     }
 
@@ -96,20 +113,30 @@
       // example, "finder") are implementation details and must never reach users.
       console.warn('Progress QR image import was rejected:', error);
 
-      if (error instanceof RangeError && error.message === 'Image dimensions exceed the 16-megapixel limit.') {
+      if (
+        error instanceof RangeError &&
+        error.message === 'Image dimensions exceed the 16-megapixel limit.'
+      ) {
         notify('error', 'Image is too large', {
           description: 'Choose an image smaller than 16 megapixels.',
         });
       } else if (
         error instanceof DOMException &&
-        ['EncodingError', 'InvalidStateError', 'NotSupportedError', 'OperationError', 'SecurityError'].includes(error.name)
+        [
+          'EncodingError',
+          'InvalidStateError',
+          'NotSupportedError',
+          'OperationError',
+          'SecurityError',
+        ].includes(error.name)
       ) {
         notify('error', 'This image could not be read', {
           description: 'Try a PNG or JPEG image exported from Frontend Atlas.',
         });
       } else {
         notify('error', 'No valid Frontend Atlas progress QR code was found.', {
-          description: 'Choose an image containing a progress QR code exported from Frontend Atlas.',
+          description:
+            'Choose an image containing a progress QR code exported from Frontend Atlas.',
         });
       }
     } finally {
@@ -122,11 +149,14 @@
     if (!pendingSnapshot) throw new Error('Cannot apply QR import without a validated snapshot.');
     const incomingCount = pendingSnapshot.completed.length;
     try {
-      const result = strategy === 'merge' ? mergeProgress(pendingSnapshot) : replaceProgress(pendingSnapshot);
+      const result =
+        strategy === 'merge' ? mergeProgress(pendingSnapshot) : replaceProgress(pendingSnapshot);
       onImported(result.snapshot);
       pendingSnapshot = undefined;
       if (!result.persisted) {
-        notify('warning', 'Progress is available in this tab only', { description: 'Browser storage is unavailable, so the change was not saved permanently.' });
+        notify('warning', 'Progress is available in this tab only', {
+          description: 'Browser storage is unavailable, so the change was not saved permanently.',
+        });
       } else {
         notify('success', strategy === 'merge' ? 'Progress merged' : 'Progress replaced', {
           description: `${incomingCount} completed questions imported.`,
@@ -134,8 +164,13 @@
       }
       mode = 'overview';
     } catch (error) {
-      if (error instanceof Error && error.message === 'Cannot merge progress: saved progress is invalid') {
-        notify('error', 'Local progress is invalid', { description: 'Replace local progress to recover it.' });
+      if (
+        error instanceof Error &&
+        error.message === 'Cannot merge progress: saved progress is invalid'
+      ) {
+        notify('error', 'Local progress is invalid', {
+          description: 'Replace local progress to recover it.',
+        });
         return;
       }
       throw error;
@@ -152,7 +187,10 @@
     onImported(result.snapshot);
     clearDialogOpen = false;
     if (result.persisted) notify('success', 'Local progress cleared');
-    else notify('warning', 'Progress cleared for this tab only', { description: 'Browser storage is unavailable.' });
+    else
+      notify('warning', 'Progress cleared for this tab only', {
+        description: 'Browser storage is unavailable.',
+      });
   }
 </script>
 
@@ -161,12 +199,16 @@
     <Dialog.Header>
       <Dialog.Title>Manage Progress</Dialog.Title>
       <Dialog.Description>
-        Your learning progress is stored locally on this device. Transfer it between devices using a QR image.
+        Your learning progress is stored locally on this device. Transfer it between devices using a
+        QR image.
       </Dialog.Description>
     </Dialog.Header>
 
     {#if mode === 'overview'}
-      <section class="space-y-3 rounded-lg border border-border p-4" aria-label="Current learning progress">
+      <section
+        class="space-y-3 rounded-lg border border-border p-4"
+        aria-label="Current learning progress"
+      >
         <div class="flex items-center justify-between gap-3 text-sm">
           <span class="text-muted-foreground">Completed</span>
           <span class="font-medium tabular-nums">{completedCount} / {questionIds.length}</span>
@@ -201,46 +243,85 @@
       </div>
     {:else if mode === 'export'}
       <div class="space-y-4">
-        <Button.Root variant="ghost" size="sm" onclick={() => (mode = 'overview')}>← Back to progress</Button.Root>
+        <Button.Root variant="ghost" size="sm" onclick={() => (mode = 'overview')}
+          >← Back to progress</Button.Root
+        >
         <div class="flex flex-col items-center gap-3 py-2">
           {#if qrUrl}
-            <img src={qrUrl} alt="Frontend Atlas progress QR code" class="aspect-square w-64 max-w-full rounded-md bg-white p-2" />
-            <a href={qrUrl} download="frontend-atlas-progress.png" onclick={exportDownloaded} class="inline-flex items-center gap-2 text-sm text-primary underline-offset-4 hover:underline">
+            <img
+              src={qrUrl}
+              alt="Frontend Atlas progress QR code"
+              class="aspect-square w-64 max-w-full rounded-md bg-white p-2"
+            />
+            <a
+              href={qrUrl}
+              download="frontend-atlas-progress.png"
+              onclick={exportDownloaded}
+              class="inline-flex items-center gap-2 text-sm text-primary underline-offset-4 hover:underline"
+            >
               <Download class="size-4" /> Save QR image
             </a>
           {:else}
             <p class="text-sm text-muted-foreground" role="status">Generating QR image…</p>
           {/if}
           <p class="max-w-sm text-center text-xs text-muted-foreground">
-            This image contains your learning states and saved reading positions. Transfer it to another device and import it there. Anyone with the image can read its progress data, so keep it somewhere safe.
+            This image contains your learning states and saved reading positions. Transfer it to
+            another device and import it there. Anyone with the image can read its progress data, so
+            keep it somewhere safe.
           </p>
         </div>
       </div>
     {:else}
       <div class="space-y-3">
-        <Button.Root variant="ghost" size="sm" onclick={() => (mode = 'overview')}>← Back to progress</Button.Root>
+        <Button.Root variant="ghost" size="sm" onclick={() => (mode = 'overview')}
+          >← Back to progress</Button.Root
+        >
         <p class="text-sm text-muted-foreground">
-          Select a previously exported Frontend Atlas QR image. We'll validate it and show you what it contains before changing progress on this device.
+          Select a previously exported Frontend Atlas QR image. We'll validate it and show you what
+          it contains before changing progress on this device.
         </p>
-        <Button.Root variant="outline" class="w-full" disabled={busy} onclick={() => fileInput.click()}>
-          <ImageUp class="size-4" /> {busy ? 'Reading image…' : 'Choose QR image'}
+        <Button.Root
+          variant="outline"
+          class="w-full"
+          disabled={busy}
+          onclick={() => fileInput.click()}
+        >
+          <ImageUp class="size-4" />
+          {busy ? 'Reading image…' : 'Choose QR image'}
         </Button.Root>
-        <input bind:this={fileInput} class="sr-only" type="file" accept="image/*" onchange={importQrImage} aria-label="Choose an image containing a Frontend Atlas progress QR code" />
+        <input
+          bind:this={fileInput}
+          class="sr-only"
+          type="file"
+          accept="image/*"
+          onchange={importQrImage}
+          aria-label="Choose an image containing a Frontend Atlas progress QR code"
+        />
         {#if pendingSnapshot}
           <div class="space-y-3 rounded-md border border-border p-3 text-sm">
             <p class="font-medium">QR code validated</p>
             <p class="text-muted-foreground">
-              {pendingSnapshot.completed.length} completed · {Object.keys(pendingSnapshot.readingProgress).length} saved reading positions.
+              {pendingSnapshot.completed.length} completed · {Object.keys(
+                pendingSnapshot.readingProgress,
+              ).length} saved reading positions.
             </p>
             <div class="space-y-3">
               <div>
-                <Button.Root size="sm" onclick={() => applyImportedProgress('merge')}>Merge progress</Button.Root>
+                <Button.Root size="sm" onclick={() => applyImportedProgress('merge')}
+                  >Merge progress</Button.Root
+                >
                 <p class="mt-1 text-xs text-muted-foreground">
-                  Combine this QR snapshot with progress already on this device. Completed states are preserved, and the latest saved reading position wins.
+                  Combine this QR snapshot with progress already on this device. Completed states
+                  are preserved, and the latest saved reading position wins.
                 </p>
               </div>
               <div>
-                <Button.Root size="sm" variant="outline" onclick={() => applyImportedProgress('replace')}>Replace local progress</Button.Root>
+                <Button.Root
+                  size="sm"
+                  variant="outline"
+                  onclick={() => applyImportedProgress('replace')}
+                  >Replace local progress</Button.Root
+                >
                 <p class="mt-1 text-xs text-muted-foreground">
                   Replace all progress on this device with the contents of this QR image.
                 </p>
@@ -262,15 +343,13 @@
     <AlertDialog.Header>
       <AlertDialog.Title>Clear all progress?</AlertDialog.Title>
       <AlertDialog.Description>
-        This permanently deletes all learning states and saved reading positions stored on this device.
-        This action cannot be undone.
+        This permanently deletes all learning states and saved reading positions stored on this
+        device. This action cannot be undone.
       </AlertDialog.Description>
     </AlertDialog.Header>
     <AlertDialog.Footer>
       <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
-      <AlertDialog.Action onclick={handleClearProgress}>
-        Clear progress
-      </AlertDialog.Action>
+      <AlertDialog.Action onclick={handleClearProgress}>Clear progress</AlertDialog.Action>
     </AlertDialog.Footer>
   </AlertDialog.Content>
 </AlertDialog.Root>
