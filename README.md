@@ -1,57 +1,117 @@
 # Frontend Atlas
 
-An open-source field guide to frontend engineering. Frontend Atlas focuses on carefully curated
-questions, first-principles explanations, practical examples, and the engineering trade-offs behind
-modern web interfaces.
+A field guide to frontend engineering. Fewer questions, better explanations, and a bias toward
+understanding why the browser does what it does.
 
-## Requirements
+Frontend Atlas is an open-source collection of questions and explanations covering JavaScript,
+browser internals, CSS, UI architecture, accessibility, performance, and frontend system design.
+It is built as a static Astro site, with a small amount of Svelte where the page needs to be
+interactive.
+
+I wanted a useful handbook. I did not want to accidentally create a SaaS product with user
+accounts, password resets, email verification, sessions, and a database to babysit. That decision
+shaped quite a bit of the architecture. The progress system, for example, works without accounts
+and can move between devices using a QR image.
+
+## Have a look
+
+**Live site:** <https://weluvabid.github.io/frontend-atlas/>
+
+**Source:** <https://github.com/weluvabid/frontend-atlas>
+
+## What is in here?
+
+- Eight topic areas covering the frontend stack, from language fundamentals to system design.
+- Carefully selected questions with explanations, examples, prerequisites, and related topics.
+- Search across the handbook, with ranking performed in the browser after the index loads.
+- Reading progress and explicit completion tracking stored locally in the browser.
+- QR export/import so progress can be moved between devices without signing in.
+- Keyboard shortcuts, article navigation, light/dark themes, and responsive layouts.
+
+The goal is not to collect the largest possible pile of interview questions. Each article should
+help explain what is happening, why it happens, where the edge cases live, and what trade-offs show
+up in real software.
+
+## A few decisions worth a look
+
+- **No accounts.** I wanted to avoid the entire user-management lifecycle. Progress stays in the
+  browser; QR transfer handles the occasional device change.
+- **Static-first.** The handbook is content. It does not need a server rendering every page on every
+  visit. Astro builds the pages ahead of time and ships HTML.
+- **A stable question manifest.** Progress exports refer to question IDs in a fixed order. Moving
+  those IDs around would make old QR exports lie about what someone completed. So the manifest is
+  append-only.
+- **Monochrome UI.** I am extremely picky about colour. There are roughly 16.7 million RGB colours
+  to audition, and I would rather not spend the project choosing one. Monochrome won.
+
+These are the decisions that most visibly shaped the project. The [architecture notes](docs/architecture.md)
+show how the pieces fit together, and the [decision records](docs/decisions/) go deeper into the
+trade-offs.
+
+## What's next?
+
+A few ideas are rattling around: favourites, learning paths, progress-aware discovery, and a way to
+pick a random question when you cannot decide what to read. Nothing is scheduled; I'm mostly curious
+which of these would be useful beyond my own browser. The [longer list](docs/whats-next.md) has the
+current thinking.
+
+## Run it locally
+
+### Requirements
 
 - Node.js `26.13.0` (see `.node-version`).
 - pnpm `12.0.0` (pinned in `package.json`).
 
-## Getting started
+### Setup
 
 ```sh
 pnpm install --frozen-lockfile
 pnpm dev
 ```
 
-The committed lockfile is authoritative. Use `pnpm install --frozen-lockfile` to reproduce the
-validated dependency graph.
+The committed lockfile is the source of truth for the dependency graph. Use
+`pnpm install --frozen-lockfile` rather than casually regenerating it.
 
-## Quality checks
+### Useful commands
 
-```sh
-pnpm format
-pnpm check
-```
+| Command             | What it does                                                  |
+| ------------------- | ------------------------------------------------------------- |
+| `pnpm dev`          | Start the Astro development server.                           |
+| `pnpm build`        | Build the static site into `dist/`.                           |
+| `pnpm preview`      | Preview the production build locally.                         |
+| `pnpm typecheck`    | Run Astro diagnostics.                                        |
+| `pnpm lint`         | Run ESLint with warnings treated as errors.                   |
+| `pnpm test`         | Run the Node.js test suite.                                   |
+| `pnpm format`       | Format supported project files.                               |
+| `pnpm format:check` | Check formatting without changing files.                      |
+| `pnpm check`        | Run lint, formatting, typecheck, tests, and production build. |
 
-`pnpm check` runs formatting validation, ESLint, unit tests, Astro diagnostics, and a production
-build. Browser end-to-end automation is intentionally not part of the current project scope; use
-the release smoke-test checklist below for manual browser verification.
+## Adding content
 
-Install the repository's Conventional Commit hook when working in a local Git clone:
+Questions live in `src/content/questions/`, grouped by domain. Each article is an MDX file whose
+frontmatter is validated by `src/content.config.ts`.
 
-```sh
-pnpm hooks:install
-```
+When adding a question:
 
-## Content contributions
+1. Add the MDX file under the correct domain directory.
+2. Give it a unique, lowercase kebab-case `id`.
+3. Fill in the required metadata and follow the existing article structure.
+4. Add its ID to the **end** of `src/data/question-manifest.ts`.
+5. Update prerequisites/related references if needed, and make sure every referenced ID exists.
+6. Run `pnpm check`.
 
-Questions live in `src/content/questions/`, grouped by the eight domains. Add new MDX files using
-the content schema and editorial structure enforced by `tests/content.test.mjs` and
-`src/content.config.ts`.
+Question IDs are immutable. Manifest entries are append-only: do not reorder, reuse, or remove a
+slot, even if an article is retired. The manifest has a hard limit of 150 questions because the QR
+transfer format is deliberately bounded.
 
-Question IDs are immutable. When adding a question, append its ID to
-`src/data/question-manifest.ts`; never reorder, reuse, or remove an existing manifest slot. The
-manifest is used by progress-transfer compatibility, and the hard editorial limit is 150 questions.
+The content tests enforce metadata, article structure, relationship integrity, manifest coverage,
+and the editorial cap. See [Content architecture](docs/content-architecture.md) before changing
+how articles are identified or loaded.
 
-Run `pnpm check` before submitting a content or code change. Content additions do not require
-changes to the deployment configuration or a fixed collection-count assertion.
+## Deployment
 
-## Deployment: GitHub Pages
-
-The production site is deployed from `main` through `.github/workflows/deploy.yml` to:
+The production site is deployed to GitHub Pages from `main` by
+`.github/workflows/deploy.yml`:
 
 <https://weluvabid.github.io/frontend-atlas/>
 
@@ -59,32 +119,33 @@ One-time repository setup:
 
 1. Open **Settings → Pages**.
 2. Set **Build and deployment → Source** to **GitHub Actions**.
-3. Ensure the repository's default branch is `main`.
-4. Push to `main` or run the **Deploy to GitHub Pages** workflow manually.
+3. Ensure the default branch is `main`.
+4. Push to `main` or run **Deploy to GitHub Pages** manually.
 
-The workflow runs the full quality gate, builds Astro with the Pages-provided base path, uploads the
-`dist/` artifact, and deploys it using GitHub's official Pages actions. No deployment secrets or
-personal access tokens are required.
+The workflow installs the locked dependencies, runs `pnpm check`, builds with the Pages-provided
+base path, uploads `dist/`, and deploys it using GitHub's Pages actions. It does not need a personal
+access token or deployment secret.
 
-The Astro base path is supplied by the Pages workflow. Local development and preview use `/` by
-default; the production workflow uses the repository project-site path. Internal links and the
-search-index request are generated through the shared base-path helper so they work in both modes.
+Local development uses `/` as the base path. The Pages workflow supplies the project-site base path.
+Internal links and the search-index request use the shared base-path helper so both environments
+work.
 
-### Release smoke test
+## Documentation
 
-After the first deployment, manually verify:
-
-- Homepage, all domain pages, and a representative article load directly.
-- Internal links and search results remain under `/frontend-atlas/`.
-- Search index loads successfully and search returns results.
-- Browser Back and Forward work across page transitions.
-- Light/dark theme, tooltips, dialogs, and keyboard shortcuts work after navigation.
-- Reading progress persists, QR export/import works, and swipe boundaries behave correctly.
-- The custom 404 page links back into the project-site path.
+- [Architecture](docs/architecture.md)
+- [Progress system](docs/progress-system.md)
+- [QR transfer protocol](docs/progress-transfer-protocol.md)
+- [Content architecture](docs/content-architecture.md)
+- [Performance](docs/performance.md)
+- [Accessibility and keyboard navigation](docs/accessibility.md)
+- [Security and privacy](docs/security-and-privacy.md)
+- [Development](docs/development.md)
+- [What's next?](docs/whats-next.md)
+- [Architecture decision records](docs/decisions/)
 
 ## Licenses
 
-- Application source code: [MIT License](LICENSE).
-- Original educational articles: [Creative Commons Attribution 4.0 International](CONTENT-LICENSE.md).
-
-Third-party dependencies and separately identified third-party material retain their own licenses.
+- Application source code: [MIT](LICENSE).
+- Original educational articles: [CC BY 4.0](CONTENT-LICENSE.md).
+- Third-party dependencies and separately identified third-party material retain their own
+  licenses.
