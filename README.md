@@ -108,28 +108,6 @@ The content tests enforce metadata, article structure, relationship integrity, m
 and the editorial cap. See [Content architecture](docs/content-architecture.md) before changing
 how articles are identified or loaded.
 
-## Deployment
-
-The production site is deployed to GitHub Pages from `main` by
-`.github/workflows/deploy.yml`:
-
-<https://weluvabid.github.io/frontend-atlas/>
-
-One-time repository setup:
-
-1. Open **Settings → Pages**.
-2. Set **Build and deployment → Source** to **GitHub Actions**.
-3. Ensure the default branch is `main`.
-4. Push to `main` or run **Deploy to GitHub Pages** manually.
-
-The workflow installs the locked dependencies, runs `pnpm check`, builds with the Pages-provided
-base path, uploads `dist/`, and deploys it using GitHub's Pages actions. It does not need a personal
-access token or deployment secret.
-
-Local development uses `/` as the base path. The Pages workflow supplies the project-site base path.
-Internal links and the search-index request use the shared base-path helper so both environments
-work.
-
 ## Documentation
 
 - [Architecture](docs/architecture.md)
