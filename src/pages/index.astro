@@ -69,8 +69,9 @@ const featured = featuredQuestionIds.map((id) => {
                       .filter((question) => question.domain === domain.id)
                       .map((question) => question.id)
                       .join(',')}
-                    style="display: none"
-                    class="mt-auto block pt-3 text-xs font-medium tabular-nums text-muted-foreground"
+                    data-progress-loading
+                    aria-hidden="true"
+                    class="progress-indicator progress-indicator--domain mt-auto block min-h-6 pt-3 text-xs font-medium tabular-nums text-muted-foreground"
                   />
                 </Card.Header>
               </Card.Root>
@@ -104,8 +105,9 @@ const featured = featuredQuestionIds.map((id) => {
                 <span
                   data-question-progress={question.id}
                   data-featured-progress
-                  style="display: none"
-                  class="mt-auto inline-flex w-fit rounded-full border border-border px-2.5 py-1 text-xs font-medium text-muted-foreground"
+                  data-progress-loading
+                  aria-hidden="true"
+                  class="progress-indicator progress-indicator--question mt-auto inline-flex min-h-6 w-fit items-center rounded-full border border-border px-2.5 py-1 text-xs font-medium text-muted-foreground"
                 />
               </Card.Header>
             </Card.Root>

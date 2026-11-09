@@ -9,13 +9,15 @@
 </script>
 
 <Dialog.Root bind:open>
-  <Dialog.Content class="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-lg">
-    <Dialog.Header>
+  <Dialog.Content
+    class="flex max-h-[calc(100dvh-2rem)] min-h-0 flex-col overflow-hidden sm:max-w-lg"
+  >
+    <Dialog.Header class="shrink-0">
       <Dialog.Title>Keyboard shortcuts</Dialog.Title>
       <Dialog.Description>Navigate Frontend Atlas without leaving the keyboard.</Dialog.Description>
     </Dialog.Header>
 
-    <div class="space-y-5">
+    <div class="min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain py-1">
       <section aria-labelledby="help-navigation-heading">
         <h3
           id="help-navigation-heading"

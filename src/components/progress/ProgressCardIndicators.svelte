@@ -9,13 +9,19 @@
 
     for (const indicator of questionIndicators) {
       indicator.textContent = '';
-      indicator.style.display = 'none';
+      indicator.removeAttribute('data-progress-loading');
+      indicator.removeAttribute('aria-hidden');
+      indicator.style.display = '';
+      indicator.style.visibility = 'hidden';
       indicator.removeAttribute('data-progress-state');
-      indicator.className = `${indicator.hasAttribute('data-featured-progress') ? 'mt-auto' : 'mt-3'} hidden w-fit rounded-full border border-border px-2.5 py-1 text-xs font-medium text-muted-foreground`;
+      indicator.className = `${indicator.hasAttribute('data-featured-progress') ? 'mt-auto' : 'mt-3'} inline-flex min-h-6 w-fit items-center rounded-full border border-border px-2.5 py-1 text-xs font-medium text-muted-foreground`;
     }
     for (const indicator of domainIndicators) {
       indicator.textContent = '';
-      indicator.style.display = 'none';
+      indicator.removeAttribute('data-progress-loading');
+      indicator.removeAttribute('aria-hidden');
+      indicator.style.display = '';
+      indicator.style.visibility = 'hidden';
     }
 
     if (!result.ok) return;
@@ -29,6 +35,7 @@
 
       if (completedIds.has(questionId)) {
         indicator.textContent = 'Completed';
+        indicator.style.visibility = 'visible';
         indicator.dataset.progressState = 'completed';
         indicator.className = `${indicator.hasAttribute('data-featured-progress') ? 'mt-auto' : 'mt-3'} inline-flex w-fit self-start rounded-full border border-border px-2.5 py-1 text-xs font-medium text-muted-foreground`;
         indicator.style.display = '';
@@ -37,6 +44,7 @@
         if (!reading || reading.position === 0) continue;
         const percentage = Math.round((reading.position / 65535) * 100);
         indicator.textContent = `In progress · ${percentage}%`;
+        indicator.style.visibility = 'visible';
         indicator.dataset.progressState = 'in-progress';
         indicator.className = `${indicator.hasAttribute('data-featured-progress') ? 'mt-auto' : 'mt-3'} inline-flex w-fit self-start rounded-full border border-border px-2.5 py-1 text-xs font-medium text-muted-foreground`;
         indicator.style.display = '';
@@ -52,7 +60,7 @@
         (id) => !completedIds.has(id) && readingProgress[id] && readingProgress[id].position > 0,
       ).length;
       indicator.textContent = `${done}/${ids.length} completed${inProgress ? ` · ${inProgress} in progress` : ''}`;
-      indicator.style.display = '';
+      indicator.style.visibility = 'visible';
     }
   }
 

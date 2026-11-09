@@ -57,8 +57,9 @@ const counts = new Map(
                   .filter((question) => question.domain === domain.id)
                   .map((question) => question.id)
                   .join(',')}
-                style="display: none"
-                class="mt-auto block pt-3 text-xs font-medium tabular-nums text-muted-foreground"
+                data-progress-loading
+                aria-hidden="true"
+                class="progress-indicator progress-indicator--domain mt-auto block min-h-6 pt-3 text-xs font-medium tabular-nums text-muted-foreground"
               />
             </Card.Header>
           </Card.Root>

@@ -45,6 +45,7 @@
   <Command.Input
     bind:value={query}
     placeholder="Search questions and concepts…"
+    class="text-base"
     aria-label="Search questions and concepts"
   />
   <Command.List>

@@ -15,6 +15,39 @@
   animation: atlas-content-enter 220ms cubic-bezier(0.2, 0.65, 0.3, 1) both;
 }
 
+.progress-indicator[data-progress-loading] {
+  visibility: visible !important;
+}
+
+.progress-indicator[data-progress-loading]::before {
+  display: block;
+  height: 1rem;
+  border-radius: 9999px;
+  background: var(--muted);
+  content: '';
+  animation: atlas-progress-skeleton 1.4s ease-in-out infinite;
+}
+
+.progress-indicator--question[data-progress-loading]::before {
+  width: 5.5rem;
+}
+
+.progress-indicator--domain[data-progress-loading]::before {
+  width: 10rem;
+}
+
+@keyframes atlas-progress-skeleton {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progress-indicator[data-progress-loading]::before {
+    animation: none;
+  }
+}
+
 @layer base {
   * {
     @apply border-border;

@@ -22,6 +22,7 @@
     onImported,
   }: Props = $props();
   let qrUrl = $state('');
+  let qrError = $state(false);
   let pendingSnapshot = $state<ProgressSnapshot | undefined>();
   let busy = $state(false);
   let clearDialogOpen = $state(false);
@@ -41,6 +42,7 @@
     if (!open || mode !== 'export') return;
     let cancelled = false;
     qrUrl = '';
+    qrError = false;
 
     void (async () => {
       const [{ default: encodeQR }, { svgToPng }] = await Promise.all([
@@ -54,6 +56,7 @@
       qrUrl = pngDataUrl;
     })().catch((error: unknown) => {
       if (cancelled) return;
+      qrError = true;
       notify('error', 'Could not generate progress QR image', {
         description:
           error instanceof Error ? error.message : 'An unexpected QR generation error occurred.',
@@ -195,8 +198,10 @@
 </script>
 
 <Dialog.Root bind:open>
-  <Dialog.Content class="sm:max-w-lg">
-    <Dialog.Header>
+  <Dialog.Content
+    class="flex max-h-[calc(100dvh-2rem)] min-h-0 flex-col overflow-hidden sm:max-w-lg"
+  >
+    <Dialog.Header class="shrink-0">
       <Dialog.Title>Manage Progress</Dialog.Title>
       <Dialog.Description>
         Your learning progress is stored locally on this device. Transfer it between devices using a
@@ -204,137 +209,153 @@
       </Dialog.Description>
     </Dialog.Header>
 
-    {#if mode === 'overview'}
-      <section
-        class="space-y-3 rounded-lg border border-border p-4"
-        aria-label="Current learning progress"
-      >
-        <div class="flex items-center justify-between gap-3 text-sm">
-          <span class="text-muted-foreground">Completed</span>
-          <span class="font-medium tabular-nums">{completedCount} / {questionIds.length}</span>
-        </div>
-        <Progress.Root value={completionPercentage} class="h-2" aria-label="Overall completion" />
-        <div class="flex justify-between text-xs text-muted-foreground">
-          <span>{inProgressCount} in progress</span>
-          <span>{Math.round(completionPercentage)}% complete</span>
-        </div>
-      </section>
-
-      <section class="space-y-2" aria-labelledby="transfer-progress-heading">
-        <h3 id="transfer-progress-heading" class="text-sm font-medium">Transfer progress</h3>
-        <div class="grid gap-2 sm:grid-cols-2">
-          <Button.Root variant="outline" class="justify-start" onclick={() => selectMode('export')}>
-            <Download class="size-4" /> Export QR image
-          </Button.Root>
-          <Button.Root variant="outline" class="justify-start" onclick={() => selectMode('import')}>
-            <ImageUp class="size-4" /> Import QR image
-          </Button.Root>
-        </div>
-      </section>
-
-      <div class="border-t border-border pt-3">
-        <Button.Root
-          variant="ghost"
-          class="text-destructive hover:text-destructive"
-          onclick={() => (clearDialogOpen = true)}
+    <div class="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain py-1">
+      {#if mode === 'overview'}
+        <section
+          class="space-y-3 rounded-lg border border-border p-4"
+          aria-label="Current learning progress"
         >
-          <Trash2 class="size-4" /> Clear local progress
-        </Button.Root>
-      </div>
-    {:else if mode === 'export'}
-      <div class="space-y-4">
-        <Button.Root variant="ghost" size="sm" onclick={() => (mode = 'overview')}>
-          <ArrowLeft class="size-4" aria-hidden="true" />
-          Back to progress
-        </Button.Root>
-        <div class="flex flex-col items-center gap-3 py-2">
-          {#if qrUrl}
-            <img
-              src={qrUrl}
-              alt="Frontend Atlas progress QR code"
-              class="aspect-square w-64 max-w-full rounded-md bg-white p-2"
-            />
-            <a
-              href={qrUrl}
-              download="frontend-atlas-progress.png"
-              onclick={exportDownloaded}
-              class="inline-flex items-center gap-2 text-sm text-primary underline-offset-4 hover:underline"
+          <div class="flex items-center justify-between gap-3 text-sm">
+            <span class="text-muted-foreground">Completed</span>
+            <span class="font-medium tabular-nums">{completedCount} / {questionIds.length}</span>
+          </div>
+          <Progress.Root value={completionPercentage} class="h-2" aria-label="Overall completion" />
+          <div class="flex justify-between text-xs text-muted-foreground">
+            <span>{inProgressCount} in progress</span>
+            <span>{Math.round(completionPercentage)}% complete</span>
+          </div>
+        </section>
+
+        <section class="space-y-2" aria-labelledby="transfer-progress-heading">
+          <h3 id="transfer-progress-heading" class="text-sm font-medium">Transfer progress</h3>
+          <div class="grid gap-2 sm:grid-cols-2">
+            <Button.Root
+              variant="outline"
+              class="justify-start"
+              onclick={() => selectMode('export')}
             >
-              <Download class="size-4" /> Save QR image
-            </a>
-          {:else}
-            <p class="text-sm text-muted-foreground" role="status">Generating QR image…</p>
-          {/if}
-          <p class="max-w-sm text-center text-xs text-muted-foreground">
-            This image contains your learning states and saved reading positions. Transfer it to
-            another device and import it there. Anyone with the image can read its progress data, so
-            keep it somewhere safe.
-          </p>
+              <Download class="size-4" /> Export QR image
+            </Button.Root>
+            <Button.Root
+              variant="outline"
+              class="justify-start"
+              onclick={() => selectMode('import')}
+            >
+              <ImageUp class="size-4" /> Import QR image
+            </Button.Root>
+          </div>
+        </section>
+
+        <div class="border-t border-border pt-3">
+          <Button.Root
+            variant="ghost"
+            class="text-destructive hover:text-destructive"
+            onclick={() => (clearDialogOpen = true)}
+          >
+            <Trash2 class="size-4" /> Clear local progress
+          </Button.Root>
         </div>
-      </div>
-    {:else}
-      <div class="space-y-3">
-        <Button.Root variant="ghost" size="sm" onclick={() => (mode = 'overview')}>
-          <ArrowLeft class="size-4" aria-hidden="true" />
-          Back to progress
-        </Button.Root>
-        <p class="text-sm text-muted-foreground">
-          Select a previously exported Frontend Atlas QR image. We'll validate it and show you what
-          it contains before changing progress on this device.
-        </p>
-        <Button.Root
-          variant="outline"
-          class="w-full"
-          disabled={busy}
-          onclick={() => fileInput.click()}
-        >
-          <ImageUp class="size-4" />
-          {busy ? 'Reading image…' : 'Choose QR image'}
-        </Button.Root>
-        <input
-          bind:this={fileInput}
-          class="sr-only"
-          type="file"
-          accept="image/*"
-          onchange={importQrImage}
-          aria-label="Choose an image containing a Frontend Atlas progress QR code"
-        />
-        {#if pendingSnapshot}
-          <div class="space-y-3 rounded-md border border-border p-3 text-sm">
-            <p class="font-medium">QR code validated</p>
-            <p class="text-muted-foreground">
-              {pendingSnapshot.completed.length} completed · {Object.keys(
-                pendingSnapshot.readingProgress,
-              ).length} saved reading positions.
+      {:else if mode === 'export'}
+        <div class="space-y-4">
+          <Button.Root variant="ghost" size="sm" onclick={() => (mode = 'overview')}>
+            <ArrowLeft class="size-4" aria-hidden="true" />
+            Back to progress
+          </Button.Root>
+          <div class="flex flex-col items-center gap-3 py-2">
+            {#if qrUrl}
+              <img
+                src={qrUrl}
+                alt="Frontend Atlas progress QR code"
+                class="aspect-square w-48 max-w-full rounded-md bg-white p-2"
+              />
+              <a
+                href={qrUrl}
+                download="frontend-atlas-progress.png"
+                onclick={exportDownloaded}
+                class="inline-flex items-center gap-2 text-sm text-primary underline-offset-4 hover:underline"
+              >
+                <Download class="size-4" /> Save QR image
+              </a>
+            {:else if qrError}
+              <p class="text-sm text-muted-foreground" role="status">QR image generation failed.</p>
+            {:else}
+              <div
+                class="size-48 max-w-full animate-pulse rounded-md bg-muted"
+                role="status"
+                aria-label="Generating progress QR image"
+              ></div>
+            {/if}
+            <p class="max-w-sm text-center text-xs text-muted-foreground">
+              This image contains your learning states and saved reading positions. Transfer it to
+              another device and import it there. Anyone with the image can read its progress data,
+              so keep it somewhere safe.
             </p>
-            <div class="space-y-3">
-              <div>
-                <Button.Root size="sm" onclick={() => applyImportedProgress('merge')}
-                  >Merge progress</Button.Root
-                >
-                <p class="mt-1 text-xs text-muted-foreground">
-                  Combine this QR snapshot with progress already on this device. Completed states
-                  are preserved, and the latest saved reading position wins.
-                </p>
-              </div>
-              <div>
-                <Button.Root
-                  size="sm"
-                  variant="outline"
-                  onclick={() => applyImportedProgress('replace')}
-                  >Replace local progress</Button.Root
-                >
-                <p class="mt-1 text-xs text-muted-foreground">
-                  Replace all progress on this device with the contents of this QR image.
-                </p>
+          </div>
+        </div>
+      {:else}
+        <div class="space-y-3">
+          <Button.Root variant="ghost" size="sm" onclick={() => (mode = 'overview')}>
+            <ArrowLeft class="size-4" aria-hidden="true" />
+            Back to progress
+          </Button.Root>
+          <p class="text-sm text-muted-foreground">
+            Select a previously exported Frontend Atlas QR image. We'll validate it and show you
+            what it contains before changing progress on this device.
+          </p>
+          <Button.Root
+            variant="outline"
+            class="w-full"
+            disabled={busy}
+            onclick={() => fileInput.click()}
+          >
+            <ImageUp class="size-4" />
+            {busy ? 'Reading image…' : 'Choose QR image'}
+          </Button.Root>
+          <input
+            bind:this={fileInput}
+            class="sr-only"
+            type="file"
+            accept="image/*"
+            onchange={importQrImage}
+            aria-label="Choose an image containing a Frontend Atlas progress QR code"
+          />
+          {#if pendingSnapshot}
+            <div class="space-y-3 rounded-md border border-border p-3 text-sm">
+              <p class="font-medium">QR code validated</p>
+              <p class="text-muted-foreground">
+                {pendingSnapshot.completed.length} completed · {Object.keys(
+                  pendingSnapshot.readingProgress,
+                ).length} saved reading positions.
+              </p>
+              <div class="space-y-3">
+                <div>
+                  <Button.Root size="sm" onclick={() => applyImportedProgress('merge')}
+                    >Merge progress</Button.Root
+                  >
+                  <p class="mt-1 text-xs text-muted-foreground">
+                    Combine this QR snapshot with progress already on this device. Completed states
+                    are preserved, and the latest saved reading position wins.
+                  </p>
+                </div>
+                <div>
+                  <Button.Root
+                    size="sm"
+                    variant="outline"
+                    onclick={() => applyImportedProgress('replace')}
+                    >Replace local progress</Button.Root
+                  >
+                  <p class="mt-1 text-xs text-muted-foreground">
+                    Replace all progress on this device with the contents of this QR image.
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
-        {/if}
-      </div>
-    {/if}
+          {/if}
+        </div>
+      {/if}
+    </div>
 
-    <Dialog.Footer>
+    <Dialog.Footer class="shrink-0">
       <Button.Root variant="outline" onclick={() => (open = false)}>Close</Button.Root>
     </Dialog.Footer>
   </Dialog.Content>

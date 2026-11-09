@@ -68,8 +68,9 @@ const ordered = orderDomainQuestions(questions).map((question) => {
                     </p>
                     <span
                       data-question-progress={question.id}
-                      style="display: none"
-                      class="mt-3 inline-flex rounded-full border border-border px-2.5 py-1 text-xs font-medium text-muted-foreground"
+                      data-progress-loading
+                      aria-hidden="true"
+                      class="progress-indicator progress-indicator--question mt-3 inline-flex min-h-6 w-fit items-center rounded-full border border-border px-2.5 py-1 text-xs font-medium text-muted-foreground"
                     />
                   </div>
                 </div>

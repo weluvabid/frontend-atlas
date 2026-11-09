@@ -158,7 +158,7 @@
       {#if navigationMode}
         <input
           bind:this={navigationInput}
-          class="h-8 w-36 rounded-md border border-border bg-popover px-2 py-1 text-center text-xs text-popover-foreground shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          class="h-8 w-36 rounded-md border border-border bg-popover px-2 py-1 text-center text-base text-popover-foreground shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
           type="text"
           value={navigationSequence}
           readonly
