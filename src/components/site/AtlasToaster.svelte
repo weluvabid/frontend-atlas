@@ -20,6 +20,7 @@
           break;
         default: {
           const exhaustive: never = kind;
+
           throw new Error(`Unsupported notification kind: ${String(exhaustive)}`);
         }
       }

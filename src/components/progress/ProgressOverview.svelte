@@ -12,11 +12,10 @@
     questionManifest: string[];
   }
 
-  let { knownIds, questionManifest }: Props = $props();
+  const { knownIds, questionManifest }: Props = $props();
   let completed = $state(0);
   let currentSnapshot = $state(createProgressSnapshot([]));
   let storageMessage = $state('');
-  let progressInvalid = $state(false);
   let menuOpen = $state(false);
   let qrOpen = $state(false);
   let qrMode = $state<'overview' | 'export' | 'import'>('overview');
@@ -34,18 +33,17 @@
   function applySnapshot(snapshot: ProgressSnapshot): void {
     currentSnapshot = snapshot;
     completed = snapshot.completed.filter((id) => knownIdSet.has(id)).length;
-    progressInvalid = false;
     storageMessage = '';
   }
 
   onMount(() => {
     function handleProgressResult(result: ProgressReadResult): void {
       if (!result.ok) {
-        progressInvalid = result.reason === 'invalid-data';
         storageMessage =
           result.reason === 'invalid-data'
             ? 'Saved progress is invalid. Progress transfer is disabled until it is recovered.'
             : 'Progress storage is unavailable in this browser.';
+
         return;
       }
 
@@ -58,6 +56,7 @@
       }
 
       const detail = event.detail as { active?: boolean; value?: string; message?: string };
+
       navigationMode = detail.active === true;
       navigationSequence = typeof detail.value === 'string' ? detail.value : '';
       navigationMessage = typeof detail.message === 'string' ? detail.message : '';
@@ -74,11 +73,13 @@
     }
 
     const unsubscribe = subscribeToProgress(handleProgressResult);
+
     window.addEventListener('atlas:card-navigation-prompt', handleCardNavigationPrompt);
 
     return () => {
       unsubscribe();
       window.removeEventListener('atlas:card-navigation-prompt', handleCardNavigationPrompt);
+
       if (navigationMessageTimer !== undefined) {
         window.clearTimeout(navigationMessageTimer);
       }

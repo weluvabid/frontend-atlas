@@ -14,7 +14,7 @@
     next: NavigationTarget | null;
   }
 
-  let { previous, next }: Props = $props();
+  const { previous, next }: Props = $props();
 
   onMount(() =>
     attachArticleSwipeNavigation({

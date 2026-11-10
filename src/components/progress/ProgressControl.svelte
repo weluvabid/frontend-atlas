@@ -10,7 +10,7 @@
     questionId: string;
   }
 
-  let { questionId }: Props = $props();
+  const { questionId }: Props = $props();
   let completed = $state(false);
   let completedIds = $state<string[]>([]);
   let status = $state('');
@@ -18,6 +18,7 @@
 
   function toggleCompleted(): void {
     const result = toggleQuestionCompletion(questionId, completedIds);
+
     completedIds = [...result.snapshot.completed];
     completed = result.snapshot.completed.includes(questionId);
 
@@ -27,6 +28,7 @@
       notify('warning', 'Progress is available in this tab only', {
         description: 'Browser storage is unavailable.',
       });
+
       return;
     }
 
@@ -40,12 +42,14 @@
       if (!result.ok) {
         storageAvailable = result.reason !== 'unavailable';
         status = '';
+
         if (result.reason === 'invalid-data') {
           notify('error', 'Saved progress is invalid', {
             description:
               'Use Manage Progress to import a valid QR image or replace local progress.',
           });
         }
+
         return;
       }
 

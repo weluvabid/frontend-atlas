@@ -7,7 +7,7 @@
   interface Props {
     questionId: string;
   }
-  let { questionId }: Props = $props();
+  const { questionId }: Props = $props();
   let position = $state(0);
   let footerVisible = $state(false);
   let article: HTMLElement | null = null;
@@ -18,24 +18,39 @@
   let trackingPaused = false;
 
   function measure(): number {
-    if (!article) return 0;
+    if (!article) {
+      return 0;
+    }
+
     const bounds = article.getBoundingClientRect();
     const articleTop = window.scrollY + bounds.top;
     const scrollable = Math.max(0, article.scrollHeight - window.innerHeight);
-    if (scrollable === 0)
+
+    if (scrollable === 0) {
       return window.scrollY + window.innerHeight >= articleTop + article.scrollHeight ? 1 : 0;
+    }
+
     return Math.min(1, Math.max(0, (window.scrollY - articleTop) / scrollable));
   }
 
   function persist(force = false): void {
     const next = Math.round(position * 65535);
-    if (!force && (next === lastPersisted || Math.abs(next - lastPersisted) < 655)) return;
-    if (next === lastPersisted) return;
+
+    if (!force && (next === lastPersisted || Math.abs(next - lastPersisted) < 655)) {
+      return;
+    }
+
+    if (next === lastPersisted) {
+      return;
+    }
+
     try {
       const result = updateQuestionReadingProgress(questionId, next);
       const savedPosition = result.snapshot.readingProgress[questionId]?.position ?? 0;
+
       position = Math.max(position, savedPosition / 65535);
       lastPersisted = Math.max(lastPersisted, savedPosition);
+
       if (!result.persisted && !storageWarningShown) {
         storageWarningShown = true;
         notify('warning', 'Reading progress is available in this tab only', {
@@ -50,19 +65,29 @@
         notify('error', 'Reading position could not be saved', {
           description: 'Stored progress is invalid. Use Manage Progress to recover it.',
         });
+
         return;
       }
+
       throw error;
     }
   }
 
   function handleScroll(): void {
     trackingPaused = false;
-    if (frame) return;
+
+    if (frame) {
+      return;
+    }
+
     frame = window.requestAnimationFrame(() => {
       frame = 0;
       position = Math.max(position, measure());
-      if (persistTimer !== undefined) window.clearTimeout(persistTimer);
+
+      if (persistTimer !== undefined) {
+        window.clearTimeout(persistTimer);
+      }
+
       persistTimer = window.setTimeout(() => {
         persistTimer = undefined;
         persist();
@@ -71,11 +96,16 @@
   }
 
   function handleVisibilityChange(): void {
-    if (document.visibilityState === 'hidden') flush();
+    if (document.visibilityState === 'hidden') {
+      flush();
+    }
   }
 
   function flush(): void {
-    if (trackingPaused || persistTimer === undefined) return;
+    if (trackingPaused || persistTimer === undefined) {
+      return;
+    }
+
     window.clearTimeout(persistTimer);
     persistTimer = undefined;
     persist(true);
@@ -83,19 +113,31 @@
 
   onMount(() => {
     article = document.querySelector<HTMLElement>('[data-article-swipe]');
-    if (!article) throw new Error('Reading progress requires an article container');
+
+    if (!article) {
+      throw new Error('Reading progress requires an article container');
+    }
+
     const footer = document.querySelector<HTMLElement>('footer');
-    if (!footer) throw new Error('Reading progress requires a footer element');
+
+    if (!footer) {
+      throw new Error('Reading progress requires a footer element');
+    }
+
     const footerObserver = new IntersectionObserver(
       ([entry]) => {
         footerVisible = entry.isIntersecting;
       },
       { threshold: 0 },
     );
+
     footerObserver.observe(footer);
 
     const unsubscribe = subscribeToProgress((result) => {
-      if (!result.ok) return;
+      if (!result.ok) {
+        return;
+      }
+
       const savedPosition = result.snapshot.readingProgress[questionId]?.position ?? 0;
       const isReset =
         savedPosition < lastPersisted ||
@@ -109,25 +151,30 @@
           window.clearTimeout(persistTimer);
           persistTimer = undefined;
         }
+
         if (frame) {
           window.cancelAnimationFrame(frame);
           frame = 0;
         }
+
         trackingPaused = true;
         position = savedPosition / 65535;
         lastPersisted = savedPosition;
+
         return;
       }
 
       position = Math.max(position, savedPosition / 65535);
       lastPersisted = Math.max(lastPersisted, savedPosition);
     });
+
     handleScroll();
     window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('resize', handleScroll, { passive: true });
     window.addEventListener('pagehide', flush);
     document.addEventListener('visibilitychange', handleVisibilityChange);
     document.addEventListener('astro:before-preparation', flush);
+
     return () => {
       unsubscribe();
       footerObserver.disconnect();
@@ -136,8 +183,14 @@
       window.removeEventListener('pagehide', flush);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       document.removeEventListener('astro:before-preparation', flush);
-      if (persistTimer !== undefined) window.clearTimeout(persistTimer);
-      if (frame) window.cancelAnimationFrame(frame);
+
+      if (persistTimer !== undefined) {
+        window.clearTimeout(persistTimer);
+      }
+
+      if (frame) {
+        window.cancelAnimationFrame(frame);
+      }
     };
   });
 </script>

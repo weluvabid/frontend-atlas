@@ -2,6 +2,7 @@ import eslint from '@eslint/js';
 import prettier from 'eslint-config-prettier';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
+import svelteesLint from 'eslint-plugin-svelte';
 
 const paddingLineBetweenStatements = [
   'error',
@@ -27,9 +28,10 @@ export default tseslint.config(
   },
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
+  ...svelteesLint.configs.recommended,
   prettier,
   {
-    files: ['**/*.{js,mjs,cjs,ts,mts,cts}'],
+    files: ['**/*.{js,mjs,cjs,ts,mts,cts,svelte}'],
     languageOptions: {
       globals: { ...globals.node },
     },
@@ -62,6 +64,18 @@ export default tseslint.config(
       'prefer-template': 'error',
       quotes: ['error', 'single', { avoidEscape: true }],
       semi: ['error', 'always'],
+    },
+  },
+  {
+    files: ['**/*.svelte'],
+    rules: {
+      'prefer-const': 'off',
+    },
+    languageOptions: {
+      parserOptions: {
+        parser: tseslint.parser,
+      },
+      globals: { ...globals.browser },
     },
   },
   {

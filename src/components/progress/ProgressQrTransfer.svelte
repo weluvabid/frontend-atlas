@@ -39,8 +39,12 @@
   );
 
   $effect(() => {
-    if (!open || mode !== 'export') return;
+    if (!open || mode !== 'export') {
+      return;
+    }
+
     let cancelled = false;
+
     qrUrl = '';
     qrError = false;
 
@@ -52,10 +56,17 @@
       const payload = encodeProgressQr(snapshot, questionIds);
       const svg = encodeQR(payload, 'svg', { ecc: 'quartile', border: 4 });
       const pngDataUrl = await svgToPng(svg, 640, 640);
-      if (cancelled) return;
+
+      if (cancelled) {
+        return;
+      }
+
       qrUrl = pngDataUrl;
     })().catch((error: unknown) => {
-      if (cancelled) return;
+      if (cancelled) {
+        return;
+      }
+
       qrError = true;
       notify('error', 'Could not generate progress QR image', {
         description:
@@ -75,41 +86,58 @@
 
   async function importQrImage(event: Event): Promise<void> {
     const input = event.currentTarget;
-    if (!(input instanceof HTMLInputElement) || !input.files?.[0]) return;
+
+    if (!(input instanceof HTMLInputElement) || !input.files?.[0]) {
+      return;
+    }
+
     const file = input.files[0];
+
     input.value = '';
     pendingSnapshot = undefined;
 
     if (!file.type.startsWith('image/')) {
       notify('error', 'Choose an image file containing a Frontend Atlas QR code.');
+
       return;
     }
+
     if (file.size === 0 || file.size > 10 * 1024 * 1024) {
       notify('error', 'Image rejected', {
         description: 'The image must be between 1 byte and 10 MiB.',
       });
+
       return;
     }
 
     busy = true;
     let bitmap: ImageBitmap | undefined;
+
     try {
       bitmap = await createImageBitmap(file);
       const pixels = bitmap.width * bitmap.height;
+
       if (bitmap.width === 0 || bitmap.height === 0 || pixels > 16_000_000) {
         throw new RangeError('Image dimensions exceed the 16-megapixel limit.');
       }
+
       const canvas = document.createElement('canvas');
+
       canvas.width = bitmap.width;
       canvas.height = bitmap.height;
       const context = canvas.getContext('2d', { willReadFrequently: true });
-      if (!context) throw new Error('Canvas image processing is unavailable in this browser.');
+
+      if (!context) {
+        throw new Error('Canvas image processing is unavailable in this browser.');
+      }
+
       context.drawImage(bitmap, 0, 0);
       const { default: decodeQR } = await import('qr/decode.js');
       const payload = decodeQR(context.getImageData(0, 0, canvas.width, canvas.height), {
         effort: Infinity,
         timeLimit: Infinity,
       });
+
       pendingSnapshot = decodeProgressQr(payload, questionIds);
     } catch (error) {
       // Keep decoder details in developer tools; decoder-specific messages (for
@@ -149,13 +177,19 @@
   }
 
   function applyImportedProgress(strategy: 'merge' | 'replace'): void {
-    if (!pendingSnapshot) throw new Error('Cannot apply QR import without a validated snapshot.');
+    if (!pendingSnapshot) {
+      throw new Error('Cannot apply QR import without a validated snapshot.');
+    }
+
     const incomingCount = pendingSnapshot.completed.length;
+
     try {
       const result =
         strategy === 'merge' ? mergeProgress(pendingSnapshot) : replaceProgress(pendingSnapshot);
+
       onImported(result.snapshot);
       pendingSnapshot = undefined;
+
       if (!result.persisted) {
         notify('warning', 'Progress is available in this tab only', {
           description: 'Browser storage is unavailable, so the change was not saved permanently.',
@@ -165,6 +199,7 @@
           description: `${incomingCount} completed questions imported.`,
         });
       }
+
       mode = 'overview';
     } catch (error) {
       if (
@@ -174,26 +209,35 @@
         notify('error', 'Local progress is invalid', {
           description: 'Replace local progress to recover it.',
         });
+
         return;
       }
+
       throw error;
     }
   }
 
   function exportDownloaded(): void {
-    if (!qrUrl) throw new Error('Cannot export progress before the QR image has been generated.');
+    if (!qrUrl) {
+      throw new Error('Cannot export progress before the QR image has been generated.');
+    }
+
     notify('success', 'Progress QR image downloaded');
   }
 
   function handleClearProgress(): void {
     const result = clearProgress();
+
     onImported(result.snapshot);
     clearDialogOpen = false;
-    if (result.persisted) notify('success', 'Local progress cleared');
-    else
+
+    if (result.persisted) {
+      notify('success', 'Local progress cleared');
+    } else {
       notify('warning', 'Progress cleared for this tab only', {
         description: 'Browser storage is unavailable.',
       });
+    }
   }
 </script>
 
@@ -306,7 +350,7 @@
             variant="outline"
             class="w-full"
             disabled={busy}
-            onclick={() => fileInput.click()}
+            onclick={() => fileInput?.click()}
           >
             <ImageUp class="size-4" />
             {busy ? 'Reading image…' : 'Choose QR image'}
