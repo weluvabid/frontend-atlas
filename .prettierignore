@@ -3,4 +3,5 @@ dist/
 .astro/
 .pnpm-store/
 coverage/
+brand/me/
 pnpm-lock.yaml

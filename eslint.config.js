@@ -24,6 +24,7 @@ export default tseslint.config(
       '**/build/**',
       '**/target/**',
       '**/.astro/**',
+      'brand/me/**',
     ],
   },
   eslint.configs.recommended,

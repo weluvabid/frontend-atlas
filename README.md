@@ -65,6 +65,7 @@ current thinking.
 ### Setup
 
 ```sh
+git submodule update --init --recursive
 pnpm install --frozen-lockfile
 pnpm dev
 ```

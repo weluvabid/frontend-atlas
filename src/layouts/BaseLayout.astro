@@ -11,6 +11,13 @@ import { QUESTION_MANIFEST, MAX_QUESTION_COUNT } from '@data/question-manifest';
 import { createThemeScript } from '@weluvabid/iris/theme';
 import '@styles/global.css';
 
+import faviconSvg from '../../brand/me/favicon/favicon.svg?url';
+import faviconIco from '../../brand/me/favicon/favicon.ico?url';
+import favicon16 from '../../brand/me/exports/favicon/favicon-16.png?url';
+import favicon32 from '../../brand/me/exports/favicon/favicon-32.png?url';
+import favicon192 from '../../brand/me/exports/favicon/favicon-192.png?url';
+import appleTouchIcon from '../../brand/me/exports/favicon/favicon-180.png?url';
+
 interface Props {
   title?: string;
   description?: string;
@@ -45,8 +52,12 @@ if (
     <meta name="description" content={description} />
     <meta name="theme-color" content="#fafaf8" />
     <meta name="color-scheme" content="light dark" />
-    <link rel="icon" type="image/svg+xml" href={`${import.meta.env.BASE_URL}favicon.svg`} />
-    <link rel="icon" type="image/x-icon" href={`${import.meta.env.BASE_URL}favicon.ico`} />
+    <link rel="icon" type="image/svg+xml" href={faviconSvg} />
+    <link rel="icon" type="image/x-icon" href={faviconIco} />
+    <link rel="icon" type="image/png" sizes="16x16" href={favicon16} />
+    <link rel="icon" type="image/png" sizes="32x32" href={favicon32} />
+    <link rel="icon" type="image/png" sizes="192x192" href={favicon192} />
+    <link rel="apple-touch-icon" sizes="180x180" href={appleTouchIcon} />
     <meta property="og:site_name" content="Frontend Atlas" />
     <meta name="twitter:card" content="summary" />
     <meta property="og:type" content="website" />
