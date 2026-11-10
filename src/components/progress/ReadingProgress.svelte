@@ -10,6 +10,9 @@
   const { questionId }: Props = $props();
   let position = $state(0);
   let footerVisible = $state(false);
+  let footerOverlapsControl = $state(false);
+  let compactViewport = $state(false);
+  let footerElement: HTMLElement | null = null;
   let article: HTMLElement | null = null;
   let persistTimer: number | undefined;
   let frame = 0;
@@ -73,6 +76,24 @@
     }
   }
 
+  function updateFooterControlOverlap(): void {
+    if (!footerElement) {
+      return;
+    }
+
+    const bounds = footerElement.getBoundingClientRect();
+    const controlLeft = window.innerWidth - 56;
+    const controlTop = window.innerHeight - 56;
+    const controlRight = window.innerWidth - 24;
+    const controlBottom = window.innerHeight - 24;
+
+    footerOverlapsControl =
+      bounds.left < controlRight &&
+      bounds.right > controlLeft &&
+      bounds.top < controlBottom &&
+      bounds.bottom > controlTop;
+  }
+
   function handleScroll(): void {
     trackingPaused = false;
 
@@ -83,6 +104,7 @@
     frame = window.requestAnimationFrame(() => {
       frame = 0;
       position = Math.max(position, measure());
+      updateFooterControlOverlap();
 
       if (persistTimer !== undefined) {
         window.clearTimeout(persistTimer);
@@ -118,11 +140,20 @@
       throw new Error('Reading progress requires an article container');
     }
 
-    const footer = document.querySelector<HTMLElement>('footer');
+    footerElement = document.querySelector<HTMLElement>('footer');
 
-    if (!footer) {
+    if (!footerElement) {
       throw new Error('Reading progress requires a footer element');
     }
+
+    const compactViewportQuery = window.matchMedia('(max-width: 1023px)');
+    const handleViewportModeChange = (): void => {
+      compactViewport = compactViewportQuery.matches;
+      handleScroll();
+    };
+
+    handleViewportModeChange();
+    compactViewportQuery.addEventListener('change', handleViewportModeChange);
 
     const footerObserver = new IntersectionObserver(
       ([entry]) => {
@@ -131,7 +162,7 @@
       { threshold: 0 },
     );
 
-    footerObserver.observe(footer);
+    footerObserver.observe(footerElement);
 
     const unsubscribe = subscribeToProgress((result) => {
       if (!result.ok) {
@@ -178,6 +209,8 @@
     return () => {
       unsubscribe();
       footerObserver.disconnect();
+      compactViewportQuery.removeEventListener('change', handleViewportModeChange);
+      footerElement = null;
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleScroll);
       window.removeEventListener('pagehide', flush);
@@ -195,7 +228,7 @@
   });
 </script>
 
-{#if position > 0 && !footerVisible}
+{#if position > 0 && !(compactViewport ? footerVisible : footerOverlapsControl)}
   <Tooltip.Provider delayDuration={300}>
     <Tooltip.Root>
       <Tooltip.Trigger>
