@@ -41,11 +41,19 @@
         indicator.style.display = '';
       } else {
         const reading = readingProgress[questionId];
-        if (!reading || reading.position === 0) continue;
-        const percentage = Math.round((reading.position / 65535) * 100);
-        indicator.textContent = `In progress · ${percentage}%`;
+        const position = reading?.position ?? 0;
+        if (position === 65535) {
+          indicator.textContent = 'Reached End';
+          indicator.dataset.progressState = 'reached-end';
+        } else if (position > 0) {
+          const percentage = Math.round((position / 65535) * 100);
+          indicator.textContent = `In progress · ${percentage}%`;
+          indicator.dataset.progressState = 'in-progress';
+        } else {
+          indicator.textContent = 'Not yet started';
+          indicator.dataset.progressState = 'not-started';
+        }
         indicator.style.visibility = 'visible';
-        indicator.dataset.progressState = 'in-progress';
         indicator.className = `${indicator.hasAttribute('data-featured-progress') ? 'mt-auto' : 'mt-3'} inline-flex w-fit self-start rounded-full border border-border px-2.5 py-1 text-xs font-medium text-muted-foreground`;
         indicator.style.display = '';
       }
@@ -56,10 +64,17 @@
       if (!rawIds) throw new Error('Domain progress indicator is missing its question IDs');
       const ids = rawIds.split(',').filter(Boolean);
       const done = ids.filter((id) => completedIds.has(id)).length;
-      const inProgress = ids.filter(
-        (id) => !completedIds.has(id) && readingProgress[id] && readingProgress[id].position > 0,
+      const reachedEnd = ids.filter(
+        (id) => !completedIds.has(id) && readingProgress[id]?.position === 65535,
       ).length;
-      indicator.textContent = `${done}/${ids.length} completed${inProgress ? ` · ${inProgress} in progress` : ''}`;
+      const inProgress = ids.filter(
+        (id) =>
+          !completedIds.has(id) &&
+          readingProgress[id] &&
+          readingProgress[id].position > 0 &&
+          readingProgress[id].position < 65535,
+      ).length;
+      indicator.textContent = `${done}/${ids.length} completed${reachedEnd ? ` · ${reachedEnd} reached end` : ''}${inProgress ? ` · ${inProgress} in progress` : ''}`;
       indicator.style.visibility = 'visible';
     }
   }

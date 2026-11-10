@@ -63,7 +63,10 @@
       frame = 0;
       position = Math.max(position, measure());
       if (persistTimer !== undefined) window.clearTimeout(persistTimer);
-      persistTimer = window.setTimeout(() => persist(), 1200);
+      persistTimer = window.setTimeout(() => {
+        persistTimer = undefined;
+        persist();
+      }, 1200);
     });
   }
 
@@ -72,9 +75,9 @@
   }
 
   function flush(): void {
-    if (trackingPaused) return;
-    if (persistTimer !== undefined) window.clearTimeout(persistTimer);
-    position = Math.max(position, measure());
+    if (trackingPaused || persistTimer === undefined) return;
+    window.clearTimeout(persistTimer);
+    persistTimer = undefined;
     persist(true);
   }
 
@@ -124,6 +127,7 @@
     window.addEventListener('resize', handleScroll, { passive: true });
     window.addEventListener('pagehide', flush);
     document.addEventListener('visibilitychange', handleVisibilityChange);
+    document.addEventListener('astro:before-preparation', flush);
     return () => {
       unsubscribe();
       footerObserver.disconnect();
@@ -131,6 +135,7 @@
       window.removeEventListener('resize', handleScroll);
       window.removeEventListener('pagehide', flush);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
+      document.removeEventListener('astro:before-preparation', flush);
       if (persistTimer !== undefined) window.clearTimeout(persistTimer);
       if (frame) window.cancelAnimationFrame(frame);
     };

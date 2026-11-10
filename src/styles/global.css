@@ -1,20 +1,6 @@
 @import 'tailwindcss';
 @import '@weluvabid/iris/theme.css';
 
-@keyframes atlas-content-enter {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
-}
-
-.atlas-page-enter {
-  animation: atlas-content-enter 220ms cubic-bezier(0.2, 0.65, 0.3, 1) both;
-}
-
 .progress-indicator[data-progress-loading] {
   visibility: visible !important;
 }
@@ -78,11 +64,6 @@
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
-    }
-
-    .atlas-page-enter {
-      animation: none !important;
-      opacity: 1;
     }
   }
 }

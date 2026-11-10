@@ -12,4 +12,10 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
   },
+  // Careful, I use this to check on my phones and other devices
+  // server: {
+  //   host: true,
+  //   allowedHosts: [".ngrok-free.app", ".ngrok.app"],
+  //
+  // },
 });
