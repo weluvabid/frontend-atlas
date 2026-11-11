@@ -20,7 +20,9 @@ function isEditableTarget(target: EventTarget | null): boolean {
 
 function hasBlockingOverlay(): boolean {
   return Array.from(
-    document.querySelectorAll<HTMLElement>('[role="dialog"], [role="menu"], [role="listbox"]'),
+    document.querySelectorAll<HTMLElement>(
+      '[role="dialog"], [role="alertdialog"], [role="menu"], [role="listbox"]',
+    ),
   ).some((overlay) => {
     if (overlay.hidden || overlay.getAttribute('aria-hidden') === 'true') {
       return false;

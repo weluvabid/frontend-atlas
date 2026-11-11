@@ -84,6 +84,66 @@
     mode = next;
   }
 
+  function decodeQrInWorker(bitmap: ImageBitmap): Promise<string> {
+    if (typeof Worker === 'undefined') {
+      return Promise.reject(new Error('Web Workers are unavailable in this browser.'));
+    }
+
+    return new Promise((resolve, reject) => {
+      const worker = new Worker(new URL('./qr-decoder.worker.ts', import.meta.url), {
+        type: 'module',
+        name: 'frontend-atlas-qr-decoder',
+      });
+      const timeout = window.setTimeout(() => {
+        worker.terminate();
+        reject(new Error('QR decoding exceeded the 2-second processing limit.'));
+      }, 2_000);
+
+      const cleanup = (): void => {
+        window.clearTimeout(timeout);
+        worker.terminate();
+      };
+
+      worker.addEventListener(
+        'message',
+        (event: MessageEvent<{ ok: boolean; payload?: string; message?: string }>) => {
+          cleanup();
+
+          if (event.data.ok && typeof event.data.payload === 'string') {
+            resolve(event.data.payload);
+          } else {
+            reject(new Error(event.data.message ?? 'QR decoding failed.'));
+          }
+        },
+        { once: true },
+      );
+
+      worker.addEventListener(
+        'error',
+        (event: ErrorEvent) => {
+          cleanup();
+          reject(new Error(event.message || 'QR decoding worker failed.'));
+        },
+        { once: true },
+      );
+      worker.addEventListener(
+        'messageerror',
+        () => {
+          cleanup();
+          reject(new Error('QR decoding worker returned an unreadable response.'));
+        },
+        { once: true },
+      );
+
+      try {
+        worker.postMessage({ bitmap }, [bitmap]);
+      } catch (error) {
+        cleanup();
+        reject(error instanceof Error ? error : new Error('Could not start QR decoding.'));
+      }
+    });
+  }
+
   async function importQrImage(event: Event): Promise<void> {
     const input = event.currentTarget;
 
@@ -121,23 +181,9 @@
         throw new RangeError('Image dimensions exceed the 16-megapixel limit.');
       }
 
-      const canvas = document.createElement('canvas');
+      const payload = await decodeQrInWorker(bitmap);
 
-      canvas.width = bitmap.width;
-      canvas.height = bitmap.height;
-      const context = canvas.getContext('2d', { willReadFrequently: true });
-
-      if (!context) {
-        throw new Error('Canvas image processing is unavailable in this browser.');
-      }
-
-      context.drawImage(bitmap, 0, 0);
-      const { default: decodeQR } = await import('qr/decode.js');
-      const payload = decodeQR(context.getImageData(0, 0, canvas.width, canvas.height), {
-        effort: Infinity,
-        timeLimit: Infinity,
-      });
-
+      bitmap = undefined;
       pendingSnapshot = decodeProgressQr(payload, questionIds);
     } catch (error) {
       // Keep decoder details in developer tools; decoder-specific messages (for
@@ -243,7 +289,7 @@
 
 <Dialog.Root bind:open>
   <Dialog.Content
-    class="flex max-h-[calc(100dvh-2rem)] min-h-0 flex-col overflow-hidden sm:max-w-lg"
+    class="flex max-h-[calc(100dvh-2rem)] w-[calc(100vw-2rem)] min-h-0 flex-col overflow-hidden sm:max-w-lg"
   >
     <Dialog.Header class="shrink-0">
       <Dialog.Title>Manage Progress</Dialog.Title>
@@ -406,7 +452,9 @@
 </Dialog.Root>
 
 <AlertDialog.Root bind:open={clearDialogOpen}>
-  <AlertDialog.Content>
+  <AlertDialog.Content
+    class="max-h-[calc(100dvh-2rem)] w-[calc(100vw-2rem)] overflow-y-auto sm:max-w-md"
+  >
     <AlertDialog.Header>
       <AlertDialog.Title>Clear all progress?</AlertDialog.Title>
       <AlertDialog.Description>

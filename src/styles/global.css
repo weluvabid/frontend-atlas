@@ -107,3 +107,22 @@
     @apply my-6 border-l-2 border-primary pl-4 text-muted-foreground;
   }
 }
+
+/* Keep Sonner's notification presentation aligned with Atlas without changing
+   the shared theme tokens. Sonner dims descriptions by default, which makes
+   otherwise valid secondary text unnecessarily faint in light mode. */
+@layer components {
+  [data-sonner-toaster] [data-sonner-toast] [data-description] {
+    color: var(--muted-foreground);
+    opacity: 1;
+  }
+
+  [data-sonner-toaster] [data-sonner-toast] [data-close-button] {
+    inset: 0.5rem 0.5rem auto auto;
+    transform: none;
+  }
+
+  [data-sonner-toaster] [data-sonner-toast] {
+    padding-inline-end: 2.75rem;
+  }
+}

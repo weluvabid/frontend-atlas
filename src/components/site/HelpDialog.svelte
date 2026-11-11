@@ -10,7 +10,7 @@
 
 <Dialog.Root bind:open>
   <Dialog.Content
-    class="flex max-h-[calc(100dvh-2rem)] min-h-0 flex-col overflow-hidden sm:max-w-lg"
+    class="flex max-h-[calc(100dvh-2rem)] w-[calc(100vw-2rem)] min-h-0 flex-col overflow-hidden sm:max-w-lg"
   >
     <Dialog.Header class="shrink-0">
       <Dialog.Title>Keyboard shortcuts</Dialog.Title>

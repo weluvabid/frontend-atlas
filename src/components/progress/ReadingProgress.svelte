@@ -1,14 +1,22 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { Tooltip } from '@weluvabid/iris/components';
+  import { Check } from '@weluvabid/iris/lucide';
   import { notify } from '@lib/notifications';
-  import { subscribeToProgress, updateQuestionReadingProgress } from '@lib/progress/service';
+  import {
+    subscribeToProgress,
+    toggleQuestionCompletion,
+    updateQuestionReadingProgress,
+  } from '@lib/progress/service';
+  import type { ProgressReadResult } from '@lib/progress/storage';
 
   interface Props {
     questionId: string;
   }
   const { questionId }: Props = $props();
   let position = $state(0);
+  let completed = $state(false);
+  let completedIds = $state<string[]>([]);
   let footerVisible = $state(false);
   let footerOverlapsControl = $state(false);
   let compactViewport = $state(false);
@@ -19,6 +27,38 @@
   let lastPersisted = -1;
   let storageWarningShown = false;
   let trackingPaused = false;
+
+  function toggleCompleted(): void {
+    try {
+      const result = toggleQuestionCompletion(questionId, completedIds);
+
+      completedIds = [...result.snapshot.completed];
+      completed = result.snapshot.completed.includes(questionId);
+
+      if (!result.persisted) {
+        notify('warning', 'Progress is available in this tab only', {
+          description: 'Browser storage is unavailable.',
+        });
+
+        return;
+      }
+
+      notify('success', completed ? 'Question marked complete' : 'Question marked incomplete');
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        error.message === 'Cannot save progress: saved progress is invalid'
+      ) {
+        notify('error', 'Saved progress is invalid', {
+          description: 'Use Manage Progress to import a valid QR image or replace local progress.',
+        });
+
+        return;
+      }
+
+      throw error;
+    }
+  }
 
   function measure(): number {
     if (!article) {
@@ -164,10 +204,23 @@
 
     footerObserver.observe(footerElement);
 
-    const unsubscribe = subscribeToProgress((result) => {
+    const unsubscribe = subscribeToProgress((result: ProgressReadResult) => {
       if (!result.ok) {
+        completed = false;
+        completedIds = [];
+
+        if (result.reason === 'invalid-data') {
+          notify('error', 'Saved progress is invalid', {
+            description:
+              'Use Manage Progress to import a valid QR image or replace local progress.',
+          });
+        }
+
         return;
       }
+
+      completedIds = [...result.snapshot.completed];
+      completed = result.snapshot.completed.includes(questionId);
 
       const savedPosition = result.snapshot.readingProgress[questionId]?.position ?? 0;
       const isReset =
@@ -236,14 +289,19 @@
           <button
             {...props}
             type="button"
-            class="fixed bottom-6 right-6 z-50 grid size-8 appearance-none place-items-center rounded-full border-0 bg-background/90 p-0 text-border ring-1 ring-border/70 backdrop-blur-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            role="progressbar"
-            aria-label={`Article reading progress: ${Math.round(position * 100)}%`}
-            aria-valuemin="0"
-            aria-valuemax="100"
-            aria-valuenow={Math.round(position * 100)}
+            class="fixed bottom-6 right-6 z-50 grid size-8 appearance-none place-items-center rounded-full border-0 bg-background/90 p-0 text-foreground ring-1 ring-border/70 shadow-lg shadow-black/10 backdrop-blur-md transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none dark:shadow-black/30"
+            aria-label={completed ? 'Mark as incomplete' : 'Mark as complete'}
+            aria-pressed={completed}
+            aria-keyshortcuts="M"
+            data-completion-toggle
+            onclick={toggleCompleted}
           >
-            <svg aria-hidden="true" class="size-7 -rotate-90" viewBox="0 0 28 28" fill="none">
+            <svg
+              aria-hidden="true"
+              class="size-7 -rotate-90 text-border"
+              viewBox="0 0 28 28"
+              fill="none"
+            >
               <circle cx="14" cy="14" r="11" stroke="currentColor" stroke-width="2" />
               <circle
                 class="text-primary transition-[stroke-dashoffset] duration-150"
@@ -257,10 +315,38 @@
                 stroke-dashoffset={69.115 * (1 - position)}
               />
             </svg>
+            <span
+              aria-hidden="true"
+              class={`absolute grid size-5 place-items-center rounded-full transition-colors duration-150 motion-reduce:transition-none ${
+                completed
+                  ? 'bg-emerald-50 ring-1 ring-emerald-200 dark:bg-emerald-950/40 dark:ring-emerald-800'
+                  : 'bg-background'
+              }`}
+            >
+              <Check
+                class={`size-3.5 transition-[color,transform] duration-150 motion-reduce:transition-none ${
+                  completed
+                    ? 'scale-100 text-emerald-700 dark:text-emerald-400'
+                    : 'text-muted-foreground'
+                }`}
+              />
+            </span>
           </button>
         {/snippet}
       </Tooltip.Trigger>
-      <Tooltip.Content>Reading progress · {Math.round(position * 100)}%</Tooltip.Content>
+      <span
+        class="sr-only"
+        role="progressbar"
+        aria-label="Article reading progress"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow={Math.round(position * 100)}
+      ></span>
+      <Tooltip.Content>
+        {completed ? 'Completed · ' : 'Mark as complete · '}Reading progress · {Math.round(
+          position * 100,
+        )}%
+      </Tooltip.Content>
     </Tooltip.Root>
   </Tooltip.Provider>
 {/if}

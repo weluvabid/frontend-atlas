@@ -3,7 +3,6 @@ import { getCollection, render } from 'astro:content';
 import BaseLayout from '@layouts/BaseLayout.astro';
 import { Breadcrumb, Badge, Button } from '@weluvabid/iris/components';
 import { ArrowLeft, ArrowRight } from '@weluvabid/iris/lucide';
-import ProgressControl from '@components/progress/ProgressControl.svelte';
 import ReadingProgress from '@components/progress/ReadingProgress.svelte';
 import ArticleNavigation from '@components/article/ArticleNavigation.svelte';
 import { domainById } from '@data/domains';
@@ -74,7 +73,6 @@ const nextQuestion = domainOrder[currentIndex + 1];
         {question.title}
       </h1>
       <p class="mt-5 text-base leading-8 text-muted-foreground">{question.summary}</p>
-      <div class="mt-6"><ProgressControl client:load questionId={question.id} /></div>
     </header>
     {
       prerequisites.length > 0 && (

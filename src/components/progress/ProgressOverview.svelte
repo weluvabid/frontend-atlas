@@ -94,7 +94,7 @@
         <Button.Root
           {...props}
           variant="outline"
-          class="pointer-events-auto h-10 max-w-[calc(100vw-2rem)] gap-3 rounded-full border-border/80 bg-card/95 px-4 shadow-md shadow-black/10 backdrop-blur-md dark:shadow-black/30"
+          class="pointer-events-auto h-10 max-w-[calc(100vw-2rem)] gap-3 rounded-full border-border/80 bg-card/95 px-4 shadow-lg shadow-black/10 backdrop-blur-md dark:shadow-black/30"
           aria-label={`${completed} of ${knownIds.length} questions completed. Open progress actions.`}
           aria-expanded={menuOpen}
           aria-keyshortcuts="P"

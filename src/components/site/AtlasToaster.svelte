@@ -3,8 +3,23 @@
   import { Sonner } from '@weluvabid/iris/components';
   import { subscribeToNotifications } from '@lib/notifications';
 
-  onMount(() =>
-    subscribeToNotifications(({ kind, message, options }) => {
+  let theme = $state<'light' | 'dark'>('light');
+
+  onMount(() => {
+    const syncTheme = (): void => {
+      theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+    };
+
+    syncTheme();
+
+    const themeObserver = new MutationObserver(syncTheme);
+
+    themeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+
+    const unsubscribe = subscribeToNotifications(({ kind, message, options }) => {
       switch (kind) {
         case 'success':
           Sonner.toast.success(message, options);
@@ -24,8 +39,13 @@
           throw new Error(`Unsupported notification kind: ${String(exhaustive)}`);
         }
       }
-    }),
-  );
+    });
+
+    return () => {
+      themeObserver.disconnect();
+      unsubscribe();
+    };
+  });
 </script>
 
-<Sonner.Toaster position="bottom-right" closeButton />
+<Sonner.Toaster {theme} position="bottom-right" closeButton />
