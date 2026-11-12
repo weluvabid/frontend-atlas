@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte';
-  import { Button, DropdownMenu, Progress, Tooltip } from '@weluvabid/iris/components';
+  import { Button, DropdownMenu, Tooltip } from '@weluvabid/iris/components';
   import { Check, ChevronDown, SlidersHorizontal } from '@weluvabid/iris/lucide';
   import { createProgressSnapshot, type ProgressSnapshot } from '@lib/progress/model';
   import {
@@ -43,9 +43,6 @@
   let navigationMessageTimer: number | undefined;
 
   const knownIdSet = $derived(new Set(knownIds));
-  const completionPercentage = $derived(
-    knownIds.length > 0 ? (completed / knownIds.length) * 100 : 0,
-  );
 
   function applySnapshot(snapshot: ProgressSnapshot): void {
     currentSnapshot = snapshot;
@@ -341,9 +338,9 @@
   });
 </script>
 
-<div class="pointer-events-none relative flex flex-col items-center py-3">
+<div class="pointer-events-none relative flex flex-col items-center py-2">
   <div
-    class={`pointer-events-auto grid w-fit max-w-[calc(100vw-2rem)] ${questionId ? 'grid-cols-[44px_minmax(0,1fr)] grid-rows-[44px_auto]' : 'grid-cols-1 grid-rows-[44px_auto]'} items-center gap-x-3 gap-y-2 overflow-hidden rounded-[1.75rem] border border-border/80 bg-card/95 px-2 py-2 shadow-lg shadow-black/10 backdrop-blur-md dark:shadow-black/30`}
+    class="pointer-events-auto flex w-fit max-w-[calc(100vw-2rem)] items-center gap-3 rounded-full border border-border/80 bg-card/95 px-3 py-1.5 shadow-md shadow-black/10 backdrop-blur-md dark:shadow-black/30"
   >
     {#if questionId}
       <Tooltip.Provider delayDuration={300}>
@@ -353,7 +350,7 @@
               <button
                 {...props}
                 type="button"
-                class="relative col-start-1 row-span-2 row-start-1 grid size-11 shrink-0 place-items-center self-center rounded-full bg-background/90 text-foreground ring-1 ring-border/70 shadow-md shadow-black/10 backdrop-blur-md transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none dark:shadow-black/30"
+                class="relative grid size-10 shrink-0 place-items-center rounded-full bg-background/90 text-foreground ring-1 ring-border/70 shadow-sm shadow-black/10 transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none dark:shadow-black/30"
                 aria-label={articleCompleted ? 'Mark as incomplete' : 'Mark as complete'}
                 aria-pressed={articleCompleted}
                 aria-keyshortcuts="M"
@@ -406,74 +403,55 @@
         </Tooltip.Root>
       </Tooltip.Provider>
     {/if}
-    <div class={questionId ? 'col-start-2 row-start-1 min-w-0' : 'col-start-1 row-start-1 min-w-0'}>
-      <DropdownMenu.Root bind:open={menuOpen}>
-        <DropdownMenu.Trigger>
-          {#snippet child({ props })}
-            <Button.Root
-              {...props}
-              variant="ghost"
-              class="h-9 min-w-0 gap-3 rounded-full px-3 hover:bg-muted/60"
-              aria-label={`${completed} of ${knownIds.length} questions completed. Open progress actions.`}
-              aria-expanded={menuOpen}
-              aria-keyshortcuts="P"
-              data-progress-menu-trigger
-            >
-              <span class="whitespace-nowrap text-xs text-muted-foreground" aria-live="polite">
-                <span class="font-semibold tabular-nums text-foreground"
-                  >{completed} / {knownIds.length}</span
-                >
-                completed <span class="hidden sm:inline">on this device</span>
-              </span>
-              <ChevronDown class="size-4 shrink-0" aria-hidden="true" />
-            </Button.Root>
-          {/snippet}
-        </DropdownMenu.Trigger>
-        <DropdownMenu.Content side="bottom" align="center" sideOffset={8} class="w-64">
-          <DropdownMenu.Label>Learning progress</DropdownMenu.Label>
-          <div class="px-2 pb-2 text-xs text-muted-foreground">
-            {completed} of {knownIds.length} questions completed on this device.
-          </div>
-          <div class="px-2 pb-2">
-            <Progress.Root
-              value={completionPercentage}
-              class="h-1.5"
-              aria-label="Handbook completion"
-            />
-          </div>
-          <DropdownMenu.Separator />
-          <DropdownMenu.Item
-            onSelect={() => {
-              qrMode = 'overview';
-              qrOpen = true;
-            }}
+
+    <DropdownMenu.Root bind:open={menuOpen}>
+      <DropdownMenu.Trigger>
+        {#snippet child({ props })}
+          <Button.Root
+            {...props}
+            variant="ghost"
+            class="h-9 min-w-0 gap-3 rounded-full px-3 hover:bg-muted/60"
+            aria-label={`${completed} of ${knownIds.length} questions completed. Open progress actions.`}
+            aria-expanded={menuOpen}
+            aria-keyshortcuts="P"
+            data-progress-menu-trigger
           >
-            <SlidersHorizontal aria-hidden="true" />
-            Manage Progress
-          </DropdownMenu.Item>
-          {#if storageMessage}
-            <DropdownMenu.Separator />
-            <div class="px-2 py-1.5 text-xs text-muted-foreground">
-              {storageMessage}
-            </div>
-          {/if}
-        </DropdownMenu.Content>
-      </DropdownMenu.Root>
-    </div>
-    <div
-      class={questionId
-        ? 'col-start-2 row-start-2 min-w-0 pr-3'
-        : 'col-start-1 row-start-2 min-w-0 px-3'}
-      role="group"
-      aria-label="Overall handbook completion"
-    >
-      <Progress.Root
-        value={completionPercentage}
-        class="h-1.5 [&>div]:bg-foreground"
-        aria-label="Handbook completion"
-      />
-    </div>
+            <span class="whitespace-nowrap text-xs text-muted-foreground" aria-live="polite">
+              <span class="font-semibold tabular-nums text-foreground"
+                >{completed} / {knownIds.length}</span
+              >
+              completed <span class="hidden sm:inline">on this device</span>
+            </span>
+            <ChevronDown class="size-4 shrink-0" aria-hidden="true" />
+          </Button.Root>
+        {/snippet}
+      </DropdownMenu.Trigger>
+
+      <DropdownMenu.Content side="bottom" align="center" sideOffset={8} class="w-64">
+        <DropdownMenu.Label>Learning progress</DropdownMenu.Label>
+        <div class="px-2 pb-2 text-xs text-muted-foreground">
+          {completed} of {knownIds.length} questions completed on this device.
+        </div>
+        <DropdownMenu.Separator />
+        <DropdownMenu.Item
+          onSelect={() => {
+            qrMode = 'overview';
+            qrOpen = true;
+          }}
+        >
+          <SlidersHorizontal aria-hidden="true" />
+          Manage Progress
+        </DropdownMenu.Item>
+        {#if storageMessage}
+          <DropdownMenu.Separator />
+          <div class="px-2 py-1.5 text-xs text-muted-foreground">
+            {storageMessage}
+          </div>
+        {/if}
+      </DropdownMenu.Content>
+    </DropdownMenu.Root>
   </div>
+
   {#if navigationMode || navigationMessage}
     <div
       class="pointer-events-auto absolute left-1/2 top-full z-50 mt-1 -translate-x-1/2"
@@ -500,6 +478,7 @@
       {/if}
     </div>
   {/if}
+
   <ProgressQrTransfer
     bind:open={qrOpen}
     bind:mode={qrMode}

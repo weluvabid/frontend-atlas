@@ -31,10 +31,6 @@ const progressOverview = await readFile(
   new URL('../../src/components/progress/ProgressOverview.svelte', import.meta.url),
   'utf8',
 );
-const baseLayout = await readFile(
-  new URL('../../src/layouts/BaseLayout.astro', import.meta.url),
-  'utf8',
-);
 
 test('Sonner descriptions do not inherit the library default opacity', () => {
   assert.match(styles, /\[data-sonner-toast\]\s+\[data-description\][\s\S]*?opacity:\s*1;/u);
@@ -93,9 +89,9 @@ test('article completion and overall progress share one accessible compound cont
     progressOverview,
     /toggleQuestionCompletion\(questionId, currentSnapshot\.completed\)/u,
   );
-  assert.match(progressOverview, /grid-cols-\[44px_minmax\(0,1fr\)\]/u);
-  assert.match(progressOverview, /row-span-2 row-start-1/u);
-  assert.match(progressOverview, /col-start-2 row-start-2 min-w-0/u);
+  assert.match(progressOverview, /flex w-fit max-w-\[calc\(100vw-2rem\)\] items-center gap-3/u);
+  assert.match(progressOverview, /rounded-full border border-border\/80/u);
+  assert.match(progressOverview, /size-10/u);
   assert.match(
     progressOverview,
     /articleCompleted\s+\?\s+'text-emerald-600 dark:text-emerald-400'\s+:\s+'text-foreground'/u,
@@ -105,7 +101,7 @@ test('article completion and overall progress share one accessible compound cont
     progressOverview,
     /articleCompleted\s+\?\s+'text-emerald-200 dark:text-emerald-900\/70'\s+:\s+'text-border'/u,
   );
-  assert.match(progressOverview, /class="h-1\.5 \[&>div\]:bg-foreground"/u);
+  assert.doesNotMatch(progressOverview, /class="h-1\.5 \[&>div\]:bg-foreground"/u);
   assert.match(progressOverview, /astro:page-load/u);
   assert.match(
     progressOverview,
@@ -113,10 +109,9 @@ test('article completion and overall progress share one accessible compound cont
   );
   assert.match(
     progressOverview,
-    /shadow-lg shadow-black\/10 backdrop-blur-md dark:shadow-black\/30/u,
+    /shadow-md shadow-black\/10 backdrop-blur-md dark:shadow-black\/30/u,
   );
   assert.match(articlePage, /questionId=\{question\.id\}/u);
-  assert.match(baseLayout, /transition:persist="atlas-progress-overview"/u);
   assert.doesNotMatch(articlePage, /ReadingProgress/u);
 });
 
@@ -124,6 +119,6 @@ test('article completion has one control and the progress summary retains its fl
   assert.doesNotMatch(articlePage, /ProgressControl/u);
   assert.match(
     progressOverview,
-    /shadow-lg shadow-black\/10 backdrop-blur-md dark:shadow-black\/30/u,
+    /shadow-md shadow-black\/10 backdrop-blur-md dark:shadow-black\/30/u,
   );
 });
