@@ -9,18 +9,24 @@
 
     for (const indicator of questionIndicators) {
       indicator.textContent = '';
+
       indicator.removeAttribute('data-progress-loading');
       indicator.removeAttribute('aria-hidden');
+
       indicator.style.display = '';
       indicator.style.visibility = 'hidden';
+
       indicator.removeAttribute('data-progress-state');
+
       indicator.className = `${indicator.hasAttribute('data-featured-progress') ? 'mt-auto' : 'mt-3'} inline-flex min-h-6 w-fit items-center rounded-full border border-border px-2.5 py-1 text-xs font-medium text-muted-foreground`;
     }
 
     for (const indicator of domainIndicators) {
       indicator.textContent = '';
+
       indicator.removeAttribute('data-progress-loading');
       indicator.removeAttribute('aria-hidden');
+
       indicator.style.display = '';
       indicator.style.visibility = 'hidden';
     }

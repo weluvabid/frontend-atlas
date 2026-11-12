@@ -68,6 +68,7 @@
       }
 
       qrError = true;
+
       notify('error', 'Could not generate progress QR image', {
         description:
           error instanceof Error ? error.message : 'An unexpected QR generation error occurred.',
@@ -171,10 +172,12 @@
     }
 
     busy = true;
+
     let bitmap: ImageBitmap | undefined;
 
     try {
       bitmap = await createImageBitmap(file);
+
       const pixels = bitmap.width * bitmap.height;
 
       if (bitmap.width === 0 || bitmap.height === 0 || pixels > 16_000_000) {
@@ -218,6 +221,7 @@
       }
     } finally {
       bitmap?.close();
+
       busy = false;
     }
   }
@@ -234,6 +238,7 @@
         strategy === 'merge' ? mergeProgress(pendingSnapshot) : replaceProgress(pendingSnapshot);
 
       onImported(result.snapshot);
+
       pendingSnapshot = undefined;
 
       if (!result.persisted) {
@@ -275,6 +280,7 @@
     const result = clearProgress();
 
     onImported(result.snapshot);
+
     clearDialogOpen = false;
 
     if (result.persisted) {

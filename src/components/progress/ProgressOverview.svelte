@@ -100,6 +100,7 @@
 
       if (!result.persisted && !storageWarningShown) {
         storageWarningShown = true;
+
         notify('warning', 'Reading progress is available in this tab only', {
           description: 'Browser storage is unavailable.',
         });
@@ -126,7 +127,9 @@
     }
 
     window.clearTimeout(persistTimer);
+
     persistTimer = undefined;
+
     persistReadingProgress(true);
   }
 
@@ -147,6 +150,7 @@
 
       persistTimer = window.setTimeout(() => {
         persistTimer = undefined;
+
         persistReadingProgress();
       }, 1200);
     });
@@ -217,11 +221,13 @@
         if (isReset) {
           if (persistTimer !== undefined) {
             window.clearTimeout(persistTimer);
+
             persistTimer = undefined;
           }
 
           if (frame) {
             window.cancelAnimationFrame(frame);
+
             frame = 0;
           }
 
@@ -261,6 +267,7 @@
     function handlePageLoad(): void {
       if (activeQuestionId !== questionId) {
         activeQuestionId = questionId;
+
         const savedPosition = questionId
           ? (currentSnapshot.readingProgress[questionId]?.position ?? 0)
           : 0;

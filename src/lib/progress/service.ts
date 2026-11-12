@@ -119,6 +119,7 @@ export function updateQuestionReadingProgress(
   const persisted = writeProgress(current, snapshot);
 
   volatileSnapshot = snapshot;
+
   announceProgressChange(snapshot);
 
   return { snapshot, persisted };
@@ -143,6 +144,7 @@ export function mergeProgress(incoming: ProgressSnapshot): ProgressSaveResult {
   const persisted = writeProgress(storage, snapshot);
 
   volatileSnapshot = snapshot;
+
   announceProgressChange(snapshot);
 
   return { snapshot, persisted };
@@ -158,6 +160,7 @@ export function clearProgress(): ProgressSaveResult {
     try {
       storage.removeItem('frontend-atlas:progress:v2');
       storage.removeItem('frontend-atlas:progress:v1');
+
       persisted = true;
     } catch (error) {
       if (
@@ -170,6 +173,7 @@ export function clearProgress(): ProgressSaveResult {
   }
 
   volatileSnapshot = empty;
+
   announceProgressChange(empty);
 
   return { snapshot: empty, persisted };

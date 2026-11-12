@@ -92,6 +92,7 @@ export function encodeProgressQr(
     const state = snapshot.completed.includes(id) ? 2 : snapshot.readingProgress[id] ? 1 : 0;
 
     statusBytes[Math.floor((index * 2) / 8)] |= state << (6 - ((index * 2) % 8));
+
     const reading = snapshot.readingProgress[id];
 
     if (reading) {
@@ -112,8 +113,10 @@ export function encodeProgressQr(
   );
 
   bytes.set(MAGIC, 0);
+
   bytes[4] = FORMAT_VERSION;
   bytes[5] = ids.length;
+
   let hash = manifestHash(ids);
 
   for (let offset = 13; offset >= 6; offset -= 1) {
@@ -124,6 +127,7 @@ export function encodeProgressQr(
   let cursor = HEADER_BYTES;
 
   bytes.set(statusBytes, cursor);
+
   cursor += statusBytes.length;
   bytes[cursor++] = readingEntries.length;
 
@@ -201,6 +205,7 @@ export function decodeProgressQr(
   const statuses = bytes.subarray(cursor, cursor + statusLength);
 
   cursor += statusLength;
+
   const entryCount = bytes[cursor++];
 
   if (entryCount > ids.length || cursor + entryCount * 7 + CRC_BYTES !== bytes.length) {
@@ -244,6 +249,7 @@ export function decodeProgressQr(
     }
 
     seen.add(index);
+
     readingProgress[ids[index]] = {
       position,
       updatedAt: new Date(timestamp * 1000 + TIMESTAMP_EPOCH).toISOString(),

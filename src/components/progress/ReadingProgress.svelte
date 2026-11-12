@@ -96,6 +96,7 @@
 
       if (!result.persisted && !storageWarningShown) {
         storageWarningShown = true;
+
         notify('warning', 'Reading progress is available in this tab only', {
           description: 'Browser storage is unavailable.',
         });
@@ -144,6 +145,7 @@
     frame = window.requestAnimationFrame(() => {
       frame = 0;
       position = Math.max(position, measure());
+
       updateFooterControlOverlap();
 
       if (persistTimer !== undefined) {
@@ -152,6 +154,7 @@
 
       persistTimer = window.setTimeout(() => {
         persistTimer = undefined;
+
         persist();
       }, 1200);
     });
@@ -169,7 +172,9 @@
     }
 
     window.clearTimeout(persistTimer);
+
     persistTimer = undefined;
+
     persist(true);
   }
 
@@ -189,6 +194,7 @@
     const compactViewportQuery = window.matchMedia('(max-width: 1023px)');
     const handleViewportModeChange = (): void => {
       compactViewport = compactViewportQuery.matches;
+
       handleScroll();
     };
 
@@ -233,11 +239,13 @@
       if (isReset) {
         if (persistTimer !== undefined) {
           window.clearTimeout(persistTimer);
+
           persistTimer = undefined;
         }
 
         if (frame) {
           window.cancelAnimationFrame(frame);
+
           frame = 0;
         }
 
@@ -263,7 +271,9 @@
       unsubscribe();
       footerObserver.disconnect();
       compactViewportQuery.removeEventListener('change', handleViewportModeChange);
+
       footerElement = null;
+
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleScroll);
       window.removeEventListener('pagehide', flush);

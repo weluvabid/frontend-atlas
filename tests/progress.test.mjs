@@ -20,6 +20,7 @@ function createStorage(initial = null) {
     },
     setItem(key, next) {
       assert.equal(key, PROGRESS_STORAGE_KEY);
+
       value = next;
     },
     get value() {

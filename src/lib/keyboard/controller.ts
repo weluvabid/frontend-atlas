@@ -78,6 +78,7 @@ export function installKeyboardController(callbacks: KeyboardControllerCallbacks
     navigationSequence = '';
     navigationMode = false;
     navigationCollection = null;
+
     publishNavigationPrompt(false, '', message);
   }
 
@@ -147,7 +148,9 @@ export function installKeyboardController(callbacks: KeyboardControllerCallbacks
     if (navigationMode) {
       if (/^\d$/u.test(key) && !hasModifier && !event.shiftKey) {
         event.preventDefault();
+
         navigationSequence = appendNavigationDigit(navigationSequence, key);
+
         publishNavigationPrompt(true, navigationSequence);
         armNavigationTimeout();
 
@@ -170,7 +173,9 @@ export function installKeyboardController(callbacks: KeyboardControllerCallbacks
 
       if (key === 'Backspace' && !hasModifier) {
         event.preventDefault();
+
         navigationSequence = navigationSequence.slice(0, -1);
+
         publishNavigationPrompt(true, navigationSequence);
         armNavigationTimeout();
 
@@ -210,14 +215,17 @@ export function installKeyboardController(callbacks: KeyboardControllerCallbacks
     switch (key.toLowerCase()) {
       case 'g': {
         event.preventDefault();
+
         navigationSequence = '';
         navigationMode = true;
+
         const active = document.activeElement;
 
         navigationCollection =
           active instanceof Element
             ? active.closest<HTMLElement>('[data-keyboard-navigation]')
             : null;
+
         publishNavigationPrompt(true, '');
         armNavigationTimeout();
         break;

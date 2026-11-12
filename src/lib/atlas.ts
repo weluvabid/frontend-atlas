@@ -187,6 +187,7 @@ function hasEditDistanceAtMostOne(left: string, right: string): boolean {
     if (left[leftIndex] === right[rightIndex]) {
       leftIndex += 1;
       rightIndex += 1;
+
       continue;
     }
 

@@ -25,6 +25,7 @@
     if (!result.persisted) {
       storageAvailable = false;
       status = '';
+
       notify('warning', 'Progress is available in this tab only', {
         description: 'Browser storage is unavailable.',
       });
@@ -34,6 +35,7 @@
 
     storageAvailable = true;
     status = '';
+
     notify('success', completed ? 'Question marked complete' : 'Question marked incomplete');
   }
 
