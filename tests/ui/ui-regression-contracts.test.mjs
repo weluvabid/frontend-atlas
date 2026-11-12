@@ -91,7 +91,7 @@ test('article completion and overall progress share one accessible compound cont
   );
   assert.match(progressOverview, /flex w-fit max-w-\[calc\(100vw-2rem\)\] items-center gap-3/u);
   assert.match(progressOverview, /rounded-full border border-border\/80/u);
-  assert.match(progressOverview, /size-10/u);
+  assert.match(progressOverview, /size-8/u);
   assert.match(
     progressOverview,
     /articleCompleted\s+\?\s+'text-emerald-600 dark:text-emerald-400'\s+:\s+'text-foreground'/u,

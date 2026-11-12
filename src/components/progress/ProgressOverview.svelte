@@ -25,7 +25,7 @@
   let persistTimer: number | undefined;
   let frame = 0;
   let article: HTMLElement | null = null;
-  let activeQuestionId = questionId;
+  let activeQuestionId: string | undefined;
   let trackingPaused = false;
   let storageWarningShown = false;
   let currentSnapshot = $state(createProgressSnapshot([]));
@@ -196,6 +196,10 @@
   }
 
   onMount(() => {
+    // Keep the previous route ID as a mutable snapshot; initialize it after mount
+    // so Svelte does not treat this as a locally captured prop value.
+    activeQuestionId = questionId;
+
     function handleProgressResult(result: ProgressReadResult): void {
       if (!result.ok) {
         storageMessage =
@@ -350,14 +354,14 @@
               <button
                 {...props}
                 type="button"
-                class="relative grid size-10 shrink-0 place-items-center rounded-full bg-background/90 text-foreground ring-1 ring-border/70 shadow-sm shadow-black/10 transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none dark:shadow-black/30"
+                class="relative grid size-8 shrink-0 place-items-center rounded-full bg-background/90 text-foreground ring-1 ring-border/70 shadow-sm shadow-black/10 transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none dark:shadow-black/30"
                 aria-label={articleCompleted ? 'Mark as incomplete' : 'Mark as complete'}
                 aria-pressed={articleCompleted}
                 aria-keyshortcuts="M"
                 data-completion-toggle
                 onclick={toggleArticleCompletion}
               >
-                <svg aria-hidden="true" class="size-9 -rotate-90" viewBox="0 0 32 32" fill="none">
+                <svg aria-hidden="true" class="size-7 -rotate-90" viewBox="0 0 32 32" fill="none">
                   <circle
                     cx="16"
                     cy="16"
@@ -410,7 +414,7 @@
           <Button.Root
             {...props}
             variant="ghost"
-            class="h-9 min-w-0 gap-3 rounded-full px-3 hover:bg-muted/60"
+            class="h-8 min-w-0 gap-3 rounded-full px-3 hover:bg-muted/60"
             aria-label={`${completed} of ${knownIds.length} questions completed. Open progress actions.`}
             aria-expanded={menuOpen}
             aria-keyshortcuts="P"

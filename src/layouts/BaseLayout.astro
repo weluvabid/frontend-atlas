@@ -153,6 +153,12 @@ if (
     </script>
   </head>
   <body>
+    <a
+      href="#main-content"
+      class="fixed left-4 top-4 z-[110] -translate-y-[calc(100%+1rem)] rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground shadow-md transition-transform focus:translate-y-0 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring motion-reduce:transition-none"
+    >
+      Skip to content
+    </a>
     <div
       id="atlas-navigation-loader"
       class="pointer-events-none invisible fixed left-1/2 top-3 z-[100] inline-flex -translate-x-1/2 items-center gap-2 rounded-full border border-border bg-background/95 px-3 py-2 text-xs font-medium text-muted-foreground opacity-0 shadow-sm backdrop-blur-sm transition-opacity duration-150 data-[visible=true]:visible data-[visible=true]:opacity-100 motion-reduce:transition-none"
@@ -176,7 +182,7 @@ if (
           questionId={questionId}
         />
       </div>
-      <main class="min-h-0 flex-1 py-12 sm:py-16">
+      <main id="main-content" tabindex="-1" class="min-h-0 flex-1 py-12 sm:py-16 scroll-mt-28">
         <slot />
       </main>
       <AtlasFooter />
