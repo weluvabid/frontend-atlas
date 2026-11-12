@@ -19,6 +19,12 @@
       attributeFilter: ['class'],
     });
 
+    const dismissForNavigation = (): void => {
+      Sonner.toast.dismiss();
+    };
+
+    document.addEventListener('astro:before-preparation', dismissForNavigation);
+
     const unsubscribe = subscribeToNotifications(({ kind, message, options }) => {
       switch (kind) {
         case 'success':
@@ -43,6 +49,7 @@
 
     return () => {
       themeObserver.disconnect();
+      document.removeEventListener('astro:before-preparation', dismissForNavigation);
       unsubscribe();
     };
   });

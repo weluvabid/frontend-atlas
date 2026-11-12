@@ -31,6 +31,10 @@ const progressOverview = await readFile(
   new URL('../../src/components/progress/ProgressOverview.svelte', import.meta.url),
   'utf8',
 );
+const baseLayout = await readFile(
+  new URL('../../src/layouts/BaseLayout.astro', import.meta.url),
+  'utf8',
+);
 
 test('Sonner descriptions do not inherit the library default opacity', () => {
   assert.match(styles, /\[data-sonner-toast\]\s+\[data-description\][\s\S]*?opacity:\s*1;/u);
@@ -47,6 +51,8 @@ test('Sonner close controls stay inside the notification surface', () => {
   );
   assert.match(styles, /\[data-sonner-toast\][\s\S]*?padding-inline-end:\s*2\.75rem;/u);
   assert.match(toaster, /position="bottom-right"\s+closeButton/u);
+  assert.match(toaster, /astro:before-preparation/u);
+  assert.match(toaster, /Sonner\.toast\.dismiss\(\)/u);
 });
 
 test('QR image decoding is delegated to a bounded worker', () => {
@@ -100,6 +106,7 @@ test('article completion and overall progress share one accessible compound cont
     /articleCompleted\s+\?\s+'text-emerald-200 dark:text-emerald-900\/70'\s+:\s+'text-border'/u,
   );
   assert.match(progressOverview, /class="h-1\.5 \[&>div\]:bg-foreground"/u);
+  assert.match(progressOverview, /astro:page-load/u);
   assert.match(
     progressOverview,
     /completed\s+<span class="hidden sm:inline">on this device<\/span>/u,
@@ -109,6 +116,7 @@ test('article completion and overall progress share one accessible compound cont
     /shadow-lg shadow-black\/10 backdrop-blur-md dark:shadow-black\/30/u,
   );
   assert.match(articlePage, /questionId=\{question\.id\}/u);
+  assert.match(baseLayout, /transition:persist="atlas-progress-overview"/u);
   assert.doesNotMatch(articlePage, /ReadingProgress/u);
 });
 

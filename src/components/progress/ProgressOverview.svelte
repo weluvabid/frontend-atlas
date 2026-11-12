@@ -25,6 +25,7 @@
   let persistTimer: number | undefined;
   let frame = 0;
   let article: HTMLElement | null = null;
+  let activeQuestionId = questionId;
   let trackingPaused = false;
   let storageWarningShown = false;
   let currentSnapshot = $state(createProgressSnapshot([]));
@@ -257,6 +258,33 @@
 
     const unsubscribe = subscribeToProgress(handleProgressResult);
 
+    function handlePageLoad(): void {
+      if (activeQuestionId !== questionId) {
+        activeQuestionId = questionId;
+        const savedPosition = questionId
+          ? (currentSnapshot.readingProgress[questionId]?.position ?? 0)
+          : 0;
+
+        readingPosition = savedPosition / 65535;
+        lastPersisted = savedPosition;
+        trackingPaused = false;
+      }
+
+      if (!questionId) {
+        article = null;
+
+        return;
+      }
+
+      article = document.querySelector<HTMLElement>('[data-article-swipe]');
+
+      if (!article) {
+        throw new Error('Reading progress requires an article container');
+      }
+
+      handleReadingScroll();
+    }
+
     if (questionId) {
       article = document.querySelector<HTMLElement>('[data-article-swipe]');
 
@@ -265,25 +293,27 @@
       }
 
       handleReadingScroll();
-      window.addEventListener('scroll', handleReadingScroll, { passive: true });
-      window.addEventListener('resize', handleReadingScroll, { passive: true });
-      window.addEventListener('pagehide', flushReadingProgress);
-      document.addEventListener('visibilitychange', handleVisibilityChange);
-      document.addEventListener('astro:before-preparation', flushReadingProgress);
     }
 
+    window.addEventListener('scroll', handleReadingScroll, { passive: true });
+    window.addEventListener('resize', handleReadingScroll, { passive: true });
+    window.addEventListener('pagehide', flushReadingProgress);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    document.addEventListener('astro:before-preparation', flushReadingProgress);
+    document.addEventListener('astro:page-load', handlePageLoad);
     window.addEventListener('atlas:card-navigation-prompt', handleCardNavigationPrompt);
 
     return () => {
       unsubscribe();
 
-      if (questionId) {
-        window.removeEventListener('scroll', handleReadingScroll);
-        window.removeEventListener('resize', handleReadingScroll);
-        window.removeEventListener('pagehide', flushReadingProgress);
-        document.removeEventListener('visibilitychange', handleVisibilityChange);
-        document.removeEventListener('astro:before-preparation', flushReadingProgress);
+      window.removeEventListener('scroll', handleReadingScroll);
+      window.removeEventListener('resize', handleReadingScroll);
+      window.removeEventListener('pagehide', flushReadingProgress);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      document.removeEventListener('astro:before-preparation', flushReadingProgress);
+      document.removeEventListener('astro:page-load', handlePageLoad);
 
+      if (questionId) {
         if (persistTimer !== undefined) {
           window.clearTimeout(persistTimer);
         }
