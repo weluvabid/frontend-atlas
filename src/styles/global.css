@@ -1,6 +1,8 @@
 @import 'tailwindcss';
 @import '@weluvabid/iris/theme.css';
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 .progress-indicator[data-progress-loading] {
   visibility: visible !important;
 }

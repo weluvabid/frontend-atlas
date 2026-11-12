@@ -21,11 +21,13 @@ import appleTouchIcon from '../../brand/me/exports/favicon/favicon-180.png?url';
 interface Props {
   title?: string;
   description?: string;
+  questionId?: string;
 }
 
 const {
   title = 'Frontend Atlas — A field guide to frontend engineering',
   description = 'A carefully curated, open-source handbook for understanding modern frontend engineering.',
+  questionId,
 } = Astro.props;
 
 const themeBootstrap = createThemeScript();
@@ -171,6 +173,7 @@ if (
           client:load
           knownIds={knownIds}
           questionManifest={[...QUESTION_MANIFEST]}
+          questionId={questionId}
         />
       </div>
       <main class="min-h-0 flex-1 py-12 sm:py-16">
