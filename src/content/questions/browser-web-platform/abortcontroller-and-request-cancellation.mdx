@@ -12,15 +12,19 @@ featured: false
 searchTerms: ['cancel fetch', 'abort fetch', 'request abort']
 ---
 
-## Short answer
+A user changes a search query while the previous request is still running. The old request may no longer be useful, but the browser will not guess that for you. `AbortController` gives your code a way to signal that work should stop and lets APIs such as `fetch` respond to that signal.
+
+A user changes a search query while the previous request is still running. The old request may no longer be useful, but the browser will not guess that for you. `AbortController` gives your code a way to signal that work should stop and lets APIs such as `fetch` respond to that signal.
+
+## The quick version
 
 Create an AbortController per logical operation and pass its signal to APIs that support cancellation. Abort when the result is no longer needed, such as on navigation, component teardown, or a newer search query.
 
-## Reason from first principles
+## Build the mental model
 
 Cancellation is cooperative. An abort signal does not undo server-side work already performed and does not automatically cancel APIs that ignore the signal. Handle `AbortError` as an expected outcome while allowing unrelated errors to propagate.
 
-## A concrete example
+## See it in code
 
 ```js
 const controller = new AbortController();
@@ -29,24 +33,24 @@ const response = await fetch(url, { signal: controller.signal });
 controller.abort();
 ```
 
-## Boundary cases to reason through
+## Where it gets tricky
 
 A signal is one-shot: after aborting a controller, create a new controller for the next independent operation. Use `AbortSignal.timeout()` or combine signals where supported, with a fallback if the target browser matrix requires it. For latest-request-wins UI, cancellation saves work, but a request sequence/token check is still a useful correctness guard.
 
-## Common misconception
+## A common misunderstanding
 
 Aborting a fetch is not a transaction rollback and does not guarantee the server did not process the request.
 
-## Why this matters in production
+## What this changes in an application
 
 Use request identity or sequence numbers to prevent stale responses from overwriting newer UI state. Pair cancellation with idempotency for mutations.
 
-## Interviewer follow-ups
+## Questions worth exploring next
 
 - How would you implement latest-request-wins search?
 - Which APIs accept AbortSignal?
 
-## Further reading
+## References and next steps
 
 - [AbortController](https://developer.mozilla.org/en-US/docs/Web/API/AbortController) — primary or authoritative documentation for the underlying behavior.
 - [MDN Web Docs](https://developer.mozilla.org/) — use the relevant API reference for adjacent browser details.

@@ -11,15 +11,19 @@ related: []
 featured: false
 ---
 
-## Short answer
+In TypeScript, two values can be compatible even when their types have different names. The compiler looks at the shape of the value: which properties and methods are available. This is structural typing, and it explains both the flexibility of TypeScript interfaces and some of its less obvious assignability rules.
+
+In TypeScript, two values can be compatible even when their types have different names. The compiler looks at the shape of the value: which properties and methods are available. This is structural typing, and it explains both the flexibility of TypeScript interfaces and some of its less obvious assignability rules.
+
+## The quick version
 
 Two types are compatible when their required members are structurally compatible; nominal names are generally not required. Excess-property checks add a useful freshness check for object literals, but they are not a general exact-object type system.
 
-## Reason from first principles
+## Build the mental model
 
 A value with more properties can often be assigned to a type requiring fewer properties. TypeScript erases types at runtime, so a declared type cannot validate JSON, URL parameters, or user input.
 
-## A concrete example
+## See it in code
 
 ```ts
 type Point = { x: number; y: number };
@@ -27,24 +31,24 @@ const source = { x: 1, y: 2, label: 'origin' };
 const point: Point = source; // allowed
 ```
 
-## Boundary cases to reason through
+## Where it gets tricky
 
 Structural compatibility can be affected by function parameter variance and compiler options such as `strictFunctionTypes`. Excess-property checks are a contextual check on fresh literals, not an exactness guarantee that follows a value everywhere. At runtime, validate untrusted payloads before treating them as the declared interface.
 
-## Common misconception
+## A common misunderstanding
 
 TypeScript types are not runtime schemas and do not guarantee that external values match.
 
-## Why this matters in production
+## What this changes in an application
 
 Use runtime schema validation at trust boundaries. Consider branded types when domain identity matters beyond shape.
 
-## Interviewer follow-ups
+## Questions worth exploring next
 
 - Why can a fresh object literal fail where a variable succeeds?
 - How would you validate an API response?
 
-## Further reading
+## References and next steps
 
 - [Type compatibility](https://www.typescriptlang.org/docs/handbook/type-compatibility.html) — primary or authoritative documentation for the underlying behavior.
 - [MDN Web Docs](https://developer.mozilla.org/) — use the relevant API reference for adjacent browser details.

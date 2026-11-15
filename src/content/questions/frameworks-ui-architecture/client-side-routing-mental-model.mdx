@@ -12,11 +12,15 @@ featured: false
 searchTerms: ['spa navigation', 'history api', 'route transitions']
 ---
 
-## Short answer
+A client-side route change can update the URL and replace part of the page without asking the browser to load a new document. That feels instant, but the application now owns work the browser normally handles: history, loading states, scroll position, focus and failed navigation. A router is coordinating all of those pieces, not merely swapping components.
+
+A client-side route change can update the URL and replace part of the page without asking the browser to load a new document. That feels instant, but the application now owns work the browser normally handles: history, loading states, scroll position, focus and failed navigation. A router is coordinating all of those pieces, not merely swapping components.
+
+## The quick version
 
 Client-side routing intercepts navigation, updates the URL via the History API, renders the matching view without a full document load, and (ideally) manages data loading, pending states, scroll position, and focus. The URL remains the source of truth for where the user is; the router is the machinery that keeps the UI and the history stack in sync with that URL.
 
-## Reason from first principles
+## Build the mental model
 
 A traditional multi-page app treats every navigation as a full document request. The browser handles history, scroll restoration, and the loading indicator. Accessibility and focus largely follow the new document.
 
@@ -112,13 +116,13 @@ async function navigate(to: string, opts?: { replace?: boolean }) {
 
 Real routers do more (nested routes, loaders, actions, blocking, etc.), but the mental model stays the same: URL change, data, render, scroll, focus, and latest-navigation-wins.
 
-## Boundary cases
+## Where it gets tricky
 
 **Back button after a redirect.**  
 If login redirects to `/dashboard` with `replace`, the user should not land back on the login page when they press back. Getting this wrong is a common auth-flow bug.
 
 **Hash and query-only changes.**  
-Changing only the hash or a filter query param may or may not deserve a full route re-render and scroll reset. Decide deliberately.
+Changing only the hash or a filter query param may or may not deserve a full route re-render and scroll reset. Make that choice explicit.
 
 **External links and download links.**  
 Do not intercept them. Let the browser handle them.
@@ -129,7 +133,7 @@ The user can press back while a soft navigation is still loading. Your sequence 
 **SSR / hydration.**  
 The first load is a full document. Client-side routing takes over after hydration. The first paint and the first soft navigation must not produce a flash of wrong content or a double fetch if you can avoid it.
 
-## Common misconceptions
+## A common misunderstandings
 
 - “Client-side routing is just matching paths to components.”  
   That is the easy part. History, data, scroll, focus, and pending states are the product surface.
@@ -140,18 +144,18 @@ The first load is a full document. Client-side routing takes over after hydratio
 - “The framework handles scroll restoration, so I can ignore it.”  
   Frameworks give you tools. The policy (when to restore, when to reset) is still yours.
 
-## Why this matters in production
+## What this changes in an application
 
 Users judge navigation by feel: did the back button do what I expected, did I keep my scroll position, did something clearly happen when I clicked, can I share this URL? Teams that treat routing as pure component swapping rediscover these requirements later, usually under time pressure. A clear mental model up front keeps the behaviour predictable and the implementation debuggable.
 
-## Interviewer follow-ups
+## Questions worth exploring next
 
 - How would you cancel in-flight route loads when the user navigates again?
 - When do you choose `push` vs `replace`?
 - How does nested routing change data loading and error boundaries?
 - What should happen to focus after a soft navigation?
 
-## Further reading
+## References and next steps
 
 - [MDN — History API](https://developer.mozilla.org/en-US/docs/Web/API/History_API) — the platform primitives.
 - [MDN — Navigation API](https://developer.mozilla.org/en-US/docs/Web/API/Navigation_API) — newer platform support for intercepting navigation.

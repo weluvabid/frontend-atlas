@@ -12,7 +12,11 @@ featured: false
 searchTerms: ['combobox', 'typeahead', 'autocomplete keyboard navigation']
 ---
 
-## Short answer
+An autocomplete combines a text input with a changing list of suggestions. It looks small, but keyboard focus, screen-reader announcements, pointer selection and asynchronous results all have to agree about which option is active. The challenge is to make the interaction predictable without taking control away from the browser or assistive technology.
+
+An autocomplete combines a text input with a changing list of suggestions. It looks small, but keyboard focus, screen-reader announcements, pointer selection and asynchronous results all have to agree about which option is active. The challenge is to make the interaction predictable without taking control away from the browser or assistive technology.
+
+## The quick version
 
 Treat autocomplete as a small interaction system, not an input with a dropdown glued on. Keep four pieces of state independent: the text the user is editing, the actual selected value, which option is active for keyboard navigation, and the in-flight request. Implement the WAI-ARIA combobox pattern properly, support the expected keyboard model, and make sure only the latest request can update the results.
 
@@ -37,7 +41,7 @@ Build a reusable autocomplete for selecting a customer from a remote directory.
 - Do not treat a highlighted option as selected until the user commits it.
 - Preserve IME composition and ordinary editing behaviour.
 
-## Reason from first principles
+## Build the mental model
 
 There are at least four values that must stay independent:
 
@@ -100,7 +104,7 @@ A few production details that are easy to miss:
 - Treat an expected abort as normal control flow, not as an application error.
 - Validate the response at the boundary. A TypeScript type assertion is not runtime validation.
 
-## Boundary cases that matter
+## Where it gets tricky
 
 **IME composition.**  
 While the user is composing (common with Chinese, Japanese, Korean keyboards), intermediate composition strings should not fire requests or commit values. Listen to `compositionstart` / `compositionend` and ignore input events that are part of an ongoing composition.
@@ -120,7 +124,7 @@ All three need explicit UI states. A spinner that never resolves and a silent fa
 **Keyboard + screen reader agreement.**  
 `aria-activedescendant` must point at a real option that exists in the DOM. The option needs an ID. When the active option changes, the screen reader should hear the new option. This is easy to get wrong when results are virtualised or when the list is re-rendered.
 
-## Common misconceptions
+## A common misunderstandings
 
 - “If it works with a mouse it is accessible.”  
   Keyboard and screen reader behaviour are part of the contract. A mouse-only dropdown is not an autocomplete.
@@ -131,20 +135,20 @@ All three need explicit UI states. A spinner that never resolves and a silent fa
 - “Debounce solves race conditions.”  
   Debounce only limits how often you _send_ requests. Responses can still arrive out of order.
 
-## Why this matters in production
+## What this changes in an application
 
 Autocomplete is a compact example of real frontend systems work. You have asynchronous consistency, cancellation, state modelling, keyboard interaction, accessible semantics, and trust-boundary validation all in one control. A weak implementation can select the wrong record, lose typed text, announce stale options, or become unusable without a pointer.
 
 Teams that treat it as “just a dropdown with search” usually rediscover these problems in production, often after the component is already widely used.
 
-## Interviewer follow-ups
+## Questions worth exploring next
 
 - How would you extend this to multi-select with tokens?
 - How would you handle tens of thousands of possible options without rendering every result?
 - What should happen if the selected customer is deleted on the server after selection?
 - How would you test the race between a slow response and a newer query?
 
-## Further reading
+## References and next steps
 
 - [WAI-ARIA Authoring Practices — Combobox](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/) — the keyboard and accessibility behaviour you should match.
 - [Playwright network mocking](https://playwright.dev/docs/network) — deterministic tests for request ordering and failures.

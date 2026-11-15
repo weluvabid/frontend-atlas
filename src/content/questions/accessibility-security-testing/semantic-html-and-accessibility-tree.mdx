@@ -12,15 +12,19 @@ featured: false
 searchTerms: ['screen reader semantics', 'aria', 'accessible name']
 ---
 
-## Short answer
+A button made from a `<div>` can look exactly like a real button. The difference appears when someone tries to reach it with a keyboard, activate it with the expected keys, or use a screen reader to understand what it does. HTML elements carry behaviour and meaning that a visual imitation does not get for free.
+
+A button made from a `<div>` can look exactly like a real button. The difference appears when someone tries to reach it with a keyboard, activate it with the expected keys, or use a screen reader to understand what it does. HTML elements carry behaviour and meaning that a visual imitation does not get for free.
+
+## The quick version
 
 Semantic elements communicate role, name, state, and relationships to browsers and assistive technologies while providing built-in interaction behavior. They also improve keyboard support, maintainability, and machine interpretation.
 
-## Reason from first principles
+## Build the mental model
 
 A `<button>` has activation and focus behavior; a clickable `<div>` does not. Landmark elements help navigation. Accessible names come from labels and content relationships, not from visual appearance alone.
 
-## A concrete example
+## See it in code
 
 ```html
 <main>
@@ -29,24 +33,24 @@ A `<button>` has activation and focus behavior; a clickable `<div>` does not. La
 </main>
 ```
 
-## Boundary cases to reason through
+## Where it gets tricky
 
 A label contributes to a control’s accessible name, while `aria-describedby` supplies supporting description. Native buttons, links, inputs, and headings expose behavior and relationships that custom elements must otherwise recreate. Inspect the accessibility tree and use a screen reader for important flows; automated checks cannot fully judge whether names and announcements make sense.
 
-## Common misconception
+## A common misunderstanding
 
 ARIA should not be used to recreate native semantics that already exist.
 
-## Why this matters in production
+## What this changes in an application
 
 Start with semantic HTML, test keyboard-only use, inspect the accessibility tree, and add ARIA only to fill a genuine semantic gap.
 
-## Interviewer follow-ups
+## Questions worth exploring next
 
 - What is the difference between a label and an accessible name?
 - When is `role="button"` insufficient?
 
-## Further reading
+## References and next steps
 
 - [HTML: A good basis for accessibility](https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Accessibility/HTML) — primary or authoritative documentation for the underlying behavior.
 - [MDN Web Docs](https://developer.mozilla.org/) — use the relevant API reference for adjacent browser details.

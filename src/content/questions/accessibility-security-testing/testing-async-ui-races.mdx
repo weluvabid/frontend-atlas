@@ -11,15 +11,19 @@ related: ['unit-integration-and-e2e-testing', 'resilient-network-state']
 featured: false
 ---
 
-## Short answer
+Async UI tests often pass on a developer's machine and fail in CI because the test relies on timing it does not control. A request can finish before or after another request, and both orders are possible in a real application. A useful test makes that ordering explicit instead of hoping the scheduler behaves a certain way.
+
+Async UI tests often pass on a developer's machine and fail in CI because the test relies on timing it does not control. A request can finish before or after another request, and both orders are possible in a real application. A useful test makes that ordering explicit instead of hoping the scheduler behaves a certain way.
+
+## The quick version
 
 Use deferred promises or controllable network handlers to force the ordering under test. Assert that stale results cannot overwrite newer state and that cancellation/error states are handled correctly.
 
-## Reason from first principles
+## Build the mental model
 
 A sleep-based test assumes scheduler timing and is inherently fragile. Use fake timers only for timer behavior; use explicit promise resolution to test concurrency ordering.
 
-## A concrete example
+## See it in code
 
 ```ts
 const first = deferred<Result>();
@@ -31,24 +35,24 @@ first.resolve(resultFor('a'));
 expect(screen.getByText('ab results')).toBeVisible();
 ```
 
-## Boundary cases to reason through
+## Where it gets tricky
 
-Use deferred promises or a network mock to resolve requests in deliberately reversed order. Assert both the visible result and the absence of stale side effects. Also test unmount during an in-flight request, abort rejection, duplicate submit, and retry. Avoid sleeps: tests should control the event ordering they need to prove.
+Use deferred promises or a network mock to resolve requests in in a controlled order that makes the race reproducible. Assert both the visible result and the absence of stale side effects. Also test unmount during an in-flight request, abort rejection, duplicate submit, and retry. Avoid sleeps: tests should control the event ordering they need to prove.
 
-## Common misconception
+## A common misunderstanding
 
 Testing only the final happy path does not expose response reordering bugs.
 
-## Why this matters in production
+## What this changes in an application
 
 Test cancellation, unmount during work, duplicate submit, timeout, retry, and error propagation. Unknown execution paths should fail loudly rather than disappear into logs.
 
-## Interviewer follow-ups
+## Questions worth exploring next
 
 - How do you prove the stale request cannot win?
 - When are fake timers appropriate?
 
-## Further reading
+## References and next steps
 
 - [Playwright network mocking](https://playwright.dev/docs/network) — primary or authoritative documentation for the underlying behavior.
 - [MDN Web Docs](https://developer.mozilla.org/) — use the relevant API reference for adjacent browser details.

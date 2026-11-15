@@ -12,15 +12,19 @@ featured: false
 searchTerms: ['etag', '304 not modified', 'cache headers', 'browser cache']
 ---
 
-## Short answer
+When a user visits the same page twice, downloading every image, script and response again would waste time and bandwidth. HTTP caching lets the browser reuse a previous response when it is still valid. Validators such as ETags also let the browser ask whether a stored response has changed without downloading the whole thing again.
+
+When a user visits the same page twice, downloading every image, script and response again would waste time and bandwidth. HTTP caching lets the browser reuse a previous response when it is still valid. Validators such as ETags also let the browser ask whether a stored response has changed without downloading the whole thing again.
+
+## The quick version
 
 A fresh cached response can be reused without contacting the origin. A stale response may be revalidated with validators such as ETag or Last-Modified; the server can respond `304 Not Modified`. Cache directives control reuse and storage.
 
-## Reason from first principles
+## Build the mental model
 
 `Cache-Control: max-age` defines freshness lifetime; `no-cache` permits storage but requires validation before reuse; `no-store` prohibits storage. `private` and `public` matter for shared caches. Query-string versioning is useful for immutable assets but not a substitute for correct policy.
 
-## A concrete example
+## See it in code
 
 ```http
 Cache-Control: public, max-age=31536000, immutable
@@ -28,24 +32,24 @@ Cache-Control: public, max-age=31536000, immutable
 
 Use this for content-hashed static assets, not mutable HTML.
 
-## Boundary cases to reason through
+## Where it gets tricky
 
 A `304` response has no replacement representation body; the browser reuses the stored representation after validation. Be careful with personalized responses: a shared cache must not reuse one user’s response for another. Content-hashed assets can be immutable for a long time, while HTML generally needs a short freshness lifetime or revalidation so deployments do not strand users on deleted chunks.
 
-## Common misconception
+## A common misunderstanding
 
 `no-cache` does not mean “do not cache.”
 
-## Why this matters in production
+## What this changes in an application
 
 A good policy separates immutable fingerprinted assets from HTML and user-specific responses. Incorrect shared caching can leak personalized content.
 
-## Interviewer follow-ups
+## Questions worth exploring next
 
 - When is `must-revalidate` useful?
 - How should an SPA deploy avoid stale asset references?
 
-## Further reading
+## References and next steps
 
 - [HTTP caching](https://developer.mozilla.org/en-US/docs/Web/HTTP/Caching) — primary or authoritative documentation for the underlying behavior.
 - [MDN Web Docs](https://developer.mozilla.org/) — use the relevant API reference for adjacent browser details.

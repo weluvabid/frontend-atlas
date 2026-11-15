@@ -11,15 +11,19 @@ related: []
 featured: false
 ---
 
-## Short answer
+A design system is more than a folder of reusable buttons. It connects visual decisions, component APIs, accessibility rules, documentation and the way product teams make changes. Without those shared decisions, a component library can grow while every application still looks and behaves differently.
+
+A design system is more than a folder of reusable buttons. It connects visual decisions, component APIs, accessibility rules, documentation and the way product teams make changes. Without those shared decisions, a component library can grow while every application still looks and behaves differently.
+
+## The quick version
 
 A design system is a product with versioned foundations, components, accessibility contracts, documentation, and contribution governance. Separate semantic tokens from component implementation so themes can evolve coherently.
 
-## Reason from first principles
+## Build the mental model
 
 A component library without adoption guidance and migration policy is not a complete design system. Avoid exposing every internal styling detail as public API. Define supported variants, deprecation windows, visual regression coverage, and ownership.
 
-## A concrete example
+## See it in code
 
 ```css
 :root {
@@ -32,24 +36,24 @@ A component library without adoption guidance and migration policy is not a comp
 }
 ```
 
-## Boundary cases to reason through
+## Where it gets tricky
 
 Governance matters as much as code: define who approves tokens, how deprecations work, how consumers learn about breaking changes, and what accessibility guarantees are part of the contract. Avoid exposing private implementation props that prevent future refactors. Adoption should be measured through real product usage, not the number of published components.
 
-## Common misconception
+## A common misunderstanding
 
 More variants and props do not necessarily make a component more flexible.
 
-## Why this matters in production
+## What this changes in an application
 
 Version tokens and components together where possible. Treat accessibility and theming as contract tests, not optional polish.
 
-## Interviewer follow-ups
+## Questions worth exploring next
 
 - How do you handle breaking changes?
 - How do you prevent design-token drift across apps?
 
-## Further reading
+## References and next steps
 
 - [Design Tokens Community Group](https://www.designtokens.org/) — primary or authoritative documentation for the underlying behavior.
 - [MDN Web Docs](https://developer.mozilla.org/) — use the relevant API reference for adjacent browser details.

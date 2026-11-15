@@ -11,15 +11,19 @@ related: []
 featured: false
 ---
 
-## Short answer
+A component becomes hard to reuse when it knows too much about the page around it. It may fetch data, choose a route, own business rules and render a specific layout all at once. Good component boundaries keep responsibilities understandable and make it possible to combine smaller pieces without turning every component into a miniature application.
+
+A component becomes hard to reuse when it knows too much about the page around it. It may fetch data, choose a route, own business rules and render a specific layout all at once. Good component boundaries keep responsibilities understandable and make it possible to combine smaller pieces without turning every component into a miniature application.
+
+## The quick version
 
 A useful component boundary groups behavior and presentation that change together while exposing a small, meaningful contract. Composition is often more flexible than a large component with many boolean modes.
 
-## Reason from first principles
+## Build the mental model
 
 A component is not automatically reusable because it appears twice. Premature abstraction can couple unrelated screens; duplicated markup may be cheaper until the shared behavior stabilizes. Prefer slots/children and data-driven primitives over dozens of flags.
 
-## A concrete example
+## See it in code
 
 ```svelte
 <Card>
@@ -28,24 +32,24 @@ A component is not automatically reusable because it appears twice. Premature ab
 </Card>
 ```
 
-## Boundary cases to reason through
+## Where it gets tricky
 
 A good public component API exposes stable user intent, not every implementation detail. Avoid booleans whose combinations create ambiguous states; prefer named variants or composed subcomponents. Before extracting a shared component, identify the behavior that is genuinely shared and the parts that should remain customizable by the consuming feature.
 
-## Common misconception
+## A common misunderstanding
 
 “One component per file” and “DRY at all costs” are not architecture principles.
 
-## Why this matters in production
+## What this changes in an application
 
 Good boundaries make testing, accessibility, ownership, and independent iteration easier.
 
-## Interviewer follow-ups
+## Questions worth exploring next
 
 - How would you refactor a component with twelve boolean props?
 - When is duplication preferable?
 
-## Further reading
+## References and next steps
 
 - [Passing props to a component](https://react.dev/learn/passing-props-to-a-component) — primary or authoritative documentation for the underlying behavior.
 - [MDN Web Docs](https://developer.mozilla.org/) — use the relevant API reference for adjacent browser details.

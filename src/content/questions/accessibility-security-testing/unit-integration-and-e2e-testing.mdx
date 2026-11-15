@@ -11,38 +11,42 @@ related: []
 featured: false
 ---
 
-## Short answer
+A test can pass while the feature is still broken. That usually happens when the test checks the wrong boundary: a mocked function returns the expected value, but the real modules do not work together. Choosing between unit, integration and end-to-end tests starts with deciding which part of the system you need evidence about.
+
+A test can pass while the feature is still broken. That usually happens when the test checks the wrong boundary: a mocked function returns the expected value, but the real modules do not work together. Choosing between unit, integration and end-to-end tests starts with deciding which part of the system you need evidence about.
+
+## The quick version
 
 Unit tests verify isolated logic; integration tests verify collaborating modules and boundaries; end-to-end tests verify critical user journeys through the running application. The strongest suite uses many fast focused tests and a smaller set of high-value browser journeys.
 
-## Reason from first principles
+## Build the mental model
 
 Mocking every dependency can make tests validate the mock rather than the system. E2E tests are slower and more failure-prone, so keep them focused on externally observable contracts. Test accessibility and error states, not only happy paths.
 
-## A concrete example
+## See it in code
 
 ```ts
 expect(rankSearchResults(index, 'event loop')[0]?.id).toBe('event-loop-tasks-and-microtasks');
 ```
 
-## Boundary cases to reason through
+## Where it gets tricky
 
 Test behavior at the narrowest boundary that still proves the contract. Keep pure transformations in unit tests, verify actual component and browser API integration in integration tests, and reserve end-to-end tests for a small number of critical user journeys. Avoid mocking the module under test or replacing every collaborator with a mock that simply repeats the expected result.
 
-## Common misconception
+## A common misunderstanding
 
 A high coverage percentage does not prove meaningful behavior is tested.
 
-## Why this matters in production
+## What this changes in an application
 
-Test boundary conditions, retries, invalid states, keyboard flows, and regression-prone integrations. Make tests deterministic and diagnostic.
+Cover the cases most likely to break: invalid input, retries, keyboard interaction and integrations that have failed before. A useful failure should tell you what behaviour changed.
 
-## Interviewer follow-ups
+## Questions worth exploring next
 
 - What should not be mocked?
 - How do you reduce flaky browser tests?
 
-## Further reading
+## References and next steps
 
 - [Guiding principles](https://testing-library.com/docs/guiding-principles/) — primary or authoritative documentation for the underlying behavior.
 - [MDN Web Docs](https://developer.mozilla.org/) — use the relevant API reference for adjacent browser details.

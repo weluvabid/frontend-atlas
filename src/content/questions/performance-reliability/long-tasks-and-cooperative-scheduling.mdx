@@ -11,15 +11,19 @@ related: []
 featured: false
 ---
 
-## Short answer
+The browser cannot respond to input while a long JavaScript task occupies the main thread. Even code that is doing useful work can make scrolling and typing feel broken if it runs for too long without yielding. Cooperative scheduling breaks work into smaller pieces so the browser gets opportunities to handle other tasks.
+
+The browser cannot respond to input while a long JavaScript task occupies the main thread. Even code that is doing useful work can make scrolling and typing feel broken if it runs for too long without yielding. Cooperative scheduling breaks work into smaller pieces so the browser gets opportunities to handle other tasks.
+
+## The quick version
 
 The main thread must process input, script, style, layout, and paint. Long uninterrupted tasks delay all of them. Chunk work and yield between chunks, or move isolated CPU work to a Web Worker.
 
-## Reason from first principles
+## Build the mental model
 
 `setTimeout` yields but adds task scheduling delay. `scheduler.yield()` can provide a more direct cooperative yield where supported; feature-detect it and retain a fallback. Workers avoid DOM access and require message/data-transfer design.
 
-## A concrete example
+## See it in code
 
 ```js
 for (const chunk of chunks) {
@@ -28,24 +32,24 @@ for (const chunk of chunks) {
 }
 ```
 
-## Boundary cases to reason through
+## Where it gets tricky
 
 A worker cannot access the DOM, so it is best for pure computation or APIs designed for worker contexts. Large structured-clone messages can erase the benefit; transferable ArrayBuffers avoid copying ownership-heavy binary data. Chunking on the main thread remains useful for smaller jobs when moving the work would add more coordination than value.
 
-## Common misconception
+## A common misunderstanding
 
 Moving work to a worker does not make serialization, copying, or coordination free.
 
-## Why this matters in production
+## What this changes in an application
 
 Choose chunk sizes from responsiveness goals, use transferable buffers for large binary payloads, and handle worker errors/termination.
 
-## Interviewer follow-ups
+## Questions worth exploring next
 
 - When should you use OffscreenCanvas?
 - What is the cost of structured cloning?
 
-## Further reading
+## References and next steps
 
 - [PerformanceLongTaskTiming](https://developer.mozilla.org/en-US/docs/Web/API/PerformanceLongTaskTiming) — primary or authoritative documentation for the underlying behavior.
 - [MDN Web Docs](https://developer.mozilla.org/) — use the relevant API reference for adjacent browser details.

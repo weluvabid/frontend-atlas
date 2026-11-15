@@ -11,15 +11,19 @@ related: []
 featured: true
 ---
 
-## Short answer
+Setting `z-index: 999999` does not guarantee that an element will appear above everything else. CSS paints elements inside stacking contexts, which behave like groups in the larger page. If two elements belong to different groups, increasing a child's `z-index` cannot make it escape its parent's place in the stack.
+
+Setting `z-index: 999999` does not guarantee that an element will appear above everything else. CSS paints elements inside stacking contexts, which behave like groups in the larger page. If two elements belong to different groups, increasing a child's `z-index` cannot make it escape its parent's place in the stack.
+
+## The quick version
 
 A z-index is compared within its stacking context. A descendant cannot escape its ancestor stacking context to outrank a sibling context, regardless of how large its own z-index is.
 
-## Reason from first principles
+## Build the mental model
 
 Stacking contexts are created by conditions including positioned elements with non-auto z-index, transforms, opacity below one, isolation, and several modern CSS features. The browser paints contexts atomically in their parent context.
 
-## A concrete example
+## See it in code
 
 ```css
 .sidebar {
@@ -33,24 +37,24 @@ Stacking contexts are created by conditions including positioned elements with n
 /* Still cannot outrank a sibling context above .sidebar. */
 ```
 
-## Boundary cases to reason through
+## Where it gets tricky
 
 A child with `z-index: 999999` remains trapped inside its parent stacking context. Inspect ancestors for transforms, opacity, isolation, positioned z-index, filters, and containment. The browser top layer used by modal dialogs and popovers participates in a different ordering model, so it can solve some overlay problems more cleanly than escalating z-index values.
 
-## Common misconception
+## A common misunderstanding
 
 There is no single page-wide z-index ladder.
 
-## Why this matters in production
+## What this changes in an application
 
 Define a small layer scale and understand which components create contexts. Use top-layer primitives such as dialog/popover when their semantics fit.
 
-## Interviewer follow-ups
+## Questions worth exploring next
 
 - What creates a stacking context?
 - Why does `transform: translateZ(0)` alter layering?
 
-## Further reading
+## References and next steps
 
 - [Stacking context](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_positioned_layout/Stacking_context) — primary or authoritative documentation for the underlying behavior.
 - [MDN Web Docs](https://developer.mozilla.org/) — use the relevant API reference for adjacent browser details.

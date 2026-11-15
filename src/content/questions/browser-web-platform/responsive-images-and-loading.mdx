@@ -12,11 +12,15 @@ featured: false
 searchTerms: ['srcset sizes', 'image optimization', 'largest contentful paint', 'lcp image']
 ---
 
-## Short answer
+A phone with a narrow screen usually does not need the same image file as a large desktop display. Sending one oversized asset wastes bandwidth, while choosing an image that is too small makes it look blurry. HTML gives the browser hints about available image sizes so it can make a sensible choice for the actual layout and device.
+
+A phone with a narrow screen usually does not need the same image file as a large desktop display. Sending one oversized asset wastes bandwidth, while choosing an image that is too small makes it look blurry. HTML gives the browser hints about available image sizes so it can make a sensible choice for the actual layout and device.
+
+## The quick version
 
 Give the browser enough information to pick the right resource and reserve space before the image arrives. Use `srcset` + `sizes` (or `<picture>`) for resolution and art direction, set explicit dimensions or aspect-ratio to avoid layout shift, lazy-load below-the-fold images, and reserve `fetchpriority="high"` (and avoid lazy loading) for the LCP image. Format and compression still matter; the loading strategy cannot fix a multi-megabyte asset.
 
-## Reason from first principles
+## Build the mental model
 
 Images are often the largest bytes on the page and a frequent source of:
 
@@ -82,7 +86,7 @@ For responsive images that change aspect ratio between breakpoints (art directio
 
 Modern formats (AVIF, WebP) often shrink bytes significantly. Serve them when supported, with a JPEG/PNG fallback. Compression and correct dimensions still beat a fancy format applied to an oversized source. Generate a few sensible widths rather than one giant image scaled down in the browser.
 
-## A concrete example
+## See it in code
 
 ```html
 <picture>
@@ -105,7 +109,7 @@ Modern formats (AVIF, WebP) often shrink bytes significantly. Serve them when su
 
 This is a below-the-fold product image: the browser can choose a candidate based on the rendered slot and device, the dimensions reserve a 3:2 box, and lazy loading avoids competing with the initial viewport. For the page's LCP hero, remove `loading="lazy"` and consider `fetchpriority="high"` instead.
 
-## Boundary cases
+## Where it gets tricky
 
 **Background images in CSS**  
 Harder to prioritise and to give `srcset`-style behaviour. Prefer an `<img>` (positioned as needed) for important content images so the browser’s loader and LCP logic can see them.
@@ -122,7 +126,7 @@ You may not control the source dimensions. Use a consistent container aspect rat
 **Print and offline**  
 Cached images and print stylesheets still care about sensible resolution. Extreme optimisations aimed only at mobile screens can look poor on a large printed page or a high-DPI desktop.
 
-## Common misconceptions
+## A common misunderstandings
 
 - “Lazy loading everything is always better.”  
   Not the LCP image. Not images that are immediately visible.
@@ -133,18 +137,18 @@ Cached images and print stylesheets still care about sensible resolution. Extrem
 - “Width and height in HTML conflict with responsive CSS.”  
   They establish the aspect ratio. CSS can still scale the image; the ratio prevents the layout jump.
 
-## Why this matters in production
+## What this changes in an application
 
 Images dominate many sites’ weight and are a top contributor to poor LCP and CLS. Getting selection, priority, and space reservation right is one of the highest-ROI performance tasks on content-heavy pages. It is also one of the most visible: users see the hero load cleanly or they see the page jump and crawl.
 
-## Interviewer follow-ups
+## Questions worth exploring next
 
 - How do you choose `sizes` for a fluid grid of cards?
 - When would you preload an image, and when is that a mistake?
 - How do you handle LCP when the hero is a CSS background?
 - What is the difference between art direction and resolution switching?
 
-## Further reading
+## References and next steps
 
 - [MDN — Responsive images](https://developer.mozilla.org/en-US/docs/Learn/HTML/Multimedia_and_embedding/Responsive_images) — `srcset`, `sizes`, `<picture>`.
 - [web.dev — Image optimization](https://web.dev/articles/fast#optimize_your_images) — practical LCP and format guidance.

@@ -12,11 +12,15 @@ featured: false
 searchTerms: ['dirty fields', 'submission lifecycle', 'field values']
 ---
 
-## Short answer
+Forms collect user input, but the state around that input grows quickly: touched fields, validation messages, submission status, server errors and unsaved changes. If those values are scattered across unrelated components, small interactions become hard to coordinate. A form architecture gives each piece of state a clear owner and lifecycle.
+
+Forms collect user input, but the state around that input grows quickly: touched fields, validation messages, submission status, server errors and unsaved changes. If those values are scattered across unrelated components, small interactions become hard to coordinate. A form architecture gives each piece of state a clear owner and lifecycle.
+
+## The quick version
 
 Controlled vs uncontrolled only answers “who owns the input value.” Real forms need more: dirty state, touched state, validation timing, client vs server errors, submission lifecycle, and often progressive enhancement. Treat the form as a small state machine with clear transitions instead of a bag of input values and a boolean `isSubmitting`.
 
-## Reason from first principles
+## Build the mental model
 
 Controlled components give you a single source of truth in JavaScript. Uncontrolled components let the DOM keep the values until you read them. Both are valid. Neither tells you:
 
@@ -80,7 +84,7 @@ If the form can work without JavaScript, start from a normal HTML form with a re
 - Client-side validation becomes an optimisation, not the only line of defence.
 - Success and error handling need both a full-page path and an in-place path.
 
-This is more work up front. It is also one of the highest-leverage ways to make forms resilient on slow networks and flaky devices.
+This is more work up front. It is also one of the most effective ways to make forms resilient on slow networks and flaky devices.
 
 ## Concrete implementation sketch
 
@@ -108,7 +112,7 @@ On blur: mark touched, run field validation.
 
 On submit: mark all relevant fields touched, run full client validation, then enter the submission lifecycle above.
 
-## Boundary cases
+## Where it gets tricky
 
 **Reset after success.**  
 After a successful create, you often want to clear the form. After a successful edit, you usually want to treat the new values as the new initial values so dirty state resets without clearing the fields.
@@ -123,9 +127,9 @@ If initial values arrive after the form has mounted (edit form loading from an A
 “Save draft” vs “Publish” may send different payloads or hit different endpoints. The submission state still needs a single coherent story so the UI does not enable one button while the other is in flight.
 
 **Password and sensitive fields.**  
-Some teams deliberately avoid controlled components for password fields so the value spends less time in JavaScript memory. Uncontrolled + read-on-submit is a valid choice here.
+Some teams avoid controlled components on purpose for password fields so the value spends less time in JavaScript memory. Uncontrolled + read-on-submit is a valid choice here.
 
-## Common misconceptions
+## A common misunderstandings
 
 - “Controlled is always better.”  
   It is better when you need derived UI, cross-field validation, or tight control. It is unnecessary overhead for a simple newsletter signup that only needs values on submit.
@@ -136,18 +140,18 @@ Some teams deliberately avoid controlled components for password fields so the v
 - “Client validation replaces server validation.”  
   It never does. Client checks are for fast feedback and basic invariants. The server remains the source of truth for business rules and security.
 
-## Why this matters in production
+## What this changes in an application
 
 Forms are where users give you money, credentials, and content. Janky validation, lost input after a server error, or a submit button that stays disabled forever all turn into support tickets and abandoned flows. A clear state model makes the behaviour predictable for users and debuggable for the team.
 
-## Interviewer follow-ups
+## Questions worth exploring next
 
 - How would you implement “leave page?” warnings only when the form is dirty?
 - How do you merge server field errors with existing client errors without flickering?
 - When would you choose uncontrolled inputs even inside a mostly controlled form?
 - How does progressive enhancement change your testing strategy?
 
-## Further reading
+## References and next steps
 
 - [HTML forms](https://developer.mozilla.org/en-US/docs/Learn/Forms) — the platform baseline that progressive enhancement builds on.
 - [WAI-ARIA Authoring Practices — Forms](https://www.w3.org/WAI/ARIA/apg/patterns/form/) — accessible naming, error association, and instructions.

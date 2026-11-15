@@ -11,38 +11,42 @@ related: ['state-machines-for-ui-workflows', 'frontend-data-fetching-architectur
 featured: false
 ---
 
-## Short answer
+Suppose a page stores a list of products and also stores the number of products in that list. Every time the list changes, the count must change too. If one update is missed, the UI contradicts itself. Derived state avoids this kind of drift by calculating values from the data they describe.
+
+Suppose a page stores a list of products and also stores the number of products in that list. Every time the list changes, the count must change too. If one update is missed, the UI contradicts itself. Derived state avoids this kind of drift by calculating values from the data they describe.
+
+## The quick version
 
 Store the minimal state needed to represent user intent; derive values that can be computed from it. Duplicating derived data creates multiple sources of truth that must be kept synchronized.
 
-## Reason from first principles
+## Build the mental model
 
 If `filteredItems` is fully determined by `items` and `query`, storing it independently creates invalid combinations. Memoization is a performance optimization, not a correctness requirement; introduce it only when measurement or identity semantics justify it.
 
-## A concrete example
+## See it in code
 
 ```ts
 const visibleItems = items.filter((item) => item.name.includes(query));
 ```
 
-## Boundary cases to reason through
+## Where it gets tricky
 
 Effects that copy one state variable into another often create a one-render lag and ordering problems. Derive synchronously when possible. If a value is expensive, memoize based on its real dependencies; if it represents a user decision, store that decision rather than a derived projection. Async resources need explicit pending, success, and error states.
 
-## Common misconception
+## A common misunderstanding
 
 “Avoid derived state” does not mean “never cache.” It means cache only with an explicit invalidation and consistency model.
 
-## Why this matters in production
+## What this changes in an application
 
 This principle reduces effect chains, stale UI, race conditions, and unnecessary state transitions.
 
-## Interviewer follow-ups
+## Questions worth exploring next
 
 - When is a reducer useful?
 - How would you model an async resource state without impossible combinations?
 
-## Further reading
+## References and next steps
 
 - [You might not need an Effect](https://react.dev/learn/you-might-not-need-an-effect) — primary or authoritative documentation for the underlying behavior.
 - [MDN Web Docs](https://developer.mozilla.org/) — use the relevant API reference for adjacent browser details.

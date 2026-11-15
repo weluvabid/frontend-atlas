@@ -11,39 +11,43 @@ related: ['static-content-platform-architecture', 'javascript-bundle-budgeting']
 featured: true
 ---
 
-## Short answer
+A server can send HTML that is already visible before the browser has downloaded the JavaScript for the page. Hydration connects that existing HTML to client-side code so it can respond to interactions. An islands architecture takes a more selective approach: only the parts that need browser-side behaviour receive it.
+
+A server can send HTML that is already visible before the browser has downloaded the JavaScript for the page. Hydration connects that existing HTML to client-side code so it can respond to interactions. An islands architecture takes a more selective approach: only the parts that need browser-side behaviour receive it.
+
+## The quick version
 
 Hydration attaches client-side behavior to server-rendered markup and reconciles it with the framework’s expected tree. Islands architectures hydrate only selected interactive regions, leaving static content as HTML.
 
-## Reason from first principles
+## Build the mental model
 
 Hydration requires server and client output to agree. Nondeterministic dates, random IDs, browser-only state, or locale differences can create mismatches. Islands reduce shipped JavaScript but introduce boundaries for shared state and interaction.
 
-## A concrete example
+## See it in code
 
 ```astro
 <StaticArticle />
 <SearchPanel client:idle />
 ```
 
-## Boundary cases to reason through
+## Where it gets tricky
 
 Hydration mismatches are frequently caused by values that differ between server and browser: random numbers, current time, locale formatting, viewport reads, and browser storage. Keep browser-only reads behind client lifecycle boundaries. Islands also need explicit data boundaries; two independently hydrated components do not automatically share one in-memory state store.
 
-## Common misconception
+## A common misunderstanding
 
 SSR does not mean zero JavaScript, and hydration is not the same as rendering HTML.
 
-## Why this matters in production
+## What this changes in an application
 
 Choose hydration strategies per interaction urgency. Measure transferred JavaScript, hydration cost, and time to usable controls.
 
-## Interviewer follow-ups
+## Questions worth exploring next
 
 - What causes a hydration mismatch?
 - When would `client:visible` be inappropriate?
 
-## Further reading
+## References and next steps
 
 - [Astro islands architecture](https://docs.astro.build/en/concepts/islands/) — primary or authoritative documentation for the underlying behavior.
 - [MDN Web Docs](https://developer.mozilla.org/) — use the relevant API reference for adjacent browser details.

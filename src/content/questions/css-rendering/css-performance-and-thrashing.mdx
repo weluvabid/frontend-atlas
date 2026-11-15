@@ -12,11 +12,15 @@ featured: false
 searchTerms: ['forced reflow', 'layout thrashing', 'layout invalidation']
 ---
 
-## Short answer
+A page can have very little JavaScript and still feel sluggish. Reading layout information after changing styles can force the browser to calculate layout immediately, and repeating that pattern creates layout thrashing. The fix starts with understanding which DOM operations trigger work and measuring the interaction that feels slow.
+
+A page can have very little JavaScript and still feel sluggish. Reading layout information after changing styles can force the browser to calculate layout immediately, and repeating that pattern creates layout thrashing. The fix starts with understanding which DOM operations trigger work and measuring the interaction that feels slow.
+
+## The quick version
 
 Thrashing happens when the browser is forced to recalculate style or layout repeatedly inside a short window — often because JavaScript alternates writes and reads of geometry, or because style changes invalidate large parts of the tree more often than necessary. The fix is usually batching reads and writes, reducing the scope of invalidation, and preferring properties that the compositor can update without layout or paint.
 
-## Reason from first principles
+## Build the mental model
 
 The rendering pipeline does not recompute everything from scratch on every change. It tracks what is dirty. A style change may invalidate style, layout, paint, or only compositing. A geometry read (`offsetWidth`, `getBoundingClientRect`, `clientHeight`, etc.) requires up-to-date layout. If you write styles and then read geometry, the browser must flush layout immediately so it can give you the correct number. Do that in a loop and you get forced synchronous layout on every iteration — classic thrashing.
 
@@ -29,7 +33,7 @@ So the practical questions are:
 3. Am I asking the browser to paint large regions every frame?
 4. Am I creating so many layers that compositing itself becomes the bottleneck?
 
-## A concrete example
+## See it in code
 
 **Write → read → write → read in a loop**
 
@@ -94,7 +98,7 @@ Promoting an element to its own layer can make transform/opacity animations chea
 
 Guessing “this CSS property is slow” without a profile wastes time. The same property can be cheap or expensive depending on the size of the invalidated tree and what else is happening in the frame.
 
-## Boundary cases
+## Where it gets tricky
 
 **Tables and complex flex/grid**  
 Some layout modes are more expensive to recalculate than simple block flow. Large tables and deeply nested flex/grid with percentage sizes can amplify the cost of a single invalidation.
@@ -108,7 +112,7 @@ Different pipelines. Invalidating a large SVG DOM can be expensive; canvas moves
 **`getBoundingClientRect` in a hot path**  
 Even a single read can force layout if style writes are pending. In animation loops, cache values or structure the code so reads happen before writes in the frame.
 
-## Common misconceptions
+## A common misunderstandings
 
 - “GPU accelerated means fast.”  
   Only if you are on the compositor path and not invalidating layout/paint every frame. Too many layers can make things slower.
@@ -119,18 +123,18 @@ Even a single read can force layout if style writes are pending. In animation lo
 - “Thrashing is only a JavaScript problem.”  
   CSS that invalidates large regions on every hover or every animation frame can produce the same kind of cost without a single line of JS.
 
-## Why this matters in production
+## What this changes in an application
 
 Interaction jank that is not caused by long JavaScript tasks is often style or layout thrashing. Core Web Vitals (especially INP) and perceived smoothness depend on keeping the main thread free enough to respond and the rendering pipeline free enough to produce frames. The teams that fix this well measure first, batch reads and writes, and treat layer promotion as a deliberate trade-off rather than a default.
 
-## Interviewer follow-ups
+## Questions worth exploring next
 
 - What is forced synchronous layout, and how do you detect it?
 - When would you use CSS containment?
 - Why can `will-change` hurt performance?
 - How would you structure a scroll handler that needs to measure and update the DOM?
 
-## Further reading
+## References and next steps
 
 - [What forces layout / reflow](https://gist.github.com/paulirish/5d52fb081b3570c81e3a) — the classic list of triggers.
 - [Rendering performance](https://web.dev/articles/rendering-performance) — practical overview of the pipeline.

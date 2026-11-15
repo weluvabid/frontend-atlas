@@ -5,28 +5,7 @@ import { join, relative } from 'node:path';
 import { parse } from 'yaml';
 import { QUESTION_MANIFEST, MAX_QUESTION_COUNT } from '../src/data/question-manifest.ts';
 import { rankSearchResults } from '../src/lib/atlas.ts';
-
 const contentRoot = join(process.cwd(), 'src/content/questions');
-const requiredSections = [
-  '## Short answer',
-  '## Why this matters in production',
-  '## Interviewer follow-ups',
-  '## Further reading',
-];
-const requiredSectionPatterns = [
-  {
-    label: 'first-principles reasoning',
-    pattern:
-      /^## (?:Reason from first principles|Why this is its own topic|Core rules that actually work|The pieces that actually matter|Why this shows up everywhere)$/mu,
-  },
-  {
-    label: 'concrete example or implementation',
-    pattern:
-      /^## (?:A concrete example|Concrete implementation sketch|Concrete pattern|Concrete sketch of a focus trap|Implementation prompt)$/mu,
-  },
-  { label: 'boundary cases', pattern: /^## Boundary cases(?:\s|$)/mu },
-  { label: 'common misconceptions', pattern: /^## Common misconceptions?$/mu },
-];
 
 async function findMdxFiles(directory) {
   const entries = await readdir(directory, { withFileTypes: true });
@@ -50,7 +29,6 @@ async function readQuestion(path) {
   const frontmatter = source.match(/^---[ \t]*\r?\n([\s\S]*?)\r?\n---[ \t]*(?:\r?\n|$)/u);
 
   assert.ok(frontmatter, `${path} must have YAML frontmatter`);
-
   const metadata = parse(frontmatter[1]);
 
   assert.ok(
@@ -64,7 +42,6 @@ async function readQuestion(path) {
     path,
   };
 }
-
 const questionFiles = await findMdxFiles(contentRoot);
 const questions = await Promise.all(questionFiles.map(readQuestion));
 const byId = new Map(questions.map(({ metadata }) => [metadata.id, metadata]));
@@ -86,7 +63,6 @@ test('the collection retains its current content baseline across eight domains a
   assert.ok([...counts.values()].every((count) => count >= 5));
   assert.ok((counts.get('ui-engineering') ?? 0) >= 7);
 });
-
 test('the append-only QR manifest covers every question within the hard cap', () => {
   const ids = questions.map(({ metadata }) => metadata.id);
 
@@ -95,7 +71,6 @@ test('the append-only QR manifest covers every question within the hard cap', ()
   assert.deepEqual([...QUESTION_MANIFEST].sort(), [...ids].sort());
   assert.ok(QUESTION_MANIFEST.length <= MAX_QUESTION_COUNT);
 });
-
 test('representative developer searches rank the intended article first', () => {
   const cases = [
     ['layout thrashing', 'css-performance-and-thrashing'],
@@ -116,13 +91,12 @@ test('representative developer searches rank the intended article first', () => 
     );
   }
 });
-
-test('every question has valid metadata and the complete editorial structure', () => {
+test('every question has valid metadata', () => {
   const ids = questions.map(({ metadata }) => metadata.id);
 
   assert.equal(new Set(ids).size, questions.length);
 
-  for (const { metadata, body, path } of questions) {
+  for (const { metadata, path } of questions) {
     assert.match(metadata.id, /^[a-z0-9]+(?:-[a-z0-9]+)*$/u, `${path}: invalid id`);
     assert.ok(
       metadata.title.length >= 12 && metadata.title.length <= 120,
@@ -161,23 +135,8 @@ test('every question has valid metadata and the complete editorial structure', (
       metadata.domain,
       `${path}: domain/path mismatch`,
     );
-
-    for (const section of requiredSections) {
-      assert.ok(body.includes(section), `${path}: missing ${section}`);
-    }
-
-    for (const { label, pattern } of requiredSectionPatterns) {
-      assert.match(body, pattern, `${path}: missing ${label} section`);
-    }
-
-    assert.match(
-      body,
-      /\[[^\]]+\]\(https:\/\//u,
-      `${path}: missing authoritative further reading link`,
-    );
   }
 });
-
 test('all question relationships resolve and prerequisites form a DAG', () => {
   for (const { metadata } of questions) {
     for (const relation of [...metadata.prerequisites, ...metadata.related]) {

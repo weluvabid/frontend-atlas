@@ -11,15 +11,19 @@ related: []
 featured: false
 ---
 
-## Short answer
+Flexbox and Grid both arrange elements, but they solve different layout problems. Flexbox is strongest when items flow along one axis; Grid gives you control over rows and columns together. Choosing between them becomes easier when you describe the layout you want before reaching for CSS properties.
+
+Flexbox and Grid both arrange elements, but they solve different layout problems. Flexbox is strongest when items flow along one axis; Grid gives you control over rows and columns together. Choosing between them becomes easier when you describe the layout you want before reaching for CSS properties.
+
+## The quick version
 
 Flexbox is optimized for distributing items along one primary axis; Grid models rows and columns together. Both can solve many layouts, so choose the model that expresses the constraints most directly.
 
-## Reason from first principles
+## Build the mental model
 
 Flex items have automatic minimum sizing that can prevent shrinking; `min-width: 0` is often necessary for overflowing content. Grid track sizing includes intrinsic contributions, and `minmax(0, 1fr)` can avoid min-content constraints.
 
-## A concrete example
+## See it in code
 
 ```css
 .layout {
@@ -34,24 +38,24 @@ Flex items have automatic minimum sizing that can prevent shrinking; `min-width:
 }
 ```
 
-## Boundary cases to reason through
+## Where it gets tricky
 
 Intrinsic sizing is often the hidden cause of overflow. A flex item defaults to an automatic minimum size based on its content; setting `min-width: 0` allows it to shrink. Grid tracks can have similar min-content constraints, which is why `minmax(0, 1fr)` is useful. Test long unbreakable strings, large controls, and translated labels.
 
-## Common misconception
+## A common misunderstanding
 
 Grid is not only for page-level layouts, and Flexbox is not only for tiny components.
 
-## Why this matters in production
+## What this changes in an application
 
 Model layout from content constraints, then test long text, localization, zoom, and narrow viewports.
 
-## Interviewer follow-ups
+## Questions worth exploring next
 
 - Why does a flex child overflow?
 - What does `minmax(0, 1fr)` change?
 
-## Further reading
+## References and next steps
 
 - [CSS layout](https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/CSS_layout) — primary or authoritative documentation for the underlying behavior.
 - [MDN Web Docs](https://developer.mozilla.org/) — use the relevant API reference for adjacent browser details.

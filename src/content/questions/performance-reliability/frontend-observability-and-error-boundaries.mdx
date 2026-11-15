@@ -11,15 +11,19 @@ related: []
 featured: false
 ---
 
-## Short answer
+A bug report that says 'the page broke' gives an engineer very little to work with. Observability connects what happened in the browser to enough context to reproduce and diagnose it: errors, traces, timings and useful user-flow details. Error boundaries help contain some failures in the UI, while telemetry helps explain them after they happen.
+
+A bug report that says 'the page broke' gives an engineer very little to work with. Observability connects what happened in the browser to enough context to reproduce and diagnose it: errors, traces, timings and useful user-flow details. Error boundaries help contain some failures in the UI, while telemetry helps explain them after they happen.
+
+## The quick version
 
 Useful observability connects an error or degraded interaction to route, release, browser, network, and relevant application state—without collecting unnecessary personal data.
 
-## Reason from first principles
+## Build the mental model
 
 Error boundaries catch certain rendering failures, not every async callback or event handler. Promise rejections and network failures need separate instrumentation. Sampling, source maps, deduplication, and release tagging determine whether telemetry is actionable.
 
-## A concrete example
+## See it in code
 
 ```js
 window.addEventListener('unhandledrejection', (event) => {
@@ -27,24 +31,24 @@ window.addEventListener('unhandledrejection', (event) => {
 });
 ```
 
-## Boundary cases to reason through
+## Where it gets tricky
 
 Attach release identifiers and source maps so minified stack traces can be mapped to source. Redact credentials, personal data, and request bodies by default. Instrumentation itself must be isolated: a telemetry endpoint outage must not create another user-facing failure. Track expected aborts and validation rejections separately from unexpected defects.
 
-## Common misconception
+## A common misunderstanding
 
 A global error listener is not a substitute for local recovery or explicit error states.
 
-## Why this matters in production
+## What this changes in an application
 
 Define what is actionable, redact secrets, avoid high-cardinality payloads, and test that telemetry failures do not break the product.
 
-## Interviewer follow-ups
+## Questions worth exploring next
 
 - How do you distinguish expected aborts from defects?
 - What should never be sent to telemetry?
 
-## Further reading
+## References and next steps
 
 - [Error boundaries](https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary) — primary or authoritative documentation for the underlying behavior.
 - [MDN Web Docs](https://developer.mozilla.org/) — use the relevant API reference for adjacent browser details.

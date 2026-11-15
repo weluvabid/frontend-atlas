@@ -12,38 +12,42 @@ featured: false
 searchTerms: ['data fetching', 'server state', 'client cache', 'query cache']
 ---
 
-## Short answer
+A component can call `fetch` directly and display the result. That is fine until several screens need the same data, requests race, caching matters or errors need consistent handling. Data-fetching architecture is about deciding where requests live and how loading, freshness, cancellation and failure move through the application.
+
+A component can call `fetch` directly and display the result. That is fine until several screens need the same data, requests race, caching matters or errors need consistent handling. Data-fetching architecture is about deciding where requests live and how loading, freshness, cancellation and failure move through the application.
+
+## The quick version
 
 Treat server state as a cache of remote authority, not as ordinary local UI state. Centralize request identity, caching, deduplication, invalidation, cancellation, and mutation reconciliation in a mature data-fetching library.
 
-## Reason from first principles
+## Build the mental model
 
 A cache key must include every input that changes the response, including tenant/user scope where relevant. Invalidation should be precise enough to avoid stale reads but broad enough to preserve correctness. Avoid writing a custom query cache unless the product has a compelling reason.
 
-## A concrete example
+## See it in code
 
 ```ts
 const queryKey = ['projects', { organizationId, status, page }];
 ```
 
-## Boundary cases to reason through
+## Where it gets tricky
 
 Cache keys must include all variables that affect the server response and must be scoped to the active identity or tenant. On logout or account switch, remove or isolate private cached data. Decide whether mutations update a cache entry, invalidate related queries, or require a full refetch; these are consistency decisions, not merely library configuration.
 
-## Common misconception
+## A common misunderstanding
 
 A successful HTTP response does not mean every component should independently own a copy forever.
 
-## Why this matters in production
+## What this changes in an application
 
 Define stale-time and retry policy, auth transitions, optimistic update behavior, and cache isolation between identities.
 
-## Interviewer follow-ups
+## Questions worth exploring next
 
 - How do you prevent cross-user cache leakage?
 - When should a mutation invalidate versus update a query?
 
-## Further reading
+## References and next steps
 
 - [TanStack Query overview](https://tanstack.com/query/latest/docs/framework/react/overview) — primary or authoritative documentation for the underlying behavior.
 - [MDN Web Docs](https://developer.mozilla.org/) — use the relevant API reference for adjacent browser details.

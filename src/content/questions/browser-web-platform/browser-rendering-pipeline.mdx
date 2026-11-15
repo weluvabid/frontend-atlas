@@ -12,11 +12,15 @@ featured: true
 searchTerms: ['style recalculation', 'layout paint composite', 'critical rendering path']
 ---
 
-## Short answer
+Changing a style in JavaScript does not put pixels on the screen immediately. The browser has several stages to get through: it works out which styles apply, calculates layout, paints content and composites layers into a frame. Knowing which stage your code triggers makes performance problems much easier to diagnose.
+
+Changing a style in JavaScript does not put pixels on the screen immediately. The browser has several stages to get through: it works out which styles apply, calculates layout, paints content and composites layers into a frame. Knowing which stage your code triggers makes performance problems much easier to diagnose.
+
+## The quick version
 
 A change to the DOM or to styles can invalidate one or more stages of the rendering pipeline. The browser only re-runs the stages that are actually dirty. Geometry changes usually force layout and paint. Some property changes can skip layout. A few properties (primarily `transform` and `opacity` on their own layer) can often be updated by the compositor without repainting. “GPU accelerated” is not free and is not a guarantee of better performance.
 
-## Reason from first principles
+## Build the mental model
 
 The pipeline is roughly:
 
@@ -32,7 +36,7 @@ Layer promotion is a trade-off. It can make animations cheap, but each layer cos
 
 Forced synchronous layout is the classic footgun. If you write styles (or change the DOM) and then immediately read geometry (`offsetWidth`, `getBoundingClientRect`, etc.), the browser has to flush layout right then so it can give you a correct answer. Doing this in a loop produces layout thrashing.
 
-## A concrete example
+## See it in code
 
 ```css
 /* Usually compositor-only once the layer exists */
@@ -71,7 +75,7 @@ items.forEach((item) => {
 
 Even the improved version still causes layout; it just does it once instead of N times.
 
-## Boundary cases worth reasoning about
+## Where it gets tricky
 
 **Reading geometry after a write forces synchronous layout.**  
 This is the most common source of “why is this interaction janky?” bugs. The browser has no choice if you ask for current measurements.
@@ -91,7 +95,7 @@ Browsers work in subpixels. Rounding differences, especially with transforms and
 **The pipeline is implementation-defined in the details.**  
 Chrome, Firefox, and Safari do not have identical heuristics for layer promotion or paint invalidation. Measure on the browsers and devices that matter to your users.
 
-## Common misconceptions
+## A common misunderstandings
 
 - “Anything with `transform` is GPU accelerated and therefore fast.”  
   Only if the element is on its own layer _and_ the animation does not force paint or layout. A transform that is recalculated every frame because of layout changes is still expensive.
@@ -102,7 +106,7 @@ Chrome, Firefox, and Safari do not have identical heuristics for layer promotion
 - “Painting is the expensive part.”  
   Layout is often more expensive than paint for complex pages. Always check the Performance panel instead of guessing.
 
-## Why this matters in production
+## What this changes in an application
 
 Most interaction jank that is not caused by long JavaScript tasks comes from layout thrashing or from too much work in the rendering pipeline. The fixes are usually:
 
@@ -113,14 +117,14 @@ Most interaction jank that is not caused by long JavaScript tasks comes from lay
 
 Core Web Vitals (especially INP and CLS) are downstream of these pipeline costs. If you understand when you force layout or create extra layers, you have a much clearer path to fixing the metrics that actually affect users.
 
-## Interviewer follow-ups
+## Questions worth exploring next
 
 - What causes forced synchronous layout, and how do you avoid it?
 - Why can `will-change: transform` sometimes make a page slower?
 - How does a stacking context affect painting and compositing?
 - When would you reach for CSS containment?
 
-## Further reading
+## References and next steps
 
 - [Rendering performance](https://web.dev/articles/rendering-performance) — still the best practical overview.
 - [What forces layout / reflow](https://gist.github.com/paulirish/5d52fb081b3570c81e3a) — the classic list of properties and APIs that trigger layout.

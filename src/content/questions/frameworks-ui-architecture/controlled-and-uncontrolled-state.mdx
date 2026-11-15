@@ -11,39 +11,43 @@ related: []
 featured: false
 ---
 
-## Short answer
+When someone types into an input, the browser already knows its current value. A framework can either keep that value in application state and pass it back to the input, or let the DOM own it until the application needs to read it. Those are the controlled and uncontrolled approaches, and each has useful trade-offs.
+
+When someone types into an input, the browser already knows its current value. A framework can either keep that value in application state and pass it back to the input, or let the DOM own it until the application needs to read it. Those are the controlled and uncontrolled approaches, and each has useful trade-offs.
+
+## The quick version
 
 A controlled component receives its value and emits change intent; its parent is the source of truth. An uncontrolled component owns its current state and may expose an initial value or imperative handle.
 
-## Reason from first principles
+## Build the mental model
 
 Controlled APIs make state coordination and validation explicit but add wiring. Uncontrolled APIs reduce parent involvement and can improve integration with native forms. Mixing both without a clear precedence rule creates hard-to-debug state divergence.
 
-## A concrete example
+## See it in code
 
 ```svelte
 <!-- Conceptual contract: value is supplied; change is reported upward. -->
 <CustomInput value={name} onChange={setName} />
 ```
 
-## Boundary cases to reason through
+## Where it gets tricky
 
 Controlled text inputs must preserve the exact value the browser reports during composition; rewriting it on every keystroke can break IME input. An uncontrolled field’s `defaultValue` is an initial value, not a live synchronization channel. Define reset behavior explicitly, especially when a form is reused for a different record.
 
-## Common misconception
+## A common misunderstanding
 
 Controlled does not mean “the parent must rerender on every keystroke” in every architecture, and uncontrolled does not mean untestable.
 
-## Why this matters in production
+## What this changes in an application
 
 Document ownership, default-value behavior, reset semantics, and whether external changes are reflected after mount.
 
-## Interviewer follow-ups
+## Questions worth exploring next
 
 - How should a controlled input handle IME composition?
 - What happens when `defaultValue` changes?
 
-## Further reading
+## References and next steps
 
 - [Sharing state between components](https://react.dev/learn/sharing-state-between-components) — primary or authoritative documentation for the underlying behavior.
 - [MDN Web Docs](https://developer.mozilla.org/) — use the relevant API reference for adjacent browser details.

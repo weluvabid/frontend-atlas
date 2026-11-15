@@ -11,15 +11,19 @@ related: []
 featured: false
 ---
 
-## Short answer
+An absolutely positioned element does not automatically measure its offsets from the browser window. It uses a containing block, and the element that establishes that block depends on its positioning and layout context. Once you know which ancestor is in charge, many mysterious CSS offsets stop being mysterious.
+
+An absolutely positioned element does not automatically measure its offsets from the browser window. It uses a containing block, and the element that establishes that block depends on its positioning and layout context. Once you know which ancestor is in charge, many mysterious CSS offsets stop being mysterious.
+
+## The quick version
 
 The containing block depends on the positioning scheme and ancestor properties. Absolute elements are commonly positioned relative to the padding box of the nearest qualifying positioned ancestor; fixed elements are usually viewport-relative unless an ancestor establishes a fixed-position containing block.
 
-## Reason from first principles
+## Build the mental model
 
 Transforms, filters, perspective, and some containment properties can establish containing blocks for positioned descendants. This explains why a fixed tooltip may unexpectedly move with a transformed parent.
 
-## A concrete example
+## See it in code
 
 ```css
 .dialog-shell {
@@ -31,24 +35,24 @@ Transforms, filters, perspective, and some containment properties can establish 
 }
 ```
 
-## Boundary cases to reason through
+## Where it gets tricky
 
 A transformed ancestor can become the containing block for a fixed descendant, which is a frequent source of broken viewport overlays. Absolute positioning also depends on the nearest ancestor that establishes the relevant containing block, not necessarily the visually nearest wrapper. Diagnose the containing block and clipping ancestor separately; they are different questions.
 
-## Common misconception
+## A common misunderstanding
 
 `position: fixed` is not unconditionally anchored to the viewport in every containing-block context.
 
-## Why this matters in production
+## What this changes in an application
 
 Portals can escape clipping and containing-block constraints, but introduce focus, stacking, and ownership concerns.
 
-## Interviewer follow-ups
+## Questions worth exploring next
 
 - Why does `overflow: hidden` clip an overlay?
 - What can establish a fixed-position containing block?
 
-## Further reading
+## References and next steps
 
 - [Layout and the containing block](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_display/Containing_block) — primary or authoritative documentation for the underlying behavior.
 - [MDN Web Docs](https://developer.mozilla.org/) — use the relevant API reference for adjacent browser details.

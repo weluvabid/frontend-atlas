@@ -11,15 +11,19 @@ related: ['designing-a-search-experience', 'hydration-and-islands']
 featured: false
 ---
 
-## Short answer
+A content-heavy site does not necessarily need a server rendering every page for every visitor. If most pages change only when an editor publishes content, they can often be generated ahead of time and served as static files. The interesting architectural work then moves to content modelling, build-time validation, search and deployment.
+
+A content-heavy site does not necessarily need a server rendering every page for every visitor. If most pages change only when an editor publishes content, they can often be generated ahead of time and served as static files. The interesting architectural work then moves to content modelling, build-time validation, search and deployment.
+
+## The quick version
 
 Treat content as structured source data. Generate routes, navigation, search documents, and relationship links from the same validated model. Use build-time checks to catch broken IDs and references before deployment.
 
-## Reason from first principles
+## Build the mental model
 
 A static site can still have dynamic client-side interactions without a backend. The hard parts are content governance, stable identifiers, URL evolution, search indexing, and build reliability—not server infrastructure.
 
-## A concrete example
+## See it in code
 
 ```ts
 interface Entry {
@@ -31,24 +35,24 @@ interface Entry {
 }
 ```
 
-## Boundary cases to reason through
+## Where it gets tricky
 
 A stable ID should survive title edits and route changes because progress and relationships depend on it. CI should validate duplicate IDs, missing references, cycles, malformed metadata, and internal links. Slugs are presentation and routing; IDs are identity. Keep redirects when a published slug changes so search engines and external references do not break.
 
-## Common misconception
+## A common misunderstanding
 
 Static does not mean unstructured, and Markdown files alone do not guarantee valid content.
 
-## Why this matters in production
+## What this changes in an application
 
 Use stable IDs, schema validation, link checks, editorial templates, and PR-based review. Keep browser JavaScript proportional to actual interaction.
 
-## Interviewer follow-ups
+## Questions worth exploring next
 
 - How would you migrate a slug without breaking links?
 - What should CI validate?
 
-## Further reading
+## References and next steps
 
 - [Astro content collections](https://docs.astro.build/en/guides/content-collections/) — primary or authoritative documentation for the underlying behavior.
 - [MDN Web Docs](https://developer.mozilla.org/) — use the relevant API reference for adjacent browser details.

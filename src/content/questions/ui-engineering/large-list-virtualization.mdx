@@ -12,15 +12,19 @@ featured: false
 searchTerms: ['windowing', 'virtual scrolling', 'infinite list performance']
 ---
 
-## Short answer
+Rendering thousands of rows can make a page slow even when each row is simple. The browser still has to create, style and lay out every DOM node. Virtualization keeps only the visible rows, plus a small buffer, in the DOM while preserving the illusion of a much larger list.
+
+Rendering thousands of rows can make a page slow even when each row is simple. The browser still has to create, style and lay out every DOM node. Virtualization keeps only the visible rows, plus a small buffer, in the DOM while preserving the illusion of a much larger list.
+
+## The quick version
 
 Virtualization renders only the visible window plus overscan. It is valuable when DOM size and rendering work become a measured bottleneck; it is unnecessary overhead for modest lists.
 
-## Reason from first principles
+## Build the mental model
 
-A robust virtualizer must preserve stable item identity, calculate offsets, handle resize and dynamic heights, maintain keyboard navigation, and avoid scroll jumps. Overscan trades memory/work for smoother scrolling.
+A reliable virtualizer must preserve stable item identity, calculate offsets, handle resize and dynamic heights, maintain keyboard navigation, and avoid scroll jumps. Overscan trades memory/work for smoother scrolling.
 
-## A concrete example
+## See it in code
 
 ```ts
 const start = Math.max(0, firstVisible - overscan);
@@ -28,24 +32,24 @@ const end = Math.min(items.length, lastVisible + overscan);
 const visible = items.slice(start, end);
 ```
 
-## Boundary cases to reason through
+## Where it gets tricky
 
 Variable-height rows require measurement and offset correction; assuming a constant row height creates scroll drift. Preserve a stable key for each item so recycled DOM nodes do not retain the wrong focus or state. A virtualized list also needs a meaningful accessibility model and predictable keyboard navigation; rendering fewer nodes is not worth making the data inaccessible.
 
-## Common misconception
+## A common misunderstanding
 
 Virtualization does not make data fetching, filtering, or sorting free.
 
-## Why this matters in production
+## What this changes in an application
 
 Prefer pagination or server-side filtering when users do not need a continuous huge list. Test screen readers and focus retention.
 
-## Interviewer follow-ups
+## Questions worth exploring next
 
 - How do variable-height rows change the data structure?
 - What is the purpose of overscan?
 
-## Further reading
+## References and next steps
 
 - [TanStack Virtual](https://tanstack.com/virtual/latest) — primary or authoritative documentation for the underlying behavior.
 - [MDN Web Docs](https://developer.mozilla.org/) — use the relevant API reference for adjacent browser details.

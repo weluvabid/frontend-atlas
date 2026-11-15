@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, tick } from 'svelte';
+  import { onMount } from 'svelte';
   import { Button, DropdownMenu, Tooltip } from '@weluvabid/iris/components';
   import { Check, ChevronDown, SlidersHorizontal } from '@weluvabid/iris/lucide';
   import { createProgressSnapshot, type ProgressSnapshot } from '@lib/progress/model';
@@ -36,11 +36,6 @@
   let menuOpen = $state(false);
   let qrOpen = $state(false);
   let qrMode = $state<'overview' | 'export' | 'import'>('overview');
-  let navigationInput = $state<HTMLInputElement>();
-  let navigationMode = $state(false);
-  let navigationSequence = $state('');
-  let navigationMessage = $state('');
-  let navigationMessageTimer: number | undefined;
 
   const knownIdSet = $derived(new Set(knownIds));
 
@@ -62,15 +57,18 @@
       return 0;
     }
 
+    const scrollContainer = document.body;
+    const scrollTop = scrollContainer.scrollTop;
+    const viewportHeight = scrollContainer.clientHeight;
     const bounds = article.getBoundingClientRect();
-    const articleTop = window.scrollY + bounds.top;
-    const scrollable = Math.max(0, article.scrollHeight - window.innerHeight);
+    const articleTop = scrollTop + bounds.top;
+    const scrollable = Math.max(0, article.scrollHeight - viewportHeight);
 
     if (scrollable === 0) {
-      return window.scrollY + window.innerHeight >= articleTop + article.scrollHeight ? 1 : 0;
+      return scrollTop + viewportHeight >= articleTop + article.scrollHeight ? 1 : 0;
     }
 
-    return Math.min(1, Math.max(0, (window.scrollY - articleTop) / scrollable));
+    return Math.min(1, Math.max(0, (scrollTop - articleTop) / scrollable));
   }
 
   function persistReadingProgress(force = false): void {
@@ -241,28 +239,6 @@
       applySnapshot(result.snapshot);
     }
 
-    function handleCardNavigationPrompt(event: Event): void {
-      if (!(event instanceof CustomEvent)) {
-        return;
-      }
-
-      const detail = event.detail as { active?: boolean; value?: string; message?: string };
-
-      navigationMode = detail.active === true;
-      navigationSequence = typeof detail.value === 'string' ? detail.value : '';
-      navigationMessage = typeof detail.message === 'string' ? detail.message : '';
-
-      if (navigationMessageTimer !== undefined) {
-        window.clearTimeout(navigationMessageTimer);
-      }
-
-      if (navigationMode) {
-        void tick().then(() => navigationInput?.focus({ preventScroll: true }));
-      } else if (navigationMessage) {
-        navigationMessageTimer = window.setTimeout(() => (navigationMessage = ''), 3000);
-      }
-    }
-
     const unsubscribe = subscribeToProgress(handleProgressResult);
 
     function handlePageLoad(): void {
@@ -303,18 +279,17 @@
       handleReadingScroll();
     }
 
-    window.addEventListener('scroll', handleReadingScroll, { passive: true });
+    document.body.addEventListener('scroll', handleReadingScroll, { passive: true });
     window.addEventListener('resize', handleReadingScroll, { passive: true });
     window.addEventListener('pagehide', flushReadingProgress);
     document.addEventListener('visibilitychange', handleVisibilityChange);
     document.addEventListener('astro:before-preparation', flushReadingProgress);
     document.addEventListener('astro:page-load', handlePageLoad);
-    window.addEventListener('atlas:card-navigation-prompt', handleCardNavigationPrompt);
 
     return () => {
       unsubscribe();
 
-      window.removeEventListener('scroll', handleReadingScroll);
+      document.body.removeEventListener('scroll', handleReadingScroll);
       window.removeEventListener('resize', handleReadingScroll);
       window.removeEventListener('pagehide', flushReadingProgress);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
@@ -331,12 +306,6 @@
         }
 
         article = null;
-      }
-
-      window.removeEventListener('atlas:card-navigation-prompt', handleCardNavigationPrompt);
-
-      if (navigationMessageTimer !== undefined) {
-        window.clearTimeout(navigationMessageTimer);
       }
     };
   });
@@ -455,33 +424,6 @@
       </DropdownMenu.Content>
     </DropdownMenu.Root>
   </div>
-
-  {#if navigationMode || navigationMessage}
-    <div
-      class="pointer-events-auto absolute left-1/2 top-full z-50 mt-1 -translate-x-1/2"
-      aria-live="polite"
-      aria-atomic="true"
-    >
-      {#if navigationMode}
-        <input
-          bind:this={navigationInput}
-          class="h-8 w-36 rounded-md border border-border bg-popover px-2 py-1 text-center text-base text-popover-foreground shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          type="text"
-          value={navigationSequence}
-          readonly
-          aria-label="Card number. Type digits and press Enter to navigate, or Escape to cancel."
-          placeholder="Go to card…"
-        />
-      {:else}
-        <p
-          class="rounded-md border border-border bg-popover px-2 py-1 text-xs text-popover-foreground shadow-sm"
-          role="status"
-        >
-          {navigationMessage}
-        </p>
-      {/if}
-    </div>
-  {/if}
 
   <ProgressQrTransfer
     bind:open={qrOpen}

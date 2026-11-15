@@ -11,15 +11,19 @@ related: []
 featured: false
 ---
 
-## Short answer
+A multi-step flow looks like a sequence of screens, but the user's progress may outlive a component, a browser tab or even a device. Payment and onboarding flows also have consequences on the server that cannot be undone by moving the UI back one step. The design needs to distinguish temporary screen state from the authoritative workflow state.
+
+A multi-step flow looks like a sequence of screens, but the user's progress may outlive a component, a browser tab or even a device. Payment and onboarding flows also have consequences on the server that cannot be undone by moving the UI back one step. The design needs to distinguish temporary screen state from the authoritative workflow state.
+
+## The quick version
 
 Represent the workflow as explicit steps and transitions, persist only what is safe and necessary, and let the server remain authoritative for committed business operations. Each transition needs validation and a recovery path.
 
-## Reason from first principles
+## Build the mental model
 
 A browser flow is not a distributed transaction. Payment authorization, inventory reservation, and account creation may succeed independently. Use server-side workflow orchestration, idempotency keys, and compensating actions for cross-service failures.
 
-## A concrete example
+## See it in code
 
 ```ts
 type Checkout =
@@ -29,24 +33,24 @@ type Checkout =
   | { step: 'complete'; orderId: string };
 ```
 
-## Boundary cases to reason through
+## Where it gets tricky
 
 Persist durable server-side workflow identifiers, not just a client-side step number. A browser refresh should reconstruct the current authoritative state from the server. If payment succeeds but the response is lost, the client needs a way to query the operation by idempotency key or order ID rather than blindly submitting payment again.
 
-## Common misconception
+## A common misunderstanding
 
 Persisting a client-side step does not prove the server completed that step.
 
-## Why this matters in production
+## What this changes in an application
 
 Plan refresh/re-entry, duplicate submissions, expired sessions, back navigation, payment retries, and partial failures.
 
-## Interviewer follow-ups
+## Questions worth exploring next
 
 - What belongs in the URL?
 - Which state must be server persisted
 
-## Further reading
+## References and next steps
 
 - [Saga pattern](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/saga.html) — primary or authoritative documentation for the underlying behavior.
 - [MDN Web Docs](https://developer.mozilla.org/) — use the relevant API reference for adjacent browser details.

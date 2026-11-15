@@ -12,11 +12,15 @@ featured: false
 searchTerms: ['websocket reconnect', 'live updates', 'server sent events', 'sse']
 ---
 
-## Short answer
+A WebSocket connection can deliver updates as they happen, but an open socket does not guarantee that the client has the latest state. Phones sleep, networks change and servers restart. A realtime interface needs to handle reconnecting, missed messages and reconciliation with the server, not only the happy path where the connection stays open.
+
+A WebSocket connection can deliver updates as they happen, but an open socket does not guarantee that the client has the latest state. Phones sleep, networks change and servers restart. A realtime interface needs to handle reconnecting, missed messages and reconciliation with the server, not only the happy path where the connection stays open.
+
+## The quick version
 
 Realtime UI is a state machine on top of an unreliable channel. Model connection status explicitly, reconnect with backoff, make messages idempotent or ordered where it matters, and decide what the user sees when the link drops mid-action. Optimistic updates help perceived speed; they need a clear rollback or reconciliation path when the server disagrees or the message never lands.
 
-## Reason from first principles
+## Build the mental model
 
 HTTP request/response is a single exchange. A WebSocket (or SSE, or a realtime SDK) is a long-lived session that can:
 
@@ -112,7 +116,7 @@ function onServerEvent(event: ServerEvent) {
 
 The server-issued sequence is scoped to a well-defined stream. A gap triggers reconciliation instead of guessing; event IDs make replay idempotent. Bound the deduplication set or persist a high-water mark in production, and define what happens when the snapshot races with newer events.
 
-## Boundary cases
+## Where it gets tricky
 
 **Mobile backgrounding**  
 OS may freeze or kill the socket. On foreground, treat as a reconnect and resync, not as “we were connected the whole time.”
@@ -126,7 +130,7 @@ You sent three messages; the socket died after one. On reconnect, only the missi
 **Security**  
 Sockets still need authz on every sensitive message. Do not trust the client’s claim of room membership or user id without server verification.
 
-## Common misconceptions
+## A common misunderstandings
 
 - “WebSocket means realtime is solved.”  
   The transport is only the pipe. State, reconnect, and UX are the product.
@@ -137,18 +141,18 @@ Sockets still need authz on every sensitive message. Do not trust the client’s
 - “Optimistic updates are always safe if we have a socket.”  
   They are only as safe as your ack/rollback and conflict rules.
 
-## Why this matters in production
+## What this changes in an application
 
 Realtime features feel magical when the link is stable and broken when it is not. The difference is almost never the library choice; it is whether connection state, resync, and pending work are first-class in the UI. Teams that model those states ship chat, collaboration, and live dashboards that degrade honestly. Teams that do not ship demos that fail the first time someone rides the subway.
 
-## Interviewer follow-ups
+## Questions worth exploring next
 
 - How do you resynchronise client state after a reconnect?
 - What should the UI show for a message that was sent but not acknowledged before disconnect?
 - How do you prevent a reconnect storm after a server deploy?
 - When would you choose SSE over WebSockets (or vice versa)?
 
-## Further reading
+## References and next steps
 
 - [MDN — WebSocket](https://developer.mozilla.org/en-US/docs/Web/API/WebSocket) — the platform API.
 - [MDN — Server-Sent Events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events) — simpler one-way alternative when it fits.

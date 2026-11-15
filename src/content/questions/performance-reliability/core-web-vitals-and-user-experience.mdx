@@ -12,15 +12,19 @@ featured: true
 searchTerms: ['cls', 'inp', 'lcp', 'web vitals']
 ---
 
-## Short answer
+A page can load quickly in a local benchmark and still feel slow to real visitors. Devices, network conditions and the way people interact with a page all change the experience. Core Web Vitals give teams a shared set of measurements for loading, responsiveness and visual stability, but the numbers are useful only when connected to what users actually experience.
+
+A page can load quickly in a local benchmark and still feel slow to real visitors. Devices, network conditions and the way people interact with a page all change the experience. Core Web Vitals give teams a shared set of measurements for loading, responsiveness and visual stability, but the numbers are useful only when connected to what users actually experience.
+
+## The quick version
 
 LCP approximates loading performance, INP measures interaction responsiveness, and CLS measures unexpected visual movement. Use field data to understand real users and lab tools to isolate causes.
 
-## Reason from first principles
+## Build the mental model
 
 A passing lab run does not guarantee healthy field metrics. Segment field data by device, route, and experience. Diagnose the underlying cause rather than optimizing a metric in isolation.
 
-## A concrete example
+## See it in code
 
 ```js
 // Use the web-vitals library to report field measurements.
@@ -30,24 +34,24 @@ onINP(sendMetric);
 onLCP(sendMetric);
 ```
 
-## Boundary cases to reason through
+## Where it gets tricky
 
 Use the 75th percentile (p75) of real-user measurements for the relevant device segment rather than relying on a single run or a global average. LCP can be delayed by server response, render-blocking resources, resource discovery, or client rendering. INP includes the full interaction lifecycle, so reduce long handlers and subsequent rendering work.
 
-## Common misconception
+## A common misunderstanding
 
 Core Web Vitals are not a complete definition of frontend quality.
 
-## Why this matters in production
+## What this changes in an application
 
 Set budgets and monitor distributions, not only averages. Correlate regressions with releases and user segments.
 
-## Interviewer follow-ups
+## Questions worth exploring next
 
 - Why is INP a better responsiveness metric than FID?
 - How can late-loading images cause CLS?
 
-## Further reading
+## References and next steps
 
 - [Web Vitals](https://web.dev/articles/vitals) — primary or authoritative documentation for the underlying behavior.
 - [MDN Web Docs](https://developer.mozilla.org/) — use the relevant API reference for adjacent browser details.

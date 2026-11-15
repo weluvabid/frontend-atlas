@@ -12,11 +12,15 @@ featured: false
 searchTerms: ['offline first', 'stale cache', 'background revalidation']
 ---
 
-## Short answer
+A page that has to wait for the network every time it opens can feel slow, especially on a phone or an unreliable connection. Sometimes showing a recent cached response immediately is better, as long as the interface makes room for newer data to arrive. Offline support takes this further: the application needs a clear idea of what still works when the network disappears.
+
+A page that has to wait for the network every time it opens can feel slow, especially on a phone or an unreliable connection. Sometimes showing a recent cached response immediately is better, as long as the interface makes room for newer data to arrive. Offline support takes this further: the application needs a clear idea of what still works when the network disappears.
+
+## The quick version
 
 Treat cached data as a real state of the UI, not an invisible optimisation. Stale-while-revalidate means: show what you have immediately, fetch a fresher copy in the background, and update when it arrives (or explain if it fails). Offline means: know when you have no network, prefer useful cached content over a blank error, and make the limits visible so users do not think a write succeeded when it only queued.
 
-## Reason from first principles
+## Build the mental model
 
 Users care about three things:
 
@@ -88,7 +92,7 @@ The important part is honesty. Users tolerate stale data more than they tolerate
 
 They compose. A service worker can return a cached API response while the page’s library still applies its own stale-while-revalidate policy on top. Keep the ownership clear so you do not fight yourself with double revalidation or contradictory freshness rules.
 
-## A concrete example
+## See it in code
 
 ```ts
 async function loadProfile(userId: string) {
@@ -112,7 +116,7 @@ async function loadProfile(userId: string) {
 
 This is an application-level sketch, not the browser's HTTP cache algorithm. Production code should also deduplicate concurrent requests, scope cache keys to the authenticated identity, and prevent an older request from overwriting newer data.
 
-## Boundary cases
+## Where it gets tricky
 
 **Mutations and cache invalidation.**  
 After a successful write, either update the relevant cache entries or mark them stale so the next read revalidates. Forgetting this is the classic “I saved but the list still shows the old data” bug.
@@ -129,10 +133,10 @@ Cache Storage and IndexedDB can be cleared by the browser under pressure. Do not
 **Security and personalised data.**  
 Caching authenticated responses requires care. Shared caches and shared devices can leak data if keys and headers are wrong. Prefer network-only or carefully keyed caches for sensitive content.
 
-## Common misconceptions
+## A common misunderstandings
 
 - “Offline support means the app works fully without network.”  
-  Usually it means a defined subset of read (and sometimes write) behaviour. Scope it deliberately.
+  Usually it means a defined subset of read (and sometimes write) behaviour. Keep that scope explicit.
 
 - “If I set `Cache-Control: max-age=…` I have SWR.”  
   You have HTTP caching. Stale-while-revalidate as a _UI_ pattern still needs the application to show cached data and revalidate in the background.
@@ -140,18 +144,18 @@ Caching authenticated responses requires care. Shared caches and shared devices 
 - “`navigator.onLine === true` means requests will succeed.”  
   It often only means the device has a network interface up. Captive portals, flaky mobile networks, and server outages still fail.
 
-## Why this matters in production
+## What this changes in an application
 
 Perceived performance and resilience are product features. Showing a cached view instantly and refreshing quietly often feels faster than a perfectly correct spinner. Failing honestly when offline prevents support tickets about “lost” data. The teams that get this right treat cache and network state as part of the UI model, not as an invisible layer under a single `isLoading` flag.
 
-## Interviewer follow-ups
+## Questions worth exploring next
 
 - How would you invalidate caches after a successful mutation?
 - What is the difference between HTTP caching and a service worker cache for API responses?
 - How do you show the user that data is stale vs currently refreshing?
 - What subset of writes would you support offline first, and why?
 
-## Further reading
+## References and next steps
 
 - [HTTP caching](https://developer.mozilla.org/en-US/docs/Web/HTTP/Caching) — the platform rules.
 - [Service Worker API](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API) — programmatic caching and offline interception.

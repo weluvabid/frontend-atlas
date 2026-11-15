@@ -1,6 +1,7 @@
 ---
 import AtlasFooter from '@components/site/AtlasFooter.svelte';
 import AtlasHeader from '@components/site/AtlasHeader.svelte';
+import KeyboardNavigationPrompt from '@components/site/KeyboardNavigationPrompt.svelte';
 import ProgressOverview from '@components/progress/ProgressOverview.svelte';
 import ProgressCardIndicators from '@components/progress/ProgressCardIndicators.svelte';
 import AtlasToaster from '@components/site/AtlasToaster.svelte';
@@ -47,7 +48,7 @@ if (
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" class="h-full overflow-hidden">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -119,21 +120,35 @@ if (
         });
 
         document.addEventListener('astro:before-preparation', (event) => {
-          const loader = document.getElementById('atlas-navigation-loader');
           const originalLoader = event.loader;
 
           event.loader = async () => {
+            const loader = document.getElementById('atlas-navigation-loader');
+            let visibleAt;
+
             const revealTimer = window.setTimeout(() => {
-              if (loader) {
-                loader.dataset.visible = 'true';
-                loader.setAttribute('aria-hidden', 'false');
-              }
+              if (!loader) return;
+
+              visibleAt = performance.now();
+              loader.dataset.visible = 'true';
+              loader.setAttribute('aria-hidden', 'false');
             }, 200);
 
             try {
               await originalLoader();
             } finally {
               window.clearTimeout(revealTimer);
+
+              if (visibleAt !== undefined) {
+                const remainingVisibleTime = 350 - (performance.now() - visibleAt);
+
+                if (remainingVisibleTime > 0) {
+                  await new Promise((resolve) => {
+                    window.setTimeout(resolve, remainingVisibleTime);
+                  });
+                }
+              }
+
               if (loader) {
                 delete loader.dataset.visible;
                 loader.setAttribute('aria-hidden', 'true');
@@ -152,10 +167,10 @@ if (
       }
     </script>
   </head>
-  <body>
+  <body class="h-full overflow-y-auto scroll-smooth">
     <a
       href="#main-content"
-      class="fixed left-4 top-4 z-[110] -translate-y-[calc(100%+1rem)] rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground shadow-md transition-transform focus:translate-y-0 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring motion-reduce:transition-none"
+      class="fixed left-4 top-4 z-[110] -translate-y-[calc(100%+1rem)] rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition-transform focus:translate-y-0 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring motion-reduce:transition-none"
     >
       Skip to content
     </a>
@@ -174,6 +189,7 @@ if (
     </div>
     <div class="mx-auto flex min-h-svh w-full max-w-6xl flex-col px-4 sm:px-6">
       <AtlasHeader client:load />
+      <KeyboardNavigationPrompt client:load />
       <div class="sticky top-[5.25rem] z-40 -mb-2">
         <ProgressOverview
           client:load

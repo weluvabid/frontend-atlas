@@ -11,15 +11,19 @@ related: []
 featured: false
 ---
 
-## Short answer
+A component does not always know how wide the screen is, and it often does not need to. A card inside a sidebar has less room than the same card on a full-width page. Container queries let the component respond to the space its parent gives it, while media queries remain useful for changes tied to the viewport.
+
+A component does not always know how wide the screen is, and it often does not need to. A card inside a sidebar has less room than the same card on a full-width page. Container queries let the component respond to the space its parent gives it, while media queries remain useful for changes tied to the viewport.
+
+## The quick version
 
 Prefer layouts that adapt intrinsically, then add breakpoints when the composition genuinely changes. Container queries let a component respond to the space it receives rather than the viewport alone.
 
-## Reason from first principles
+## Build the mental model
 
 A viewport breakpoint answers “how wide is the screen?” A container query answers “how much space does this component have?” Fluid functions such as `clamp()` interpolate within bounds.
 
-## A concrete example
+## See it in code
 
 ```css
 .card-grid {
@@ -30,24 +34,24 @@ A viewport breakpoint answers “how wide is the screen?” A container query an
 }
 ```
 
-## Boundary cases to reason through
+## Where it gets tricky
 
 A component can be narrow inside a wide viewport—for example, in a sidebar or split pane—so viewport-only media queries cannot describe its available space. Container queries solve that local constraint. Still test at 200% zoom and with text enlargement: a layout that only works at common device widths is not truly responsive.
 
-## Common misconception
+## A common misunderstanding
 
 Responsive design is not a set of device-specific widths.
 
-## Why this matters in production
+## What this changes in an application
 
 Test content extremes, localization, browser zoom, and nested layouts. Container queries are especially useful for reusable cards and embedded panels.
 
-## Interviewer follow-ups
+## Questions worth exploring next
 
 - When would you use `auto-fit` versus `auto-fill`?
 - What does `container-type: inline-size` establish?
 
-## Further reading
+## References and next steps
 
 - [Responsive design](https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/CSS_layout/Responsive_Design) — primary or authoritative documentation for the underlying behavior.
 - [MDN Web Docs](https://developer.mozilla.org/) — use the relevant API reference for adjacent browser details.

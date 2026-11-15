@@ -65,15 +65,18 @@
       return 0;
     }
 
+    const scrollContainer = document.body;
+    const scrollTop = scrollContainer.scrollTop;
+    const viewportHeight = scrollContainer.clientHeight;
     const bounds = article.getBoundingClientRect();
-    const articleTop = window.scrollY + bounds.top;
-    const scrollable = Math.max(0, article.scrollHeight - window.innerHeight);
+    const articleTop = scrollTop + bounds.top;
+    const scrollable = Math.max(0, article.scrollHeight - viewportHeight);
 
     if (scrollable === 0) {
-      return window.scrollY + window.innerHeight >= articleTop + article.scrollHeight ? 1 : 0;
+      return scrollTop + viewportHeight >= articleTop + article.scrollHeight ? 1 : 0;
     }
 
-    return Math.min(1, Math.max(0, (window.scrollY - articleTop) / scrollable));
+    return Math.min(1, Math.max(0, (scrollTop - articleTop) / scrollable));
   }
 
   function persist(force = false): void {
@@ -261,7 +264,7 @@
     });
 
     handleScroll();
-    window.addEventListener('scroll', handleScroll, { passive: true });
+    document.body.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('resize', handleScroll, { passive: true });
     window.addEventListener('pagehide', flush);
     document.addEventListener('visibilitychange', handleVisibilityChange);
@@ -274,7 +277,7 @@
 
       footerElement = null;
 
-      window.removeEventListener('scroll', handleScroll);
+      document.body.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleScroll);
       window.removeEventListener('pagehide', flush);
       document.removeEventListener('visibilitychange', handleVisibilityChange);

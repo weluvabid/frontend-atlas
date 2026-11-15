@@ -12,15 +12,19 @@ featured: true
 searchTerms: ['optimistic updates', 'mutation rollback', 'pending mutation']
 ---
 
-## Short answer
+A user clicks 'Like' and expects the button to respond immediately. Waiting for the server round trip makes the interface feel sluggish, so an application can update the screen first and send the request in the background. That is an optimistic update; the hard part is deciding what to do if the server rejects it or another update arrives first.
+
+A user clicks 'Like' and expects the button to respond immediately. Waiting for the server round trip makes the interface feel sluggish, so an application can update the screen first and send the request in the background. That is an optimistic update; the hard part is deciding what to do if the server rejects it or another update arrives first.
+
+## The quick version
 
 Apply a reversible local change, send the mutation, then reconcile with the authoritative response. On failure, restore or invalidate the affected state. Serialize or version overlapping mutations when order matters.
 
-## Reason from first principles
+## Build the mental model
 
 A naive rollback can overwrite a newer successful change. Capture a mutation ID or prior version, and only roll back if the optimistic version is still current. Idempotency keys help the server deduplicate retried mutations.
 
-## A concrete example
+## See it in code
 
 ```ts
 const mutationId = crypto.randomUUID();
@@ -33,24 +37,24 @@ try {
 }
 ```
 
-## Boundary cases to reason through
+## Where it gets tricky
 
 Suppose mutation A and mutation B both update the same record. If A fails after B succeeds, blindly restoring A’s old snapshot erases B. Associate optimistic writes with mutation/version identity and only roll back the state still owned by that mutation. Reconcile from authoritative server data after success, especially when the server normalizes values.
 
-## Common misconception
+## A common misunderstanding
 
 “Undo the previous value on error” is unsafe when concurrent updates are possible.
 
-## Why this matters in production
+## What this changes in an application
 
 Define conflict behavior, retry semantics, offline behavior, and user-visible pending/error states before shipping optimistic interactions.
 
-## Interviewer follow-ups
+## Questions worth exploring next
 
 - What if two saves race?
 - How do you handle a server response arriving out of order?
 
-## Further reading
+## References and next steps
 
 - [Optimistic updates](https://tanstack.com/query/latest/docs/framework/react/guides/optimistic-updates) — primary or authoritative documentation for the underlying behavior.
 - [MDN Web Docs](https://developer.mozilla.org/) — use the relevant API reference for adjacent browser details.

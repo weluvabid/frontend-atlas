@@ -11,15 +11,19 @@ related: ['csrf-and-cookie-security']
 featured: true
 ---
 
-## Short answer
+A frontend running at `app.example.com` may need data from `api.example.com`. The browser treats those as different origins, even though they share a parent domain. CORS is the server's way of telling the browser which cross-origin responses a page is allowed to read; it is not a general-purpose network permission system.
+
+A frontend running at `app.example.com` may need data from `api.example.com`. The browser treats those as different origins, even though they share a parent domain. CORS is the server's way of telling the browser which cross-origin responses a page is allowed to read; it is not a general-purpose network permission system.
+
+## The quick version
 
 CORS is a browser-enforced mechanism that lets a server opt in to cross-origin script access. For requests that are not safelisted, the browser sends an OPTIONS preflight to ask whether the method and headers are permitted.
 
-## Reason from first principles
+## Build the mental model
 
 CORS is not authentication and does not prevent a non-browser client from sending a request. A simple cross-origin request may reach the server even if JavaScript cannot read the response. Credentialed requests require explicit origin permission and `Access-Control-Allow-Credentials: true`; wildcard origin is invalid with credentials.
 
-## A concrete example
+## See it in code
 
 ```http
 Access-Control-Allow-Origin: https://app.example
@@ -27,24 +31,24 @@ Access-Control-Allow-Credentials: true
 Vary: Origin
 ```
 
-## Boundary cases to reason through
+## Where it gets tricky
 
 Preflight responses can be cached with `Access-Control-Max-Age`, subject to browser limits. Redirects, credentials, custom headers, and authorization headers can change the request path. CORS is enforced by browsers, so a command-line client succeeding does not prove browser access is configured correctly. The server must still authenticate and authorize every operation.
 
-## Common misconception
+## A common misunderstanding
 
 CORS errors do not prove that the server never received the request.
 
-## Why this matters in production
+## What this changes in an application
 
 Treat CORS as browser response-sharing policy. Enforce authorization and CSRF protections on the server independently.
 
-## Interviewer follow-ups
+## Questions worth exploring next
 
 - Which headers trigger preflight?
 - Why does `Vary: Origin` matter behind a CDN?
 
-## Further reading
+## References and next steps
 
 - [Cross-Origin Resource Sharing (CORS)](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) — primary or authoritative documentation for the underlying behavior.
 - [MDN Web Docs](https://developer.mozilla.org/) — use the relevant API reference for adjacent browser details.

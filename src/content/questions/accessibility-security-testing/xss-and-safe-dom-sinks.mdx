@@ -11,38 +11,42 @@ related: ['csrf-and-cookie-security']
 featured: true
 ---
 
-## Short answer
+If an application takes text from a user and inserts it into a page, the browser has to decide whether that text is data or markup. Treating untrusted text as markup can turn a comment, profile field or search result into executable code. Cross-site scripting (XSS) is the name for this class of bug.
+
+If an application takes text from a user and inserts it into a page, the browser has to decide whether that text is data or markup. Treating untrusted text as markup can turn a comment, profile field or search result into executable code. Cross-site scripting (XSS) is the name for this class of bug.
+
+## The quick version
 
 XSS occurs when attacker-controlled data is interpreted as executable markup or script in a trusted origin. Prefer text sinks such as `textContent`, context-aware framework escaping, and vetted sanitization when rich HTML is required.
 
-## Reason from first principles
+## Build the mental model
 
 Different contexts require different handling: HTML text, attributes, URLs, CSS, and JavaScript are not interchangeable. Avoid `innerHTML` with untrusted data. A Content Security Policy can reduce exploitability but does not replace safe rendering.
 
-## A concrete example
+## See it in code
 
 ```js
 messageElement.textContent = untrustedMessage;
 ```
 
-## Boundary cases to reason through
+## Where it gets tricky
 
 Sanitization must be appropriate for the output context and should use a maintained allowlist-based library when rich HTML is a requirement. URL attributes need scheme validation as well as HTML escaping. Treat stored content, markdown, postMessage payloads, and third-party data as untrusted. CSP and Trusted Types add defense in depth, not permission to use unsafe sinks.
 
-## Common misconception
+## A common misunderstanding
 
 “It came from our API” does not make content trusted; stored XSS often arrives through legitimate data paths.
 
-## Why this matters in production
+## What this changes in an application
 
 Review DOM sinks, URL handling, markdown renderers, third-party scripts, and postMessage origins. Use CSP and Trusted Types where feasible.
 
-## Interviewer follow-ups
+## Questions worth exploring next
 
 - Why is HTML escaping context-specific?
 - What does Trusted Types enforce?
 
-## Further reading
+## References and next steps
 
 - [Cross Site Scripting Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html) — primary or authoritative documentation for the underlying behavior.
 - [MDN Web Docs](https://developer.mozilla.org/) — use the relevant API reference for adjacent browser details.

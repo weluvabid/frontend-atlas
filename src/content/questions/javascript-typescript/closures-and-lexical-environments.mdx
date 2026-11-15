@@ -11,15 +11,19 @@ related: ['derived-state-and-single-source-of-truth']
 featured: true
 ---
 
-## Short answer
+A function can keep using a variable even after the code that created the function has finished running. That surprises people when they first encounter callbacks, event handlers or factory functions. A closure is simply a function together with access to the lexical environment in which it was created.
+
+A function can keep using a variable even after the code that created the function has finished running. That surprises people when they first encounter callbacks, event handlers or factory functions. A closure is simply a function together with access to the lexical environment in which it was created.
+
+## The quick version
 
 A closure is a function together with access to the lexical environment in which it was created. The environment remains alive while it is reachable through the closure.
 
-## Reason from first principles
+## Build the mental model
 
 The engine does not need to preserve an entire outer stack frame. It preserves the bindings that remain reachable. Closures observe bindings, not necessarily snapshots: if a captured binding changes, later calls can observe the new value.
 
-## A concrete example
+## See it in code
 
 ```js
 function counter() {
@@ -33,24 +37,24 @@ next(); // 2
 
 The returned function keeps the `value` binding reachable.
 
-## Boundary cases to reason through
+## Where it gets tricky
 
 The distinction between a binding and its current value matters in loops and callbacks. A `let` binding is created per loop iteration, while a `var` binding is shared by the containing function. Capturing a DOM node or large cache can keep its entire reachable graph alive; remove listeners and timers when their owner is disposed.
 
-## Common misconception
+## A common misunderstanding
 
 Closures do not automatically cause memory leaks. A leak occurs when something retains a closure or captured object longer than intended.
 
-## Why this matters in production
+## What this changes in an application
 
 Event listeners, timers, subscriptions, and cached callbacks can retain large object graphs. Cleanup is about removing unnecessary references, not avoiding closures.
 
-## Interviewer follow-ups
+## Questions worth exploring next
 
 - Why can a stale React callback happen?
 - How would you release a closure retained by an event listener?
 
-## Further reading
+## References and next steps
 
 - [Closures](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Closures) — primary or authoritative documentation for the underlying behavior.
 - [MDN Web Docs](https://developer.mozilla.org/) — use the relevant API reference for adjacent browser details.

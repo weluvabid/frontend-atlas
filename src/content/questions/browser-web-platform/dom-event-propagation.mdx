@@ -11,15 +11,19 @@ related: []
 featured: false
 ---
 
-## Short answer
+Click a button inside a card and both the button and the card may react. That is not necessarily two click events being fired. One event travels through a path of DOM elements, giving ancestors and descendants a chance to handle it. Understanding that path explains bubbling, capturing and event delegation.
+
+Click a button inside a card and both the button and the card may react. That is not necessarily two click events being fired. One event travels through a path of DOM elements, giving ancestors and descendants a chance to handle it. Understanding that path explains bubbling, capturing and event delegation.
+
+## The quick version
 
 An event travels through a propagation path: capture ancestors, reach the target, then bubble through ancestors when the event bubbles. Listeners can be registered for capture or bubble; not every event bubbles or is composed.
 
-## Reason from first principles
+## Build the mental model
 
 `event.target` is the originating target (subject to shadow-DOM retargeting); `event.currentTarget` is the node whose listener is executing. `stopPropagation` stops further traversal, while `preventDefault` cancels a cancelable default action.
 
-## A concrete example
+## See it in code
 
 ```js
 list.addEventListener('click', (event) => {
@@ -29,24 +33,24 @@ list.addEventListener('click', (event) => {
 });
 ```
 
-## Boundary cases to reason through
+## Where it gets tricky
 
 Delegation must account for nested interactive elements: `event.target` may be an icon or span inside the intended button, so resolve the nearest actionable ancestor and verify it belongs to the delegated container. Shadow DOM introduces retargeting; use `composedPath()` when the actual propagation path is relevant. Some events, such as `focus`, do not bubble in the same way as `focusin`.
 
-## Common misconception
+## A common misunderstanding
 
 Stopping propagation does not cancel a link’s default navigation; preventing default does not stop propagation.
 
-## Why this matters in production
+## What this changes in an application
 
 Delegation reduces listener count for dynamic lists, but requires careful target validation and keyboard semantics.
 
-## Interviewer follow-ups
+## Questions worth exploring next
 
 - What changes with `stopImmediatePropagation`?
 - How do shadow roots affect `composedPath()`?
 
-## Further reading
+## References and next steps
 
 - [Event bubbling and capture](https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Scripting/Event_bubbling) — primary or authoritative documentation for the underlying behavior.
 - [MDN Web Docs](https://developer.mozilla.org/) — use the relevant API reference for adjacent browser details.

@@ -11,15 +11,19 @@ related: ['abortcontroller-and-request-cancellation', 'resilient-network-state']
 featured: false
 ---
 
-## Short answer
+One asynchronous operation is easy to handle with a `.then()` or `await`. Real features usually involve several operations: some can run together, some depend on earlier results, and any of them can fail. Promise composition is about expressing those relationships without losing errors or leaving work running unnecessarily.
+
+One asynchronous operation is easy to handle with a `.then()` or `await`. Real features usually involve several operations: some can run together, some depend on earlier results, and any of them can fail. Promise composition is about expressing those relationships without losing errors or leaving work running unnecessarily.
+
+## The quick version
 
 Use `await` for dependent steps, `Promise.all` for independent work that must all succeed, and `Promise.allSettled` when each outcome must be inspected. Bound concurrency when fan-out can overwhelm a dependency.
 
-## Reason from first principles
+## Build the mental model
 
 `Promise.all` rejects as soon as one input rejects, but it does not cancel the other operations. A rejected aggregate is not rollback. If cancellation matters, propagate an `AbortSignal` to operations that support it.
 
-## A concrete example
+## See it in code
 
 ```js
 const [profile, settings] = await Promise.all([
@@ -28,24 +32,24 @@ const [profile, settings] = await Promise.all([
 ]);
 ```
 
-## Boundary cases to reason through
+## Where it gets tricky
 
 If one branch fails, decide whether sibling work should continue, be aborted, or produce partial output. `Promise.allSettled` is appropriate when every outcome matters; a concurrency limiter is appropriate when the input collection is large. Preserve the original error as a cause when adding domain context, and do not turn cancellation into a user-visible failure.
 
-## Common misconception
+## A common misunderstanding
 
 `Promise.all` does not make work transactional or automatically stop sibling requests.
 
-## Why this matters in production
+## What this changes in an application
 
 Unbounded `Promise.all(items.map(...))` can exhaust sockets, rate limits, memory, or downstream capacity. Use a concurrency limiter for large collections.
 
-## Interviewer follow-ups
+## Questions worth exploring next
 
 - How would you preserve partial results?
 - How would you cap concurrency at eight?
 
-## Further reading
+## References and next steps
 
 - [Using promises](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises) — primary or authoritative documentation for the underlying behavior.
 - [MDN Web Docs](https://developer.mozilla.org/) — use the relevant API reference for adjacent browser details.

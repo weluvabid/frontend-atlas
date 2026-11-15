@@ -13,7 +13,11 @@ featured: false
 searchTerms: ['stale response', 'out of order requests', 'latest request wins']
 ---
 
-## Short answer
+Type `c`, then `ca`, then `cat` into a search box. Three requests may be in flight at once, and the response for `c` could arrive last. If every response updates the screen, the user ends up seeing results for an older query. The request lifecycle needs a rule for which response is still allowed to change the UI.
+
+Type `c`, then `ca`, then `cat` into a search box. Three requests may be in flight at once, and the response for `c` could arrive last. If every response updates the screen, the user ends up seeing results for an older query. The request lifecycle needs a rule for which response is still allowed to change the UI.
+
+## The quick version
 
 Treat every user-triggered request as part of a small lifecycle: schedule → maybe debounce → fire → possibly abort → apply only if still current. Debouncing reduces traffic. AbortController cancels work the browser can cancel. A sequence token (or request identity) is what actually protects the UI from applying a stale response. Latest-wins is the default policy for most interactive surfaces; some domains need more careful merge or conflict rules.
 
@@ -86,7 +90,7 @@ A few details that separate a solid implementation from a fragile one:
 - Decide what happens to the previously shown data while a new request is in flight. Some UIs keep the old data visible; others clear it. Both are valid — just be deliberate.
 - If the same component can be driven by both user input and external updates (URL, parent props), make sure both paths go through the same lifecycle.
 
-## Boundary cases
+## Where it gets tricky
 
 **Out-of-order responses without abort.**  
 Even with a sequence token, you should still abort when you can. It saves bandwidth and avoids unnecessary work on the server and in response parsing.
@@ -103,7 +107,7 @@ Search in the header and a filter on the main list should not share a single seq
 **Caching layers.**  
 A cache can return a stale value that looks like a successful response. If you put a cache in front of the network, the sequence / identity rules still apply to whatever ends up calling `setData`.
 
-## Common misconceptions
+## A common misunderstandings
 
 - “Debounce is enough.”  
   It only limits how often you _start_ work. Responses can still arrive out of order.
@@ -114,20 +118,20 @@ A cache can return a stale value that looks like a successful response. If you p
 - “I can just check `if (query === currentQuery)`.”  
   That works only while the query string is the sole identity of the request. As soon as the same query can be requested for different reasons, or you have pagination / filters / sort order, a proper sequence or request id is safer.
 
-## Why this matters in production
+## What this changes in an application
 
 Users notice when a list flickers back to old results or when a search box briefly shows the wrong set of matches. These bugs are often intermittent and hard to reproduce, which makes them expensive. Building the lifecycle once, correctly, removes a whole class of issues from every feature that talks to the network in response to user input.
 
 It also makes testing easier. You can mock slow responses, assert that older ones are ignored, and verify that abort paths do not surface as errors.
 
-## Interviewer follow-ups
+## Questions worth exploring next
 
 - How would you adapt this for a paginated infinite list where the user can change filters while pages are loading?
 - What changes if two different parts of the UI can trigger the same underlying query?
 - How do you test that a slow response for query A does not overwrite results for query B?
 - When would “latest wins” be the wrong policy?
 
-## Further reading
+## References and next steps
 
 - [AbortController on MDN](https://developer.mozilla.org/en-US/docs/Web/API/AbortController) — the cancellation primitive.
 - [Race conditions in UI](https://blog.uxdesign.cc/race-conditions-in-ui-8f4b4b4b4b4b) — useful framing even if the examples are not React-specific (search for recent practical write-ups on request identity patterns).
