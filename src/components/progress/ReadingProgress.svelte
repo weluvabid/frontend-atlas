@@ -170,13 +170,22 @@
   }
 
   function flush(): void {
-    if (trackingPaused || persistTimer === undefined) {
+    if (trackingPaused || (frame === 0 && persistTimer === undefined)) {
       return;
     }
 
-    window.clearTimeout(persistTimer);
+    if (frame !== 0) {
+      window.cancelAnimationFrame(frame);
 
-    persistTimer = undefined;
+      frame = 0;
+      position = Math.max(position, measure());
+    }
+
+    if (persistTimer !== undefined) {
+      window.clearTimeout(persistTimer);
+
+      persistTimer = undefined;
+    }
 
     persist(true);
   }

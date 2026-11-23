@@ -17,8 +17,6 @@ and can move between devices using a QR image.
 
 **Live site:** <https://weluvabid.github.io/frontend-atlas/>
 
-**Source:** <https://github.com/weluvabid/frontend-atlas>
-
 ## What is in here?
 
 - Eight topic areas covering the frontend stack, from language fundamentals to system design.

@@ -1,7 +1,6 @@
 # What's next?
 
-This is not a roadmap. There are no dates hiding in here, and none of these ideas is a promise. It is
-just a list of things I'd like to try if they still sound useful when I get around to them.
+These are a few ideas I'd like to explore as the handbook grows.
 
 ## Favourites
 
