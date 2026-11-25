@@ -13,8 +13,6 @@ featured: false
 
 A multi-step flow looks like a sequence of screens, but the user's progress may outlive a component, a browser tab or even a device. Payment and onboarding flows also have consequences on the server that cannot be undone by moving the UI back one step. The design needs to distinguish temporary screen state from the authoritative workflow state.
 
-A multi-step flow looks like a sequence of screens, but the user's progress may outlive a component, a browser tab or even a device. Payment and onboarding flows also have consequences on the server that cannot be undone by moving the UI back one step. The design needs to distinguish temporary screen state from the authoritative workflow state.
-
 ## The quick version
 
 Represent the workflow as explicit steps and transitions, persist only what is safe and necessary, and let the server remain authoritative for committed business operations. Each transition needs validation and a recovery path.

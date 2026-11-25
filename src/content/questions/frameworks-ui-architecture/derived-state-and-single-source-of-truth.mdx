@@ -13,8 +13,6 @@ featured: false
 
 Suppose a page stores a list of products and also stores the number of products in that list. Every time the list changes, the count must change too. If one update is missed, the UI contradicts itself. Derived state avoids this kind of drift by calculating values from the data they describe.
 
-Suppose a page stores a list of products and also stores the number of products in that list. Every time the list changes, the count must change too. If one update is missed, the UI contradicts itself. Derived state avoids this kind of drift by calculating values from the data they describe.
-
 ## The quick version
 
 Store the minimal state needed to represent user intent; derive values that can be computed from it. Duplicating derived data creates multiple sources of truth that must be kept synchronized.

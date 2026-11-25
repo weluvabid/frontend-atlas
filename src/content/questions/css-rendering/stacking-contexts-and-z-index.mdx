@@ -13,8 +13,6 @@ featured: true
 
 Setting `z-index: 999999` does not guarantee that an element will appear above everything else. CSS paints elements inside stacking contexts, which behave like groups in the larger page. If two elements belong to different groups, increasing a child's `z-index` cannot make it escape its parent's place in the stack.
 
-Setting `z-index: 999999` does not guarantee that an element will appear above everything else. CSS paints elements inside stacking contexts, which behave like groups in the larger page. If two elements belong to different groups, increasing a child's `z-index` cannot make it escape its parent's place in the stack.
-
 ## The quick version
 
 A z-index is compared within its stacking context. A descendant cannot escape its ancestor stacking context to outrank a sibling context, regardless of how large its own z-index is.

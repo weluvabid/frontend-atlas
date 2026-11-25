@@ -14,8 +14,6 @@ searchTerms: ['focus trap', 'restore focus', 'keyboard focus']
 
 Keyboard users do not move through a page by looking at it; they move through the browser's focus order. When a dialog opens, a menu expands or a route changes, the focus position needs to make sense in the new context. Focus management is the work of moving focus when necessary and restoring it when the interaction ends.
 
-Keyboard users do not move through a page by looking at it; they move through the browser's focus order. When a dialog opens, a menu expands or a route changes, the focus position needs to make sense in the new context. Focus management is the work of moving focus when necessary and restoring it when the interaction ends.
-
 ## The quick version
 
 Focus is part of the application’s state, not an afterthought. When you open a modal or drawer you must move focus into it, keep it there while the overlay is open (a focus trap), and restore focus to a sensible place when the overlay closes. Dynamic content that appears or disappears needs the same care — otherwise keyboard and screen-reader users lose their place or get stuck.

@@ -13,8 +13,6 @@ featured: true
 
 If an application takes text from a user and inserts it into a page, the browser has to decide whether that text is data or markup. Treating untrusted text as markup can turn a comment, profile field or search result into executable code. Cross-site scripting (XSS) is the name for this class of bug.
 
-If an application takes text from a user and inserts it into a page, the browser has to decide whether that text is data or markup. Treating untrusted text as markup can turn a comment, profile field or search result into executable code. Cross-site scripting (XSS) is the name for this class of bug.
-
 ## The quick version
 
 XSS occurs when attacker-controlled data is interpreted as executable markup or script in a trusted origin. Prefer text sinks such as `textContent`, context-aware framework escaping, and vetted sanitization when rich HTML is required.

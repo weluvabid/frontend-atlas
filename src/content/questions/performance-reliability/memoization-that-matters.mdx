@@ -14,8 +14,6 @@ searchTerms: ['usememo', 'usecallback', 'referential equality', 'cache expensive
 
 Memoization means keeping the result of a calculation so the next call with the same inputs can reuse it. In a UI, that can avoid expensive work or unnecessary renders, but it also adds bookkeeping and can preserve stale values when dependencies are wrong. The useful question is not 'can this be memoized?' but 'is this work expensive enough to justify remembering it?'.
 
-Memoization means keeping the result of a calculation so the next call with the same inputs can reuse it. In a UI, that can avoid expensive work or unnecessary renders, but it also adds bookkeeping and can preserve stale values when dependencies are wrong. The useful question is not 'can this be memoized?' but 'is this work expensive enough to justify remembering it?'.
-
 ## The quick version
 
 Memoization is worth it when the work you skip is expensive _and_ you can prove the inputs are stable enough that the cache hits. It is not worth it for cheap calculations, for values that change every render, or as a default habit. Prefer fixing the data flow (who re-renders and why) before sprinkling memo APIs everywhere.

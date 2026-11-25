@@ -14,8 +14,6 @@ searchTerms: ['forced reflow', 'layout thrashing', 'layout invalidation']
 
 A page can have very little JavaScript and still feel sluggish. Reading layout information after changing styles can force the browser to calculate layout immediately, and repeating that pattern creates layout thrashing. The fix starts with understanding which DOM operations trigger work and measuring the interaction that feels slow.
 
-A page can have very little JavaScript and still feel sluggish. Reading layout information after changing styles can force the browser to calculate layout immediately, and repeating that pattern creates layout thrashing. The fix starts with understanding which DOM operations trigger work and measuring the interaction that feels slow.
-
 ## The quick version
 
 Thrashing happens when the browser is forced to recalculate style or layout repeatedly inside a short window — often because JavaScript alternates writes and reads of geometry, or because style changes invalidate large parts of the tree more often than necessary. The fix is usually batching reads and writes, reducing the scope of invalidation, and preferring properties that the compositor can update without layout or paint.

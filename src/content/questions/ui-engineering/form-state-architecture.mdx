@@ -14,8 +14,6 @@ searchTerms: ['dirty fields', 'submission lifecycle', 'field values']
 
 Forms collect user input, but the state around that input grows quickly: touched fields, validation messages, submission status, server errors and unsaved changes. If those values are scattered across unrelated components, small interactions become hard to coordinate. A form architecture gives each piece of state a clear owner and lifecycle.
 
-Forms collect user input, but the state around that input grows quickly: touched fields, validation messages, submission status, server errors and unsaved changes. If those values are scattered across unrelated components, small interactions become hard to coordinate. A form architecture gives each piece of state a clear owner and lifecycle.
-
 ## The quick version
 
 Controlled vs uncontrolled only answers “who owns the input value.” Real forms need more: dirty state, touched state, validation timing, client vs server errors, submission lifecycle, and often progressive enhancement. Treat the form as a small state machine with clear transitions instead of a bag of input values and a boolean `isSubmitting`.

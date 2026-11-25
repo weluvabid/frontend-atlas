@@ -13,8 +13,6 @@ featured: true
 
 A frontend running at `app.example.com` may need data from `api.example.com`. The browser treats those as different origins, even though they share a parent domain. CORS is the server's way of telling the browser which cross-origin responses a page is allowed to read; it is not a general-purpose network permission system.
 
-A frontend running at `app.example.com` may need data from `api.example.com`. The browser treats those as different origins, even though they share a parent domain. CORS is the server's way of telling the browser which cross-origin responses a page is allowed to read; it is not a general-purpose network permission system.
-
 ## The quick version
 
 CORS is a browser-enforced mechanism that lets a server opt in to cross-origin script access. For requests that are not safelisted, the browser sends an OPTIONS preflight to ask whether the method and headers are permitted.

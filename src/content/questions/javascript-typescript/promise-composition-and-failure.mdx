@@ -13,8 +13,6 @@ featured: false
 
 One asynchronous operation is easy to handle with a `.then()` or `await`. Real features usually involve several operations: some can run together, some depend on earlier results, and any of them can fail. Promise composition is about expressing those relationships without losing errors or leaving work running unnecessarily.
 
-One asynchronous operation is easy to handle with a `.then()` or `await`. Real features usually involve several operations: some can run together, some depend on earlier results, and any of them can fail. Promise composition is about expressing those relationships without losing errors or leaving work running unnecessarily.
-
 ## The quick version
 
 Use `await` for dependent steps, `Promise.all` for independent work that must all succeed, and `Promise.allSettled` when each outcome must be inspected. Bound concurrency when fan-out can overwhelm a dependency.

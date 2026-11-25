@@ -13,8 +13,6 @@ featured: true
 
 Search looks like an input and a list of results, but the experience begins before the first character is typed and continues after results appear. Empty queries, slow responses, no matches, keyboard navigation and stale results all shape whether search feels dependable. The architecture needs to account for those states, not only the ranking function.
 
-Search looks like an input and a list of results, but the experience begins before the first character is typed and continues after results appear. Empty queries, slow responses, no matches, keyboard navigation and stale results all shape whether search feels dependable. The architecture needs to account for those states, not only the ranking function.
-
 ## The quick version
 
 For a static content corpus, generate a compact search index at build time and query it client-side. For large or frequently changing corpora, consider a dedicated search service. The design should preserve shareable query state and accessible result navigation.

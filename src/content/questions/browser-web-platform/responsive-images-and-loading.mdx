@@ -14,8 +14,6 @@ searchTerms: ['srcset sizes', 'image optimization', 'largest contentful paint', 
 
 A phone with a narrow screen usually does not need the same image file as a large desktop display. Sending one oversized asset wastes bandwidth, while choosing an image that is too small makes it look blurry. HTML gives the browser hints about available image sizes so it can make a sensible choice for the actual layout and device.
 
-A phone with a narrow screen usually does not need the same image file as a large desktop display. Sending one oversized asset wastes bandwidth, while choosing an image that is too small makes it look blurry. HTML gives the browser hints about available image sizes so it can make a sensible choice for the actual layout and device.
-
 ## The quick version
 
 Give the browser enough information to pick the right resource and reserve space before the image arrives. Use `srcset` + `sizes` (or `<picture>`) for resolution and art direction, set explicit dimensions or aspect-ratio to avoid layout shift, lazy-load below-the-fold images, and reserve `fetchpriority="high"` (and avoid lazy loading) for the LCP image. Format and compression still matter; the loading strategy cannot fix a multi-megabyte asset.

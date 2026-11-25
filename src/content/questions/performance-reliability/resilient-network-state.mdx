@@ -14,8 +14,6 @@ searchTerms: ['network offline', 'connection recovery', 'retry backoff']
 
 A request can fail because the user is offline, the server is unavailable, a timeout expires or the response is invalid. Those failures do not all mean the same thing, and a single generic error message rarely helps someone recover. A resilient interface models the network state and gives each failure a sensible next step.
 
-A request can fail because the user is offline, the server is unavailable, a timeout expires or the response is invalid. Those failures do not all mean the same thing, and a single generic error message rarely helps someone recover. A resilient interface models the network state and gives each failure a sensible next step.
-
 ## The quick version
 
 A resilient UI communicates what is happening, preserves useful stale data when safe, retries only retryable operations, and prevents duplicate mutations. Reads and writes require different retry policies.

@@ -15,8 +15,6 @@ searchTerms: ['stale response', 'out of order requests', 'latest request wins']
 
 Type `c`, then `ca`, then `cat` into a search box. Three requests may be in flight at once, and the response for `c` could arrive last. If every response updates the screen, the user ends up seeing results for an older query. The request lifecycle needs a rule for which response is still allowed to change the UI.
 
-Type `c`, then `ca`, then `cat` into a search box. Three requests may be in flight at once, and the response for `c` could arrive last. If every response updates the screen, the user ends up seeing results for an older query. The request lifecycle needs a rule for which response is still allowed to change the UI.
-
 ## The quick version
 
 Treat every user-triggered request as part of a small lifecycle: schedule → maybe debounce → fire → possibly abort → apply only if still current. Debouncing reduces traffic. AbortController cancels work the browser can cancel. A sequence token (or request identity) is what actually protects the UI from applying a stale response. Latest-wins is the default policy for most interactive surfaces; some domains need more careful merge or conflict rules.

@@ -14,8 +14,6 @@ searchTerms: ['combobox', 'typeahead', 'autocomplete keyboard navigation']
 
 An autocomplete combines a text input with a changing list of suggestions. It looks small, but keyboard focus, screen-reader announcements, pointer selection and asynchronous results all have to agree about which option is active. The challenge is to make the interaction predictable without taking control away from the browser or assistive technology.
 
-An autocomplete combines a text input with a changing list of suggestions. It looks small, but keyboard focus, screen-reader announcements, pointer selection and asynchronous results all have to agree about which option is active. The challenge is to make the interaction predictable without taking control away from the browser or assistive technology.
-
 ## The quick version
 
 Treat autocomplete as a small interaction system, not an input with a dropdown glued on. Keep four pieces of state independent: the text the user is editing, the actual selected value, which option is active for keyboard navigation, and the in-flight request. Implement the WAI-ARIA combobox pattern properly, support the expected keyboard model, and make sure only the latest request can update the results.

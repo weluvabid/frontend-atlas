@@ -14,8 +14,6 @@ searchTerms: ['style recalculation', 'layout paint composite', 'critical renderi
 
 Changing a style in JavaScript does not put pixels on the screen immediately. The browser has several stages to get through: it works out which styles apply, calculates layout, paints content and composites layers into a frame. Knowing which stage your code triggers makes performance problems much easier to diagnose.
 
-Changing a style in JavaScript does not put pixels on the screen immediately. The browser has several stages to get through: it works out which styles apply, calculates layout, paints content and composites layers into a frame. Knowing which stage your code triggers makes performance problems much easier to diagnose.
-
 ## The quick version
 
 A change to the DOM or to styles can invalidate one or more stages of the rendering pipeline. The browser only re-runs the stages that are actually dirty. Geometry changes usually force layout and paint. Some property changes can skip layout. A few properties (primarily `transform` and `opacity` on their own layer) can often be updated by the compositor without repainting. “GPU accelerated” is not free and is not a guarantee of better performance.

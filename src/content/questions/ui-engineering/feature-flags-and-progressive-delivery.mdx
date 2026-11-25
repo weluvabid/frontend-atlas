@@ -14,8 +14,6 @@ searchTerms: ['feature toggle', 'gradual rollout', 'canary release', 'kill switc
 
 A feature flag lets an application choose between behaviours without requiring a new deployment for every change. That makes gradual rollouts and quick rollback possible, but it also adds another source of runtime configuration. Flags need ownership, predictable evaluation and a removal plan or temporary switches become permanent complexity.
 
-A feature flag lets an application choose between behaviours without requiring a new deployment for every change. That makes gradual rollouts and quick rollback possible, but it also adds another source of runtime configuration. Flags need ownership, predictable evaluation and a removal plan or temporary switches become permanent complexity.
-
 ## The quick version
 
 Feature flags let you ship code dark, turn it on for a subset of users, and roll back without a redeploy. On the frontend they are more than `if (flag) renderNewThing()`. You need a clear evaluation source, consistent targeting, a plan for loading states when the flag is unknown, and a discipline for removing flags once the feature is fully on or fully off. Without that, the client becomes a graveyard of permanent conditionals.

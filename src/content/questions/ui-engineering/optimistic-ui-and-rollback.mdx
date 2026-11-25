@@ -14,8 +14,6 @@ searchTerms: ['optimistic updates', 'mutation rollback', 'pending mutation']
 
 A user clicks 'Like' and expects the button to respond immediately. Waiting for the server round trip makes the interface feel sluggish, so an application can update the screen first and send the request in the background. That is an optimistic update; the hard part is deciding what to do if the server rejects it or another update arrives first.
 
-A user clicks 'Like' and expects the button to respond immediately. Waiting for the server round trip makes the interface feel sluggish, so an application can update the screen first and send the request in the background. That is an optimistic update; the hard part is deciding what to do if the server rejects it or another update arrives first.
-
 ## The quick version
 
 Apply a reversible local change, send the mutation, then reconcile with the authoritative response. On failure, restore or invalidate the affected state. Serialize or version overlapping mutations when order matters.

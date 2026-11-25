@@ -14,8 +14,6 @@ searchTerms: ['cancel fetch', 'abort fetch', 'request abort']
 
 A user changes a search query while the previous request is still running. The old request may no longer be useful, but the browser will not guess that for you. `AbortController` gives your code a way to signal that work should stop and lets APIs such as `fetch` respond to that signal.
 
-A user changes a search query while the previous request is still running. The old request may no longer be useful, but the browser will not guess that for you. `AbortController` gives your code a way to signal that work should stop and lets APIs such as `fetch` respond to that signal.
-
 ## The quick version
 
 Create an AbortController per logical operation and pass its signal to APIs that support cancellation. Abort when the result is no longer needed, such as on navigation, component teardown, or a newer search query.

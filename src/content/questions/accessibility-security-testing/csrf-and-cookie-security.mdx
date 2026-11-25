@@ -13,8 +13,6 @@ featured: false
 
 Imagine a user is signed in to your application and opens a page controlled by an attacker. That page cannot read the user's session cookie, but it may still be able to make the browser send a request to your site. That gap between reading a credential and causing it to be used is where cross-site request forgery (CSRF) begins.
 
-Imagine a user is signed in to your application and opens a page controlled by an attacker. That page cannot read the user's session cookie, but it may still be able to make the browser send a request to your site. That gap between reading a credential and causing it to be used is where cross-site request forgery (CSRF) begins.
-
 ## Short answer
 
 Browsers automatically attach matching cookies to requests, which creates CSRF risk for state-changing endpoints. Use appropriate SameSite settings plus server-side CSRF defenses such as tokens and Origin/Referer validation according to the threat model.

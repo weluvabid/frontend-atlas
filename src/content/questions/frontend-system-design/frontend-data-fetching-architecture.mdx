@@ -14,8 +14,6 @@ searchTerms: ['data fetching', 'server state', 'client cache', 'query cache']
 
 A component can call `fetch` directly and display the result. That is fine until several screens need the same data, requests race, caching matters or errors need consistent handling. Data-fetching architecture is about deciding where requests live and how loading, freshness, cancellation and failure move through the application.
 
-A component can call `fetch` directly and display the result. That is fine until several screens need the same data, requests race, caching matters or errors need consistent handling. Data-fetching architecture is about deciding where requests live and how loading, freshness, cancellation and failure move through the application.
-
 ## The quick version
 
 Treat server state as a cache of remote authority, not as ordinary local UI state. Centralize request identity, caching, deduplication, invalidation, cancellation, and mutation reconciliation in a mature data-fetching library.

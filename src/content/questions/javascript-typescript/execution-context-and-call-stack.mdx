@@ -13,8 +13,6 @@ featured: true
 
 When one function calls another, JavaScript needs to remember where to return when the inner function finishes. It does that with the call stack. An execution context holds the information needed while a piece of code runs, including its local bindings and the value of `this` where applicable.
 
-When one function calls another, JavaScript needs to remember where to return when the inner function finishes. It does that with the call stack. An execution context holds the information needed while a piece of code runs, including its local bindings and the value of `this` where applicable.
-
 ## The quick version
 
 A function call creates an execution context, establishes its environment and `this` binding, then evaluates its body. The engine tracks active calls on the execution stack; returning or throwing removes the current frame.

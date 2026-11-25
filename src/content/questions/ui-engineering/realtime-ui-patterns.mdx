@@ -14,8 +14,6 @@ searchTerms: ['websocket reconnect', 'live updates', 'server sent events', 'sse'
 
 A WebSocket connection can deliver updates as they happen, but an open socket does not guarantee that the client has the latest state. Phones sleep, networks change and servers restart. A realtime interface needs to handle reconnecting, missed messages and reconciliation with the server, not only the happy path where the connection stays open.
 
-A WebSocket connection can deliver updates as they happen, but an open socket does not guarantee that the client has the latest state. Phones sleep, networks change and servers restart. A realtime interface needs to handle reconnecting, missed messages and reconciliation with the server, not only the happy path where the connection stays open.
-
 ## The quick version
 
 Realtime UI is a state machine on top of an unreliable channel. Model connection status explicitly, reconnect with backoff, make messages idempotent or ordered where it matters, and decide what the user sees when the link drops mid-action. Optimistic updates help perceived speed; they need a clear rollback or reconciliation path when the server disagrees or the message never lands.

@@ -13,8 +13,6 @@ featured: false
 
 The browser cannot respond to input while a long JavaScript task occupies the main thread. Even code that is doing useful work can make scrolling and typing feel broken if it runs for too long without yielding. Cooperative scheduling breaks work into smaller pieces so the browser gets opportunities to handle other tasks.
 
-The browser cannot respond to input while a long JavaScript task occupies the main thread. Even code that is doing useful work can make scrolling and typing feel broken if it runs for too long without yielding. Cooperative scheduling breaks work into smaller pieces so the browser gets opportunities to handle other tasks.
-
 ## The quick version
 
 The main thread must process input, script, style, layout, and paint. Long uninterrupted tasks delay all of them. Chunk work and yield between chunks, or move isolated CPU work to a Web Worker.

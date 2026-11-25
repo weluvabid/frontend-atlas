@@ -14,8 +14,6 @@ searchTerms: ['error boundary', 'unhandled rejection', 'global error handler']
 
 An error in one part of an application does not always need to take down the whole page. A failed image, a rejected request and a render-time exception have different recovery options. Good error handling starts by deciding where each failure should appear and what the user can do next.
 
-An error in one part of an application does not always need to take down the whole page. A failed image, a rejected request and a render-time exception have different recovery options. Good error handling starts by deciding where each failure should appear and what the user can do next.
-
 ## The quick version
 
 Treat different failure kinds as different surfaces. Error boundaries catch render-time failures in the component tree and let you show a fallback UI. Global handlers catch uncaught async errors and crashes that escape the tree. Toasts and inline messages are for recoverable, user-facing problems that should not unmount whole sections of the page. Wire them so they do not double-report, swallow each other, or leave the app in a dead state.

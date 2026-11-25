@@ -13,8 +13,6 @@ featured: false
 
 Uploading a file is not one operation from the user's point of view. The file may need validation, transfer, server-side processing and confirmation before it is actually usable. Networks drop, tabs close and users retry, so a good upload flow has to know which stage completed and how to resume without duplicating work.
 
-Uploading a file is not one operation from the user's point of view. The file may need validation, transfer, server-side processing and confirmation before it is actually usable. Networks drop, tabs close and users retry, so a good upload flow has to know which stage completed and how to resume without duplicating work.
-
 ## The quick version
 
 Validate file metadata for user feedback, but enforce type, size, authorization, and content safety on the server. Model upload lifecycle explicitly and make retry/cancel behavior clear.

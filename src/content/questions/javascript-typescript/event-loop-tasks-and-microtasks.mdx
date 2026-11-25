@@ -13,8 +13,6 @@ featured: true
 
 JavaScript usually runs your code on one main thread in the browser. So how can a page respond to clicks while waiting for a network request? The event loop coordinates when queued callbacks run. Tasks and microtasks are two different queues in that scheduling process, and their order affects what happens before the browser gets a chance to render.
 
-JavaScript usually runs your code on one main thread in the browser. So how can a page respond to clicks while waiting for a network request? The event loop coordinates when queued callbacks run. Tasks and microtasks are two different queues in that scheduling process, and their order affects what happens before the browser gets a chance to render.
-
 ## The quick version
 
 A task runs to completion. After it finishes, the browser drains the microtask queue completely (including any microtasks that were queued while draining). Only then can it consider a rendering opportunity or pick up the next task. Rendering is not guaranteed after every task — a long task or a microtask queue that never empties can delay paint indefinitely.

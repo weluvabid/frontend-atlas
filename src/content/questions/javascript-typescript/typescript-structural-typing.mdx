@@ -13,8 +13,6 @@ featured: false
 
 In TypeScript, two values can be compatible even when their types have different names. The compiler looks at the shape of the value: which properties and methods are available. This is structural typing, and it explains both the flexibility of TypeScript interfaces and some of its less obvious assignability rules.
 
-In TypeScript, two values can be compatible even when their types have different names. The compiler looks at the shape of the value: which properties and methods are available. This is structural typing, and it explains both the flexibility of TypeScript interfaces and some of its less obvious assignability rules.
-
 ## The quick version
 
 Two types are compatible when their required members are structurally compatible; nominal names are generally not required. Excess-property checks add a useful freshness check for object literals, but they are not a general exact-object type system.

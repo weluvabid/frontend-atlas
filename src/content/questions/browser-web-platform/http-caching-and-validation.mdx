@@ -14,8 +14,6 @@ searchTerms: ['etag', '304 not modified', 'cache headers', 'browser cache']
 
 When a user visits the same page twice, downloading every image, script and response again would waste time and bandwidth. HTTP caching lets the browser reuse a previous response when it is still valid. Validators such as ETags also let the browser ask whether a stored response has changed without downloading the whole thing again.
 
-When a user visits the same page twice, downloading every image, script and response again would waste time and bandwidth. HTTP caching lets the browser reuse a previous response when it is still valid. Validators such as ETags also let the browser ask whether a stored response has changed without downloading the whole thing again.
-
 ## The quick version
 
 A fresh cached response can be reused without contacting the origin. A stale response may be revalidated with validators such as ETag or Last-Modified; the server can respond `304 Not Modified`. Cache directives control reuse and storage.

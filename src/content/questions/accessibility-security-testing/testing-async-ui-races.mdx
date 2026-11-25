@@ -13,8 +13,6 @@ featured: false
 
 Async UI tests often pass on a developer's machine and fail in CI because the test relies on timing it does not control. A request can finish before or after another request, and both orders are possible in a real application. A useful test makes that ordering explicit instead of hoping the scheduler behaves a certain way.
 
-Async UI tests often pass on a developer's machine and fail in CI because the test relies on timing it does not control. A request can finish before or after another request, and both orders are possible in a real application. A useful test makes that ordering explicit instead of hoping the scheduler behaves a certain way.
-
 ## The quick version
 
 Use deferred promises or controllable network handlers to force the ordering under test. Assert that stale results cannot overwrite newer state and that cancellation/error states are handled correctly.

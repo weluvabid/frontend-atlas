@@ -14,8 +14,6 @@ searchTerms: ['windowing', 'virtual scrolling', 'infinite list performance']
 
 Rendering thousands of rows can make a page slow even when each row is simple. The browser still has to create, style and lay out every DOM node. Virtualization keeps only the visible rows, plus a small buffer, in the DOM while preserving the illusion of a much larger list.
 
-Rendering thousands of rows can make a page slow even when each row is simple. The browser still has to create, style and lay out every DOM node. Virtualization keeps only the visible rows, plus a small buffer, in the DOM while preserving the illusion of a much larger list.
-
 ## The quick version
 
 Virtualization renders only the visible window plus overscan. It is valuable when DOM size and rendering work become a measured bottleneck; it is unnecessary overhead for modest lists.

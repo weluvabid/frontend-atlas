@@ -13,8 +13,6 @@ featured: false
 
 Click a button inside a card and both the button and the card may react. That is not necessarily two click events being fired. One event travels through a path of DOM elements, giving ancestors and descendants a chance to handle it. Understanding that path explains bubbling, capturing and event delegation.
 
-Click a button inside a card and both the button and the card may react. That is not necessarily two click events being fired. One event travels through a path of DOM elements, giving ancestors and descendants a chance to handle it. Understanding that path explains bubbling, capturing and event delegation.
-
 ## The quick version
 
 An event travels through a propagation path: capture ancestors, reach the target, then bubble through ancestors when the event bubbles. Listeners can be registered for capture or bubble; not every event bubbles or is composed.
